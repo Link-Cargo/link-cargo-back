@@ -50,7 +50,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/spring-boot-server
 
-      - name: Deploy to AWS EC@
+      - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.AWS_HOST_IP}}
