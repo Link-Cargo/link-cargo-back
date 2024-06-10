@@ -34,7 +34,7 @@ jobs:
         uses: gradle/gradle-build-action@v2.6.0
         with:
           arguments: clean build
-
+      # 경로 확인
       - name: Verify JAR file
         run: ls build/libs/*.jar
 
