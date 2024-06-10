@@ -1,25 +1,26 @@
+# 워크플로우 이름
 name: Java CI with Gradle
 
+# 워크플로우 실행 조건
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
+# 워크플로우가 깃 레포에 대한 권한 설정
 permissions:
   contents: read
 
+# 워크플로우 작업 정의
 jobs:
+  # 빌드 작업
   build:
     runs-on: ubuntu-latest
 
+    # 작업 단계
     steps:
       - uses: actions/checkout@v3
-
-      - name: Create application.yml
-        run: |
-          echo "${{ secrets.APPLICATION_YML }}" > application.yml
-        shell: bash
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -32,18 +33,34 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
-  # deploy
+
+      # 빌드된 JAR 파일을 아티팩트로 업로드
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: LinkCargoServer
+          path: build/libs/linkcargo-0.0.1-SNAPSHOT.jar
+
+  # 배포 작업
   deploy:
     needs: build
     runs-on: ubuntu-latest
 
+    # 빌드된 JAR 파일을 다운로드하여 배포
     steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: LinkCargoServer
+          path: build/libs/
+
+      # 다운로드된 JAR 파일을 사용하여 배포 작업 실행
       - name: Deploy to EC2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: | 
+        run: |
           echo "${{ secrets.AWS_EC2_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
           scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/linkcargo-0.0.1-SNAPSHOT.jar ${{ secrets.AWS_HOST_USER }}@${{ secrets.AWS_HOST_IP }}:/home/${{ secrets.AWS_HOST_USER }}/linkcargo-0.0.1-SNAPSHOT.jar
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.AWS_HOST_USER }}@${{ secrets.AWS_HOST_IP }} "pgrep java | xargs kill -9; nohup java -jar /home/${{ secrets.AWS_HOST_USER }}/linkcargo-0.0.1-SNAPSHOT.jar > app.log 2>&1 &"
-          rm -f private_key.pem   
+          rm -f private_key.pem

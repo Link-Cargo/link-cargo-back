@@ -12,7 +12,12 @@ java {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
-
+bootJar {
+	archiveBaseName.set('linkcaroServer')
+}
+jar{
+	archiveBaseName.set('trelloServer')
+}
 repositories {
 	mavenCentral()
 }
@@ -47,8 +52,4 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
-}
-
-jar {
-	destinationDir = file("$buildDir/libs")
 }
