@@ -24,8 +24,8 @@ jobs:
 
       - name: Create application.yml
         run: |
-          echo "${{ secrets.APPLICATION_YML }}" > application.yml
-          cat application.yml
+          echo "${{ secrets.APPLICATION_YML }}" > src/main/resources/application.yml
+          cat src/main/resources/application.yml
         shell: bash
 
       - name: Run chmod to make gradlew executable
@@ -35,7 +35,7 @@ jobs:
         uses: gradle/gradle-build-action@v2.6.0
         with:
           arguments: clean build
-      # 경로 확인
+
       - name: Verify JAR file
         run: ls build/libs/*.jar
 
@@ -59,12 +59,12 @@ jobs:
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.AWS_HOST_IP}}
+          host: ${{ secrets.AWS_HOST_IP }}
           username: ${{ secrets.AWS_HOST_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            docker pull ${{ secrets.DOCKER_USERNAME}}/spring-boot-server
+            docker pull ${{ secrets.DOCKER_USERNAME }}/spring-boot-server
             docker stop $(docker ps -a -q)
             docker run -d --log-driver=syslog -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/spring-boot-server
             docker rm $(docker ps --filter 'status=exited' -a -q)
