@@ -16,9 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: make application.yml
+      - name: Create application.yml
         run: |
-            echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
+          echo "${{ secrets.APPLICATION_YML }}" > application.yml
         shell: bash
 
       - name: Set up JDK 17
@@ -31,9 +31,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v2.6.0
-        with:
-          arguments: build
+        run: ./gradlew build
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
