@@ -46,4 +46,4 @@ jobs:
           chmod 600 private_key.pem
           scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/linkcargo-0.0.1-SNAPSHOT.jar ${{ secrets.AWS_HOST_USER }}@${{ secrets.AWS_HOST_IP }}:/home/${{ secrets.AWS_HOST_USER }}/linkcargo-0.0.1-SNAPSHOT.jar.jar
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.AWS_HOST_USER }}@${{ secrets.AWS_HOST_IP }} "pgrep java | xargs kill -9; nohup java -jar /home/${{ secrets.AWS_HOST_USER }}/linkcargo-0.0.1-SNAPSHOT.jar > app.log 2>&1 &"
-          rm -f private_key.pem
+          rm -f private_key.pem  
