@@ -18,9 +18,7 @@ jobs:
 
       - name: make application.yml
         run: |
-            cd ./src/main/resources
-            touch ./application.yml
-            echo "${{ secrets.APPLICATION_YML }}" > ./application.yml
+            echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
         shell: bash
 
       - name: Set up JDK 17
