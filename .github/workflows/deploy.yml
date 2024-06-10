@@ -16,8 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: make application-dev.yml
-        if: contains(github.ref, 'develop')
+      - name: make application.yml
         run: |
             cd ./src/main/resources
             touch ./application.yml
