@@ -13,10 +13,10 @@ java {
 	}
 }
 bootJar {
-	archiveBaseName.set('linkcaroServer')
+	archiveBaseName.set('LinkCaroServer')
 }
 jar{
-	archiveBaseName.set('trelloServer')
+	archiveBaseName.set('LinkCaroServer')
 }
 repositories {
 	mavenCentral()
