@@ -36,6 +36,8 @@ jobs:
         uses: gradle/gradle-build-action@v2.6.0
         with:
           arguments: clean build
+      - name: Copy Jar File
+        run: mv build/libs/*.jar .
       # 수정 완료
       - name: Docker Login
         uses: docker/login-action@v2.2.0
