@@ -54,8 +54,6 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/spring-boot-server
           no-cache: true
 
-      - name: Inspect Docker image contents
-        run: docker run --rm ${{ secrets.DOCKER_USERNAME }}/spring-boot-server ls -l /app/lib/mysql-connector.jar
 
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v0.1.10
