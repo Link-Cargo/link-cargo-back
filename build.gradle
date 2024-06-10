@@ -12,12 +12,7 @@ java {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
-bootJar {
-	archiveBaseName.set('LinkCaroServer')
-}
-jar{
-	archiveBaseName.set('LinkCaroServer')
-}
+
 repositories {
 	mavenCentral()
 }
