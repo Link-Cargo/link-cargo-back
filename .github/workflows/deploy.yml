@@ -41,7 +41,7 @@ jobs:
       - name: Deploy to EC2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
+        run: | 
           echo "${{ secrets.AWS_EC2_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
           scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/linkcargo-0.0.1-SNAPSHOT.jar ${{ secrets.AWS_HOST_USER }}@${{ secrets.AWS_HOST_IP }}:/home/${{ secrets.AWS_HOST_USER }}/linkcargo-0.0.1-SNAPSHOT.jar.jar
