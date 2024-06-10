@@ -1,3 +1,5 @@
 FROM openjdk:17-jdk
-COPY *.jar app.jar
+WORKDIR /app
+COPY build/libs/link-cargo-back-0.0.1-SNAPSHOT.jar app.jar
+RUN chmod +x app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
