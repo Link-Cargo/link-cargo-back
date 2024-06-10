@@ -25,6 +25,7 @@ jobs:
       - name: Create application.yml
         run: |
           echo "${{ secrets.APPLICATION_YML }}" > application.yml
+          cat application.yml
         shell: bash
 
       - name: Run chmod to make gradlew executable
