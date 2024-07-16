@@ -1,7 +1,8 @@
 package com.example.linkcargo.global.jwt;
 
-import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.domain.user.dto.UserInfo;
+import com.example.linkcargo.global.security.CustomUserDetail;
+import com.example.linkcargo.global.security.CustomUserDetailsService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -10,29 +11,38 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.PrematureJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import java.security.Key;
 import java.util.Date;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtProvider {
 
-    @Value("${jwt.secret.key")
-    private String SECRET_KEY;
     private long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 1 day
+    private Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
+    private final CustomUserDetailsService customUserDetailsService;
 
 
     /**
      * JWT 토큰 생성
      */
-    public String generateToken(User user) {
+    public String generateToken(Long userId, String email) {
+        log.info("generateToken 메서드 시작");
         return Jwts.builder()
-            .claim("id", user.getId())
-            .claim("email", user.getEmail())
-            .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-            .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+            .claim("id", userId)
+            .claim("email", email)
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+            .signWith(secretKey)
             .compact();
     }
 
@@ -42,7 +52,7 @@ public class JwtProvider {
     public Claims getClaimsBody(String token) {
         try {
             return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -94,5 +104,18 @@ public class JwtProvider {
         Claims claimsBody = getClaimsBody(token);
 
         return claimsBody.get("email").toString();
+    }
+
+    /**
+     * (인가) Authentication 객체 생성
+     */
+    public Authentication getAuthentication(String token) {
+        // JWT 정보를 통해 DB 에서 유저 정보 조회
+        CustomUserDetail customUserDetail = customUserDetailsService.loadUserByUsername(
+            getEmail(token));
+
+        // 유저 정보를 담은 Authentication 객체 반환
+        return new UsernamePasswordAuthenticationToken(customUserDetail,
+            customUserDetail.getPassword(), customUserDetail.getAuthorities());
     }
 }

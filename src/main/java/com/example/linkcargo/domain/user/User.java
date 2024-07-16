@@ -25,12 +25,13 @@ public class User {
     @NotBlank
     private String password;
 
+    private String role = "USER";
+
     public User(String email, String password) {
         this.email = email;
         this.password = password;
     }
 
-    // JPA 에서 필수
     public User() {
 
     }

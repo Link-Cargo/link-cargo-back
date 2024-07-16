@@ -9,7 +9,6 @@ public class RegisterResponseDTO {
 
     private Long userId;
     private String email;
-    private String message = "회원 가입에 성공했습니다.";
 
     public RegisterResponseDTO(Long id, String email) {
         this.userId = id;

@@ -1,6 +1,8 @@
 package com.example.linkcargo.domain.user;
 
+import com.example.linkcargo.domain.user.dto.request.LoginRequestDTO;
 import com.example.linkcargo.domain.user.dto.request.RegisterRequestDTO;
+import com.example.linkcargo.domain.user.dto.response.LoginResponseDTO;
 import com.example.linkcargo.domain.user.dto.response.RegisterResponseDTO;
 import com.example.linkcargo.global.response.ResponseMaker;
 import com.example.linkcargo.global.response.ResultResponseDto;
@@ -26,8 +28,8 @@ public class UserRestController {
      * 회원 가입
      */
     @PostMapping("/register")
-    public ResponseEntity<ResultResponseDto<RegisterResponseDTO>> login(@Valid @RequestBody RegisterRequestDTO registerRequestDTO) {
-        log.info("registerRequestDTO = {}", registerRequestDTO);
+    public ResponseEntity<ResultResponseDto<RegisterResponseDTO>> register(
+        @Valid @RequestBody RegisterRequestDTO registerRequestDTO) {
         User joinedUser = userService.join(registerRequestDTO);
 
         RegisterResponseDTO registerResponseDTO = new RegisterResponseDTO(joinedUser.getId(),
@@ -35,4 +37,17 @@ public class UserRestController {
         return ResponseMaker.createResponse(HttpStatus.OK, "회원 가입 성공", registerResponseDTO);
     }
 
+    /**
+     * 로그인
+     */
+    @PostMapping("/login")
+    public ResponseEntity<ResultResponseDto<LoginResponseDTO>> login(
+        @Valid @RequestBody LoginRequestDTO loginRequestDTO
+    ) {
+        String jwt = userService.login(loginRequestDTO);
+
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(jwt);
+
+        return ResponseMaker.createResponse(HttpStatus.OK, "로그인 성공", loginResponseDTO);
+    }
 }

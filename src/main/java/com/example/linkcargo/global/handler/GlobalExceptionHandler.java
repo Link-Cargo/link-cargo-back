@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -45,5 +46,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ErrorResponseDto> JwtException(JwtException e) {
         return ResponseMaker.createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    /**
+     * AuthenticationException 에러 핸들러
+     */
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponseDto> BadCredentialException(BadCredentialsException e) {
+        return ResponseMaker.createErrorResponse(HttpStatus.UNAUTHORIZED, e.getMessage());
     }
 }
