@@ -35,7 +35,7 @@ public class UserService {
         return savedUser;
     }
 
-    public String login(LoginRequestDTO loginRequestDTO) {
+    public CustomUserDetail login(LoginRequestDTO loginRequestDTO) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
             loginRequestDTO.getEmail(),
             loginRequestDTO.getPassword());
@@ -47,7 +47,6 @@ public class UserService {
         Long userId = customUserDetail.getId();
         String email = customUserDetail.getUsername();
 
-        String jwt = jwtProvider.generateToken(userId, email);
-        return jwt;
+        return customUserDetail;
     }
 }

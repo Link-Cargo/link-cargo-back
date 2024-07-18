@@ -7,9 +7,11 @@ import lombok.Setter;
 @Setter
 public class LoginResponseDTO {
 
-    public String token;
+    public String accessToken;
+    public String refreshToken;
 
-    public LoginResponseDTO(String token) {
-        this.token = token;
+    public LoginResponseDTO(String accessToken, String refreshToken) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
     }
 }

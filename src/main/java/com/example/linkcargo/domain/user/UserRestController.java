@@ -1,11 +1,14 @@
 package com.example.linkcargo.domain.user;
 
+import com.example.linkcargo.domain.refreshToken.RefreshTokenService;
 import com.example.linkcargo.domain.user.dto.request.LoginRequestDTO;
 import com.example.linkcargo.domain.user.dto.request.RegisterRequestDTO;
 import com.example.linkcargo.domain.user.dto.response.LoginResponseDTO;
 import com.example.linkcargo.domain.user.dto.response.RegisterResponseDTO;
+import com.example.linkcargo.global.jwt.JwtProvider;
 import com.example.linkcargo.global.response.ResponseMaker;
 import com.example.linkcargo.global.response.ResultResponseDto;
+import com.example.linkcargo.global.security.CustomUserDetail;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class UserRestController {
 
     private final UserService userService;
+    private final JwtProvider jwtProvider;
+    private final RefreshTokenService refreshTokenService;
 
     /**
      * 회원 가입
@@ -44,9 +49,14 @@ public class UserRestController {
     public ResponseEntity<ResultResponseDto<LoginResponseDTO>> login(
         @Valid @RequestBody LoginRequestDTO loginRequestDTO
     ) {
-        String jwt = userService.login(loginRequestDTO);
+        CustomUserDetail loginInfo = userService.login(loginRequestDTO);
 
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(jwt);
+        String accessToken = jwtProvider.generateAccessToken(loginInfo.getId(), loginInfo.getUsername());
+        String refreshToken = jwtProvider.generateRefreshToken(loginInfo.getId(), loginInfo.getUsername());
+
+        refreshTokenService.saveRefreshToken(loginInfo.getId(), refreshToken);
+
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(accessToken, refreshToken);
 
         return ResponseMaker.createResponse(HttpStatus.OK, "로그인 성공", loginResponseDTO);
     }

@@ -1,5 +1,6 @@
 package com.example.linkcargo.global.jwt;
 
+import com.example.linkcargo.domain.refreshToken.RefreshTokenService;
 import com.example.linkcargo.domain.user.dto.UserInfo;
 import com.example.linkcargo.global.security.CustomUserDetail;
 import com.example.linkcargo.global.security.CustomUserDetailsService;
@@ -26,25 +27,41 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JwtProvider {
 
-    private long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 1 day
+    private long ACCESS_EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 1 day
+    private long REFRESH_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7; //  1 week
     private Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     private final CustomUserDetailsService customUserDetailsService;
+    private final RefreshTokenService refreshTokenService;
 
 
     /**
-     * JWT 토큰 생성
+     * JWT ACCESS 토큰 생성
      */
-    public String generateToken(Long userId, String email) {
+    public String generateAccessToken(Long userId, String email) {
         log.info("generateToken 메서드 시작");
+        return "Bearer " + Jwts.builder()
+            .claim("id", userId)
+            .claim("email", email)
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION_TIME))
+            .signWith(secretKey)
+            .compact();
+    }
+
+    /**
+     * JWT REFRESH 토큰 생성
+     */
+    public String generateRefreshToken(Long userId, String email) {
         return Jwts.builder()
             .claim("id", userId)
             .claim("email", email)
             .issuedAt(new Date())
-            .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+            .expiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME))
             .signWith(secretKey)
             .compact();
     }
+
 
     /**
      * JWT 에서 Claims 추출
