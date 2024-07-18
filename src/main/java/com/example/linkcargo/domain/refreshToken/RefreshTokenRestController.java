@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.refreshToken;
 
+import com.example.linkcargo.domain.refreshToken.response.RefreshTokenResponseDTO;
 import com.example.linkcargo.global.exception.BusinessException;
 import com.example.linkcargo.global.jwt.JwtProvider;
 import com.example.linkcargo.global.response.ResponseMaker;
@@ -22,7 +23,7 @@ public class RefreshTokenRestController {
     private final RefreshTokenService refreshTokenService;
 
     @GetMapping
-    public ResponseEntity<ResultResponseDto<String>> refresh(HttpServletRequest request) {
+    public ResponseEntity<ResultResponseDto<RefreshTokenResponseDTO>> refresh(HttpServletRequest request) {
         String refreshToken = request.getHeader("Refresh-Token");
         if (Objects.isNull(refreshToken)) {
             throw new BusinessException(HttpStatus.BAD_REQUEST, "리프레시 토큰이 존재하지 않습니다.");
@@ -35,7 +36,7 @@ public class RefreshTokenRestController {
 
         String accessToken = jwtProvider.generateAccessToken(userId, email);
 
-        return ResponseMaker.createResponse(HttpStatus.OK, "리프레시 토큰 확인 성공", accessToken);
+        return ResponseMaker.createResponse(HttpStatus.OK, "리프레시 토큰 확인 성공", new RefreshTokenResponseDTO(accessToken));
     }
 
 }
