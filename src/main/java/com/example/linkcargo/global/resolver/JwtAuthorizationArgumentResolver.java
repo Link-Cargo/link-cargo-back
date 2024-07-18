@@ -1,7 +1,6 @@
 package com.example.linkcargo.global.resolver;
 
 import com.example.linkcargo.domain.user.dto.UserInfo;
-import com.example.linkcargo.global.jwt.JwtProvider;
 import com.example.linkcargo.global.security.CustomUserDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -25,7 +24,8 @@ public class JwtAuthorizationArgumentResolver implements HandlerMethodArgumentRe
     public UserInfo resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
         NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
-        CustomUserDetail userDetails = (CustomUserDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CustomUserDetail userDetails = (CustomUserDetail) SecurityContextHolder.getContext()
+            .getAuthentication().getPrincipal();
         Long userId = userDetails.getId();
         String email = userDetails.getUsername();
 

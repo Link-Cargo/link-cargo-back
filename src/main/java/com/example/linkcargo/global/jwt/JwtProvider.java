@@ -27,13 +27,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JwtProvider {
 
+    private final CustomUserDetailsService customUserDetailsService;
+    private final RefreshTokenService refreshTokenService;
     private long ACCESS_EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 1 day
     private long REFRESH_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7; //  1 week
     private Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-
-    private final CustomUserDetailsService customUserDetailsService;
-    private final RefreshTokenService refreshTokenService;
-
 
     /**
      * JWT ACCESS 토큰 생성

@@ -51,8 +51,10 @@ public class UserRestController {
     ) {
         CustomUserDetail loginInfo = userService.login(loginRequestDTO);
 
-        String accessToken = jwtProvider.generateAccessToken(loginInfo.getId(), loginInfo.getUsername());
-        String refreshToken = jwtProvider.generateRefreshToken(loginInfo.getId(), loginInfo.getUsername());
+        String accessToken = jwtProvider.generateAccessToken(loginInfo.getId(),
+            loginInfo.getUsername());
+        String refreshToken = jwtProvider.generateRefreshToken(loginInfo.getId(),
+            loginInfo.getUsername());
 
         refreshTokenService.saveRefreshToken(loginInfo.getId(), refreshToken);
 
