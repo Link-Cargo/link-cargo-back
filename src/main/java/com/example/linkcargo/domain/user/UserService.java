@@ -2,6 +2,7 @@ package com.example.linkcargo.domain.user;
 
 import com.example.linkcargo.domain.user.dto.request.UserLoginRequest;
 import com.example.linkcargo.domain.user.dto.request.UserRegisterRequest;
+import com.example.linkcargo.domain.user.refreshToken.RefreshTokenService;
 import com.example.linkcargo.global.jwt.JwtProvider;
 import com.example.linkcargo.global.jwt.TokenDTO;
 import com.example.linkcargo.global.security.CustomUserDetail;
@@ -12,16 +13,19 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtProvider jwtProvider;
+    private final RefreshTokenService refreshTokenService;
 
     public User join(UserRegisterRequest userRegisterRequest) {
         validateEmail(userRegisterRequest.email());
@@ -44,6 +48,7 @@ public class UserService {
 
         CustomUserDetail customUserDetail = (CustomUserDetail) authentication.getPrincipal();
         TokenDTO tokenDTO = createTokens(customUserDetail);
+        refreshTokenService.save(customUserDetail.getId(), tokenDTO.refreshToken());
 
         return tokenDTO;
     }
