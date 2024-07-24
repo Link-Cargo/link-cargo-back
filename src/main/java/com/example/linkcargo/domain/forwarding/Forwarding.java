@@ -30,6 +30,7 @@ public class Forwarding extends BaseEntity {
 
 
     @OneToMany(mappedBy = "forwarding", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<User> users = new ArrayList<>();
 
 }

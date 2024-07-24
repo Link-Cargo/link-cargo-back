@@ -28,5 +28,6 @@ public class ChatRoom extends BaseEntity {
     private RoomStatus status;
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Membership> memberships = new ArrayList<>();
 }
