@@ -30,7 +30,7 @@ public class User extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "forwarding_id")
-    private Forwarding forwarding;
+    private Forwarding forwarding; // 기본적으로 null
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -47,7 +47,7 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", unique = true)
     private String phoneNumber;
 
     @Column(name = "company_name")
@@ -56,7 +56,7 @@ public class User extends BaseEntity {
     @Column(name = "job_title")
     private String jobTitle;
 
-    @Column(name = "business_number")
+    @Column(name = "business_number", unique = true)
     private String businessNumber;
 
     @Enumerated(EnumType.STRING)
@@ -66,8 +66,14 @@ public class User extends BaseEntity {
     private BigDecimal totalPrice;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Notification> notifications = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Membership> memberships = new ArrayList<>();
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }
