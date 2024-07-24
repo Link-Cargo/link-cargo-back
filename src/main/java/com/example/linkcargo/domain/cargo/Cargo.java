@@ -1,11 +1,14 @@
 package com.example.linkcargo.domain.cargo;
 
 import com.example.linkcargo.global.entity.BaseEntity;
+import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import lombok.*;
-
-import java.math.BigDecimal;
 
 @Document(collection = "cargos")
 @Getter
@@ -13,7 +16,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Cargo extends BaseEntity{
+public class Cargo extends BaseEntity {
 
     @Id
     private String id;
@@ -29,6 +32,7 @@ public class Cargo extends BaseEntity{
     @AllArgsConstructor
     @Builder
     public static class CargoInfo {
+
         private String productName;
         private String hsCode;
         private String incoterms;
@@ -44,6 +48,7 @@ public class Cargo extends BaseEntity{
     @AllArgsConstructor
     @Builder
     public static class BoxSize {
+
         private BigDecimal width;
         private BigDecimal height;
         private BigDecimal depth;

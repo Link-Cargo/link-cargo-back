@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -64,6 +63,7 @@ public class UserService {
             throw new RuntimeException("해당 이메일의 회원이 이미 존재합니다.");
         }
     }
+
     private void validateBusinessNumber(String businessNumber) {
         if (userRepository.existsByBusinessNumber(businessNumber)) {
             throw new RuntimeException("해당 사업자 번호의 회원이 이미 존재합니다.");

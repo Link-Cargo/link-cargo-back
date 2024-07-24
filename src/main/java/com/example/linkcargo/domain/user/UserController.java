@@ -19,14 +19,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+
     @PostMapping("register")
-    public ApiResponse<UserRegisterResponse> join(@Valid @RequestBody UserRegisterRequest userRegisterRequest) {
+    public ApiResponse<UserRegisterResponse> join(
+        @Valid @RequestBody UserRegisterRequest userRegisterRequest) {
         User joinedUser = userService.join(userRegisterRequest);
         return ApiResponse.onSuccess(new UserRegisterResponse(joinedUser.getId()));
     }
 
     @PostMapping("login")
-    public ApiResponse<UserLoginResponse> login(@Valid @RequestBody UserLoginRequest userLoginRequest) {
+    public ApiResponse<UserLoginResponse> login(
+        @Valid @RequestBody UserLoginRequest userLoginRequest) {
         TokenDTO token = userService.login(userLoginRequest);
         return ApiResponse.onSuccess(new UserLoginResponse(token));
     }
