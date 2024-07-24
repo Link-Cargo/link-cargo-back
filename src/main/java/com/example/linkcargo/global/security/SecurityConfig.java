@@ -19,6 +19,7 @@ public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
     private final JwtValidator jwtValidator;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -32,7 +33,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             // jwt filter
             .addFilterBefore(new JwtAuthorizationFilter(jwtProvider, jwtValidator),
-            UsernamePasswordAuthenticationFilter.class);
+                UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

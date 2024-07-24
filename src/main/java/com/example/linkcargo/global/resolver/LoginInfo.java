@@ -4,4 +4,5 @@ public record LoginInfo(
     Long id,
     String email
 ) {
+
 }

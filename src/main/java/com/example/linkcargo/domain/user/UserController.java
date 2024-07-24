@@ -1,6 +1,6 @@
 package com.example.linkcargo.domain.user;
 
-import static java.util.Objects.*;
+import static java.util.Objects.isNull;
 
 import com.example.linkcargo.domain.user.dto.request.UserLoginRequest;
 import com.example.linkcargo.domain.user.dto.request.UserRegisterRequest;
@@ -13,9 +13,7 @@ import com.example.linkcargo.global.jwt.TokenDTO;
 import com.example.linkcargo.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,7 +47,7 @@ public class UserController {
     @GetMapping("/refresh")
     public ApiResponse<RefreshTokenResponse> refresh(HttpServletRequest request) {
         String refreshToken = request.getHeader("Refresh-Token");
-        if(isNull(refreshToken)){
+        if (isNull(refreshToken)) {
             throw new RuntimeException("리프레시 토큰이 존재하지 않습니다.");
         }
 
@@ -60,7 +58,8 @@ public class UserController {
         String accessToken = jwtProvider.generateAccessToken(userId, email);
         String newRefreshToken = reGenerateRefreshToken(userId, email);
 
-        return ApiResponse.onSuccess(new RefreshTokenResponse(new TokenDTO(accessToken, newRefreshToken)));
+        return ApiResponse.onSuccess(
+            new RefreshTokenResponse(new TokenDTO(accessToken, newRefreshToken)));
     }
 
     @Transactional
