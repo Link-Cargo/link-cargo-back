@@ -1,5 +1,6 @@
 package com.example.linkcargo.global.jwt;
 
+import com.example.linkcargo.global.security.CustomUserDetail;
 import com.example.linkcargo.global.security.CustomUserDetailsService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -14,6 +15,8 @@ import java.security.Key;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,7 @@ public class JwtProvider {
     private long ACCESS_EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 1 day
     private long REFRESH_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7; //  1 week
     private Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final CustomUserDetailsService customUserDetailsService;
 
     /**
      * JWT ACCESS 토큰 생성
@@ -105,5 +109,17 @@ public class JwtProvider {
     public Date getExpiration(String token) {
         Claims claimsBody = getClaimsBody(token);
         return claimsBody.getExpiration();
+    }
+
+    /**
+     * (인가) Authorization 객체 생성
+     */
+    public Authentication getAuthentication(String token) {
+        CustomUserDetail customUserDetail = customUserDetailsService.loadUserByUsername(
+            getEmail(token));
+
+        return new UsernamePasswordAuthenticationToken(customUserDetail,
+            customUserDetail.getPassword(), customUserDetail.getAuthorities());
+
     }
 }
