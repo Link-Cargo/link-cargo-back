@@ -1,6 +1,5 @@
 package com.example.linkcargo.global.resolver;
 
-import com.example.linkcargo.domain.user.dto.LoginUserInfo;
 import com.example.linkcargo.global.security.CustomUserDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -17,11 +16,11 @@ public class JwtAuthorizationArgumentResolver implements HandlerMethodArgumentRe
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.hasParameterAnnotation(LoginInfo.class);
+        return parameter.hasParameterAnnotation(Login.class);
     }
 
     @Override
-    public LoginUserInfo resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+    public LoginInfo resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
         NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
         CustomUserDetail userDetails = (CustomUserDetail) SecurityContextHolder.getContext()
@@ -29,6 +28,6 @@ public class JwtAuthorizationArgumentResolver implements HandlerMethodArgumentRe
         Long userId = userDetails.getId();
         String email = userDetails.getUsername();
 
-        return new LoginUserInfo(userId, email);
+        return new LoginInfo(userId, email);
     }
 }

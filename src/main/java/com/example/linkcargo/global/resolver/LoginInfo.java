@@ -1,12 +1,7 @@
 package com.example.linkcargo.global.resolver;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-@Target({ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface LoginInfo {
-
+public record LoginInfo(
+    Long id,
+    String email
+) {
 }
