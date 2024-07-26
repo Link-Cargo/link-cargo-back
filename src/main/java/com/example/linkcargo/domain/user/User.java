@@ -72,4 +72,8 @@ public class User extends JpaBaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Membership> memberships = new ArrayList<>();
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }

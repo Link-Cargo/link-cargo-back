@@ -20,19 +20,19 @@ public enum SuccessStatus implements BaseCode {
     @Override
     public ReasonDto getReason() {
         return ReasonDto.builder()
-                .message(message)
-                .code(code)
-                .isSuccess(true)
-                .build();
+            .message(message)
+            .code(code)
+            .isSuccess(true)
+            .build();
     }
 
     @Override
     public ReasonDto getReasonHttpStatus() {
         return ReasonDto.builder()
-                .message(message)
-                .code(code)
-                .isSuccess(true)
-                .httpStatus(httpStatus)
-                .build();
+            .message(message)
+            .code(code)
+            .isSuccess(true)
+            .httpStatus(httpStatus)
+            .build();
     }
 }
