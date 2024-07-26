@@ -5,6 +5,8 @@ import com.example.linkcargo.domain.user.dto.request.UserRegisterRequest;
 import com.example.linkcargo.domain.user.refreshToken.RefreshTokenService;
 import com.example.linkcargo.global.jwt.JwtProvider;
 import com.example.linkcargo.global.jwt.TokenDTO;
+import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
+import com.example.linkcargo.global.response.exception.handler.UsersHandler;
 import com.example.linkcargo.global.security.CustomUserDetail;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,13 +67,13 @@ public class UserService {
 
     private void validateEmail(String email) {
         if (userRepository.existsByEmail(email)) {
-            throw new RuntimeException("해당 이메일의 회원이 이미 존재합니다.");
+            throw new UsersHandler(ErrorStatus.USER_EXISTS_EMAIL);
         }
     }
 
     private void validateBusinessNumber(String businessNumber) {
         if (userRepository.existsByBusinessNumber(businessNumber)) {
-            throw new RuntimeException("해당 사업자 번호의 회원이 이미 존재합니다.");
+            throw new UsersHandler(ErrorStatus.USER_EXISTS_BUSINESS_NUMBER);
         }
     }
 

@@ -2,6 +2,8 @@ package com.example.linkcargo.global.security;
 
 import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.domain.user.UserRepository;
+import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
+import com.example.linkcargo.global.response.exception.handler.UsersHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public CustomUserDetail loadUserByUsername(String email) throws UsernameNotFoundException {
         User findUser = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("로그인 정보가 올바르지 않습니다."));
+            .orElseThrow(() -> new UsersHandler(ErrorStatus.USER_NOT_FOUND));
 
         if (findUser != null) {
             return new CustomUserDetail(findUser);

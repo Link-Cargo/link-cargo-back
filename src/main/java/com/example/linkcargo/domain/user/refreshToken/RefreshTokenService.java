@@ -1,6 +1,9 @@
 package com.example.linkcargo.domain.user.refreshToken;
 
 import com.example.linkcargo.global.jwt.JwtProvider;
+import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
+import com.example.linkcargo.global.response.exception.handler.JwtHandler;
+import io.jsonwebtoken.Jwt;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,11 +24,11 @@ public class RefreshTokenService {
 
     public void validate(Long userId, String refreshToken) {
         RefreshToken tokenEntity = refreshTokenRepository.findByUserIdAndToken(userId, refreshToken)
-            .orElseThrow(() -> new RuntimeException("리프레시 토큰이 존재하지 않습니다."));
+            .orElseThrow(() -> new JwtHandler(ErrorStatus.REFRESH_TOKEN_NOT_FOUND));
 
         Date expirationDate = jwtProvider.getExpiration(tokenEntity.getToken());
         if (expirationDate.before(new Date())) {
-            throw new RuntimeException("리프레시 토큰이 만료되었습니다.");
+            throw new JwtHandler(ErrorStatus.REFRESH_TOKEN_EXPIRED);
         }
     }
 

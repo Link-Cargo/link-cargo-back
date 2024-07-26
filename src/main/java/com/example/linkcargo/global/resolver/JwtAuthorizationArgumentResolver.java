@@ -21,7 +21,7 @@ public class JwtAuthorizationArgumentResolver implements HandlerMethodArgumentRe
 
     @Override
     public LoginInfo resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-        NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
 
         CustomUserDetail userDetails = (CustomUserDetail) SecurityContextHolder.getContext()
             .getAuthentication().getPrincipal();

@@ -11,6 +11,8 @@ import com.example.linkcargo.domain.user.refreshToken.RefreshTokenService;
 import com.example.linkcargo.global.jwt.JwtProvider;
 import com.example.linkcargo.global.jwt.TokenDTO;
 import com.example.linkcargo.global.response.ApiResponse;
+import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
+import com.example.linkcargo.global.response.exception.handler.JwtHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +50,7 @@ public class UserController {
     public ApiResponse<RefreshTokenResponse> refresh(HttpServletRequest request) {
         String refreshToken = request.getHeader("Refresh-Token");
         if (isNull(refreshToken)) {
-            throw new RuntimeException("리프레시 토큰이 존재하지 않습니다.");
+            throw new JwtHandler(ErrorStatus.INVALID_REFRESH_TOKEN);
         }
 
         Long userId = jwtProvider.getId(refreshToken);

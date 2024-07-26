@@ -1,5 +1,7 @@
 package com.example.linkcargo.global.jwt;
 
+import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
+import com.example.linkcargo.global.response.exception.handler.JwtHandler;
 import com.example.linkcargo.global.security.CustomUserDetail;
 import com.example.linkcargo.global.security.CustomUserDetailsService;
 import io.jsonwebtoken.Claims;
@@ -69,15 +71,15 @@ public class JwtProvider {
                 .parseClaimsJws(token)
                 .getBody();
         } catch (MalformedJwtException e) {
-            throw new JwtException("JWT 토큰 형식이 잘못되었습니다.");
+            throw new JwtHandler(ErrorStatus.INVALID_ACCESS_TOKEN);
         } catch (ExpiredJwtException e) {
-            throw new JwtException("JWT 유효기간이 만료되었습니다.");
+            throw new JwtHandler(ErrorStatus.EXPIRED_MEMBER_TOKEN);
         } catch (UnsupportedJwtException e) {
-            throw new JwtException("지원되지 않는 JWT 형식입니다.");
+            throw new JwtHandler(ErrorStatus.UNSUPPORTED_TOKEN);
         } catch (IllegalArgumentException e) {
-            throw new JwtException("JWT 문자열이 올바르지 않습니다.");
+            throw new JwtHandler(ErrorStatus.ILLEGAL_ARGUMENT_TOKEN);
         } catch (PrematureJwtException e) {
-            throw new JwtException("JWT 가 아직 활성화 되지 않았습니다.");
+            throw new JwtHandler(ErrorStatus.INVALID_ACCESS_TOKEN); // JWT_PREMATURE is not defined in ErrorStatus
         }
     }
 
@@ -120,6 +122,5 @@ public class JwtProvider {
 
         return new UsernamePasswordAuthenticationToken(customUserDetail,
             customUserDetail.getPassword(), customUserDetail.getAuthorities());
-
     }
 }
