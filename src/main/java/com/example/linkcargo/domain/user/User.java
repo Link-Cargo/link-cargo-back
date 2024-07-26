@@ -3,7 +3,7 @@ package com.example.linkcargo.domain.user;
 import com.example.linkcargo.domain.chat.Membership;
 import com.example.linkcargo.domain.forwarding.Forwarding;
 import com.example.linkcargo.domain.notification.Notification;
-import com.example.linkcargo.global.entity.BaseEntity;
+import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -22,7 +22,7 @@ import java.util.List;
 @Where(clause = "status != 'DELETED'")
 @SQLDelete(sql = "UPDATE linkcargo.users SET status = 'DELETED' WHERE id = ?")
 @Table(name = "users")
-public class User extends BaseEntity {
+public class User extends JpaBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -66,8 +66,10 @@ public class User extends BaseEntity {
     private BigDecimal totalPrice;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Notification> notifications = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Membership> memberships = new ArrayList<>();
 }

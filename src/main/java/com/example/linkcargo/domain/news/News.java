@@ -1,6 +1,6 @@
 package com.example.linkcargo.domain.news;
 
-import com.example.linkcargo.global.entity.BaseEntity;
+import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "news")
-public class News extends BaseEntity {
+public class News extends JpaBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

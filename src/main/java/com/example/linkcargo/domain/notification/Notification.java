@@ -1,7 +1,7 @@
 package com.example.linkcargo.domain.notification;
 
 import com.example.linkcargo.domain.user.User;
-import com.example.linkcargo.global.entity.BaseEntity;
+import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "notifications")
-public class Notification extends BaseEntity {
+public class Notification extends JpaBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

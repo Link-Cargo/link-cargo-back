@@ -1,6 +1,6 @@
 package com.example.linkcargo.domain.chat;
 
-import com.example.linkcargo.global.entity.BaseEntity;
+import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "chat_rooms")
-public class ChatRoom extends BaseEntity {
+public class ChatRoom extends JpaBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,5 +28,6 @@ public class ChatRoom extends BaseEntity {
     private RoomStatus status;
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Membership> memberships = new ArrayList<>();
 }

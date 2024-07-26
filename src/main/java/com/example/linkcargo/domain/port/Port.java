@@ -1,7 +1,7 @@
 package com.example.linkcargo.domain.port;
 
 import com.example.linkcargo.domain.schedule.PortType;
-import com.example.linkcargo.global.entity.BaseEntity;
+import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "ports")
-public class Port extends BaseEntity {
+public class Port extends JpaBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

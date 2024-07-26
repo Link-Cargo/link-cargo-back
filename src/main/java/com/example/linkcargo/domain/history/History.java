@@ -2,7 +2,7 @@ package com.example.linkcargo.domain.history;
 
 import com.example.linkcargo.domain.forwarding.Forwarding;
 import com.example.linkcargo.domain.user.User;
-import com.example.linkcargo.global.entity.BaseEntity;
+import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +13,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "historys")
-public class History extends BaseEntity {
+public class History extends JpaBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

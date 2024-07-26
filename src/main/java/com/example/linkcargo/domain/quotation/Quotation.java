@@ -1,7 +1,7 @@
 package com.example.linkcargo.domain.quotation;
 
 
-import com.example.linkcargo.global.entity.BaseEntity;
+import com.example.linkcargo.global.entity.JpaBaseEntity;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Quotation extends BaseEntity {
+public class Quotation extends JpaBaseEntity {
 
     @Id
     private Long id;

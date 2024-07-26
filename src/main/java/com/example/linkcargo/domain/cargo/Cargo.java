@@ -1,6 +1,6 @@
 package com.example.linkcargo.domain.cargo;
 
-import com.example.linkcargo.global.entity.BaseEntity;
+import com.example.linkcargo.global.entity.MongoBaseEntity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.*;
@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Cargo extends BaseEntity{
+public class Cargo extends MongoBaseEntity{
 
     @Id
     private String id;

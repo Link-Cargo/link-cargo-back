@@ -1,7 +1,7 @@
 package com.example.linkcargo.domain.forwarding;
 
 import com.example.linkcargo.domain.user.User;
-import com.example.linkcargo.global.entity.BaseEntity;
+import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "forwardings")
-public class Forwarding extends BaseEntity {
+public class Forwarding extends JpaBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +30,7 @@ public class Forwarding extends BaseEntity {
 
 
     @OneToMany(mappedBy = "forwarding", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<User> users = new ArrayList<>();
 
 }

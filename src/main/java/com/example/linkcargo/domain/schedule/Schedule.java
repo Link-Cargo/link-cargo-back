@@ -1,6 +1,6 @@
 package com.example.linkcargo.domain.schedule;
 
-import com.example.linkcargo.global.entity.BaseEntity;
+import com.example.linkcargo.global.entity.JpaBaseEntity;
 import com.example.linkcargo.domain.port.Port;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "schedules")
-public class Schedule extends BaseEntity {
+public class Schedule extends JpaBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
