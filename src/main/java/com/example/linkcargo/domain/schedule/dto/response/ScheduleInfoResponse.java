@@ -15,7 +15,9 @@ public record ScheduleInfoResponse(
         TransportType transportType,
         Integer transitTime,
         LocalDateTime documentCutOff,
-        LocalDateTime cargoCutOff
+        LocalDateTime cargoCutOff,
+        LocalDateTime created_at,
+        LocalDateTime updated_at
 ) {
     public static ScheduleInfoResponse fromEntity(Schedule schedule) {
         return new ScheduleInfoResponse(
@@ -28,7 +30,9 @@ public record ScheduleInfoResponse(
                 schedule.getTransportType(),
                 schedule.getTransitTime(),
                 schedule.getDocumentCutOff(),
-                schedule.getCargoCutOff()
+                schedule.getCargoCutOff(),
+                schedule.getCreatedAt(),
+                schedule.getUpdatedAt()
         );
     }
 }
