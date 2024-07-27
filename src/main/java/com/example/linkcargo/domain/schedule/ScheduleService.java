@@ -3,6 +3,7 @@ package com.example.linkcargo.domain.schedule;
 import com.example.linkcargo.domain.port.Port;
 import com.example.linkcargo.domain.port.PortRepository;
 import com.example.linkcargo.domain.schedule.dto.request.ScheduleCreateRequest;
+import com.example.linkcargo.domain.schedule.dto.response.ScheduleInfoResponse;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.PortHandler;
 import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
@@ -20,6 +21,7 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final PortRepository portRepository;
 
+    @Transactional
     public Long createSchedule(ScheduleCreateRequest request) {
 
         // 이미 존재하는 스케줄인지 확인
@@ -38,11 +40,17 @@ public class ScheduleService {
 
         Schedule schedule = request.toEntity(exportPort, importPort);
 
+        // 생성 중 예외 발생 시 처리
         try {
             Schedule savedSchedule = scheduleRepository.save(schedule);
             return savedSchedule.getId();
         } catch (Exception e) {
             throw new ScheduleHandler(ErrorStatus.SCHEDULE_CREATED_FAIL);
         }
+    }
+
+    public ScheduleInfoResponse findSchedule(Long scheduleId) {
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
+        return ScheduleInfoResponse.fromEntity(schedule);
     }
 }
