@@ -87,4 +87,15 @@ public class ScheduleService {
             throw new ScheduleHandler(ErrorStatus.SCHEDULE_UPDATED_FAIL);
         }
     }
+
+    @Transactional
+    public void removeSchedule(Long scheduleId) {
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
+
+        try {
+            scheduleRepository.delete(schedule);
+        } catch (Exception e) {
+            throw new ScheduleHandler(ErrorStatus.SCHEDULE_UPDATED_FAIL);
+        }
+    }
 }
