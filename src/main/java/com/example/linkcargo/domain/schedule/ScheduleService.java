@@ -2,7 +2,7 @@ package com.example.linkcargo.domain.schedule;
 
 import com.example.linkcargo.domain.port.Port;
 import com.example.linkcargo.domain.port.PortRepository;
-import com.example.linkcargo.domain.schedule.dto.request.ScheduleCreateRequest;
+import com.example.linkcargo.domain.schedule.dto.request.ScheduleCreateUpdateRequest;
 import com.example.linkcargo.domain.schedule.dto.response.ScheduleInfoResponse;
 import com.example.linkcargo.domain.schedule.dto.response.ScheduleListResponse;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
@@ -25,7 +25,7 @@ public class ScheduleService {
     private final PortRepository portRepository;
 
     @Transactional
-    public Long createSchedule(ScheduleCreateRequest request) {
+    public Long createSchedule(ScheduleCreateUpdateRequest request) {
 
         // 이미 존재하는 스케줄인지 확인
         if (scheduleRepository.existsByCarrierAndETDAndETAAndTransportType(

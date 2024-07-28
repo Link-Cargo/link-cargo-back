@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-public record ScheduleCreateRequest(
+public record ScheduleCreateUpdateRequest(
         @NotNull(message = "Export port is mandatory")
         Long exportPortId,
 
