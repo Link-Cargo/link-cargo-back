@@ -64,16 +64,19 @@ public class ScheduleController {
         return ApiResponse.onSuccess(scheduleListResponse);
     }
 
-    @Operation(summary = "선박 스케줄 변경 ", description = "선박 스케줄을 ")
+    @Operation(summary = "선박 스케줄 변경 ", description = "선박 스케줄을 변경합니다. ScheduleCreateUpdateRequest 사용 ")
     @PutMapping("")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE403",description = "선박 스케줄이 존재 하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE404",description = "선박 스케줄 변경에 실패했습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     public ApiResponse<SuccessStatus> modifySchedule(
             @Login LoginInfo loginInfo,
-            @Parameter(description = "선박 스케줄 아이디") @RequestParam Long scheduleId
+            @Parameter(description = "선박 스케줄 아이디") @RequestParam Long scheduleId,
+            @RequestBody ScheduleCreateUpdateRequest request
     ) {
-        scheduleService.modifySchedule(scheduleId);
+        scheduleService.modifySchedule(scheduleId, request);
         return ApiResponse.onSuccess(SuccessStatus._OK);
     }
 

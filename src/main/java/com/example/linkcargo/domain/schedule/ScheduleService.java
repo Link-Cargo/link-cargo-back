@@ -61,4 +61,30 @@ public class ScheduleService {
         Page<Schedule> schedulePage = scheduleRepository.findAll(PageRequest.of(page,size));
         return ScheduleListResponse.fromEntity(schedulePage);
     }
+
+    @Transactional
+    public void modifySchedule(Long scheduleId, ScheduleCreateUpdateRequest request) {
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
+
+        Port exportPort = portRepository.findById(request.exportPortId())
+                .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
+        Port importPort = portRepository.findById(request.importPortId())
+                .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
+
+        schedule.setExportPort(exportPort);
+        schedule.setImportPort(importPort);
+        schedule.setCarrier(request.carrier());
+        schedule.setETD(request.ETD());
+        schedule.setETA(request.ETA());
+        schedule.setTransportType(request.transportType());
+        schedule.setTransitTime(request.transitTime());
+        schedule.setDocumentCutOff(request.documentCutOff());
+        schedule.setCargoCutOff(request.cargoCutOff());
+
+        try {
+            scheduleRepository.save(schedule);
+        } catch (Exception e) {
+            throw new ScheduleHandler(ErrorStatus.SCHEDULE_UPDATED_FAIL);
+        }
+    }
 }
