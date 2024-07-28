@@ -4,11 +4,14 @@ import com.example.linkcargo.domain.port.Port;
 import com.example.linkcargo.domain.port.PortRepository;
 import com.example.linkcargo.domain.schedule.dto.request.ScheduleCreateRequest;
 import com.example.linkcargo.domain.schedule.dto.response.ScheduleInfoResponse;
+import com.example.linkcargo.domain.schedule.dto.response.ScheduleListResponse;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.PortHandler;
 import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,5 +55,10 @@ public class ScheduleService {
     public ScheduleInfoResponse findSchedule(Long scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
         return ScheduleInfoResponse.fromEntity(schedule);
+    }
+
+    public ScheduleListResponse findSchedules(int page, int size) {
+        Page<Schedule> schedulePage = scheduleRepository.findAll(PageRequest.of(page,size));
+        return ScheduleListResponse.fromEntity(schedulePage);
     }
 }
