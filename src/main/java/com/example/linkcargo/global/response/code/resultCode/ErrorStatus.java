@@ -29,7 +29,20 @@ public enum ErrorStatus implements BaseErrorCode {
 
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH408", "유효하지 않은 REFRESH 토큰입니다."),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "AUTH409", "REFRESH 토큰이 존재하지 않습니다."),
-    REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH410", "REFRESH 토큰이 만료되었습니다.");
+    REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH410", "REFRESH 토큰이 만료되었습니다."),
+
+    // Schedule
+    SCHEDULE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "SCHEDULE401", "이미 존재하는 선박 스케줄 입니다."),
+    SCHEDULE_CREATED_FAIL(HttpStatus.NOT_FOUND, "SCHEDULE402", "선박 스케줄 생성에 실패하였습니다."),
+    SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE403   ", "선박 스케줄이 존재 하지 않습니다.."),
+    SCHEDULE_UPDATED_FAIL(HttpStatus.NOT_FOUND, "SCHEDULE404","선박 스케줄 변경에 실패하였습니다"),
+    SCHEDULE_DELETED_FAIL(HttpStatus.NOT_FOUND, "SCHEDULE405","선박 스케줄 삭제에 실패하였습니다"),
+
+
+    // Port
+    IMPORT_PORT_NOT_FOUND(HttpStatus.NOT_FOUND, "PORT401", "존재 하지 않는 수입항 입니다."),
+    EXPORT_PORT_NOT_FOUND(HttpStatus.NOT_FOUND, "PORT402", "존재 하지 않는 수출항 입니다.");
+
 
     private final HttpStatus httpStatus;
     private final String code;
