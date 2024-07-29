@@ -74,6 +74,7 @@ public class ScheduleService {
         schedule.setExportPort(exportPort);
         schedule.setImportPort(importPort);
         schedule.setCarrier(request.carrier());
+        schedule.setVessel(request.vessel());
         schedule.setETD(request.ETD());
         schedule.setETA(request.ETA());
         schedule.setTransportType(request.transportType());
