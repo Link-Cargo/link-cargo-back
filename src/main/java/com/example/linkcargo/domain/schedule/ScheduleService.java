@@ -12,8 +12,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -74,6 +78,7 @@ public class ScheduleService {
         schedule.setExportPort(exportPort);
         schedule.setImportPort(importPort);
         schedule.setCarrier(request.carrier());
+        schedule.setVessel(request.vessel());
         schedule.setETD(request.ETD());
         schedule.setETA(request.ETA());
         schedule.setTransportType(request.transportType());
@@ -97,5 +102,13 @@ public class ScheduleService {
         } catch (Exception e) {
             throw new ScheduleHandler(ErrorStatus.SCHEDULE_UPDATED_FAIL);
         }
+    }
+
+    public ScheduleListResponse searchSchedules(int page, int size) {
+        LocalDateTime now = LocalDateTime.now();
+        Pageable pageable = PageRequest.of(page, size, Sort.by("ETD").ascending());
+
+        Page<Schedule> schedulesPage = scheduleRepository.findByETDAfter(now, pageable);
+        return ScheduleListResponse.fromEntity(schedulesPage);
     }
 }

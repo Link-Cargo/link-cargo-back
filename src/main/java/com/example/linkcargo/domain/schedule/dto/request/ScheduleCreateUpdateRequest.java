@@ -20,6 +20,9 @@ public record ScheduleCreateUpdateRequest(
         @NotBlank(message = "Carrier is mandatory")
         String carrier,
 
+        @NotBlank(message = "Vessel is mandatory")
+        String vessel,
+
         @NotNull(message = "ETD is mandatory")
         LocalDateTime ETD,
 
@@ -44,6 +47,7 @@ public record ScheduleCreateUpdateRequest(
                 .exportPort(exportPort)
                 .importPort(importPort)
                 .carrier(this.carrier)
+                .vessel(this.vessel)
                 .ETD(this.ETD)
                 .ETA(this.ETA)
                 .transportType(this.transportType)
