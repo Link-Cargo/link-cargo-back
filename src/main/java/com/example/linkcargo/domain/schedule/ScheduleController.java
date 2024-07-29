@@ -95,4 +95,18 @@ public class ScheduleController {
         return ApiResponse.onSuccess(SuccessStatus._OK);
     }
 
+    @Operation(summary = "선박 스케줄 검색", description = "ETD 기준으로 필터링 및 정렬된 선박 스케줄을 검색합니다.")
+    @GetMapping("/search")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+    })
+    public ApiResponse<ScheduleListResponse> searchSchedules(
+            @Login LoginInfo loginInfo,
+            @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size
+    ) {
+        ScheduleListResponse schedules = scheduleService.searchSchedules(page, size);
+        return ApiResponse.onSuccess(schedules);
+    }
+
 }
