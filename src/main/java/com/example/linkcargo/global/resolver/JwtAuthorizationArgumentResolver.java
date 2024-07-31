@@ -25,6 +25,7 @@ public class JwtAuthorizationArgumentResolver implements HandlerMethodArgumentRe
 
         CustomUserDetail userDetails = (CustomUserDetail) SecurityContextHolder.getContext()
             .getAuthentication().getPrincipal();
+        System.out.println("userDetails = " + userDetails);
         Long userId = userDetails.getId();
         String email = userDetails.getUsername();
 

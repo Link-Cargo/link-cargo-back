@@ -24,8 +24,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        List<String> excludePaths = Arrays.asList("/api/v1/users", "/swagger-ui/", "/v3/api-docs", "/swagger-resources", "/swagger-ui.html", "/webjars/");
-
+        // JWT 필터를 거치지 않을 주소
+        List<String> excludePaths = Arrays.asList(
+            "/api/v1/users/register",
+            "/api/v1/users/login",
+            "/api/v1/users/refresh",
+            "/swagger-ui/",
+            "/v3/api-docs", 
+            "/swagger-resources", 
+            "/swagger-ui.html", 
+            "/webjars/"
+        );
         String path = request.getRequestURI();
         return excludePaths.stream().anyMatch(path::startsWith);
     }
