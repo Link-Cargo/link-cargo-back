@@ -45,8 +45,7 @@ public class RefreshTokenController {
     @PostMapping("/login")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER401",description = "이미 존재하는 이메일 입니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER402",description = "이미 존재하는 사업자 번호 입니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER403",description = "해당 정보의 유저를 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     public ApiResponse<TokenResponse> login(
         @Valid @RequestBody UserLoginRequest userLoginRequest) {
@@ -55,6 +54,10 @@ public class RefreshTokenController {
     }
 
     @GetMapping("/refresh")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "AUTH408",description = "유효하지 않은 REFRESH 토큰입니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
     public ApiResponse<TokenResponse> refresh(HttpServletRequest request) {
         String refreshToken = request.getHeader("Refresh-Token");
         TokenResponse tokenResponse = refreshTokenService.reCreateTokens(refreshToken);
