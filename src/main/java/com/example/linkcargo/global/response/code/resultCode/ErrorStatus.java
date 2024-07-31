@@ -34,7 +34,7 @@ public enum ErrorStatus implements BaseErrorCode {
     // Cargo
     INVALID_CARGO_INPUT(HttpStatus.BAD_REQUEST, "CARGO401", "유효하지 않은 CARGO 입력 정보입니다."),
     CARGO_NOT_FOUND(HttpStatus.NOT_FOUND, "CARGO402", "해당 ID 의 CARGO 가 존재하지 않습니다."),
-    CARGO_USER_NOT_MATCH(HttpStatus.BAD_REQUEST, "CARGO403", "해당 사용자의 화물이 아닙니다.");
+    CARGO_USER_NOT_MATCH(HttpStatus.BAD_REQUEST, "CARGO403", "해당 사용자의 화물이 아닙니다."),
 
     // Schedule
     SCHEDULE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "SCHEDULE401", "이미 존재하는 선박 스케줄 입니다."),

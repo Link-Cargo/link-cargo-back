@@ -1,4 +1,4 @@
-package com.example.linkcargo.domain.user.refreshToken;
+package com.example.linkcargo.domain.token;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
