@@ -1,15 +1,12 @@
 package com.example.linkcargo.domain.quotation;
 
 
-import com.example.linkcargo.global.entity.BaseEntity;
-import java.math.BigDecimal;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.example.linkcargo.global.entity.JpaBaseEntity;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.math.BigDecimal;
 
 @Document(collection = "quotations")
 @Getter
@@ -17,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Quotation extends BaseEntity {
+public class Quotation extends JpaBaseEntity {
 
     @Id
     private Long id;
@@ -34,7 +31,6 @@ public class Quotation extends BaseEntity {
     @AllArgsConstructor
     @Builder
     public static class Freight {
-
         private Long scheduleId;
 
         private String remark;
@@ -46,7 +42,6 @@ public class Quotation extends BaseEntity {
     @AllArgsConstructor
     @Builder
     public static class Cost {
-
         private Long cargoId;
 
         private ChargeExport chargeExport;
@@ -62,7 +57,6 @@ public class Quotation extends BaseEntity {
     @AllArgsConstructor
     @Builder
     public static class ChargeExport {
-
         private TEU CIC;
 
         private TEU DO_FEE;
@@ -86,7 +80,6 @@ public class Quotation extends BaseEntity {
     @AllArgsConstructor
     @Builder
     public static class TEU {
-
         private String unit;
         private BigDecimal LCL;
         private String remark;
@@ -98,7 +91,6 @@ public class Quotation extends BaseEntity {
     @AllArgsConstructor
     @Builder
     public static class FreightCost {
-
         private BigDecimal LCL;
         private BigDecimal CBM;
         private BigDecimal SUM;

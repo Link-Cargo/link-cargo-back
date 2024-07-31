@@ -6,13 +6,13 @@ import com.example.linkcargo.global.security.CustomUserDetail;
 import com.example.linkcargo.global.security.CustomUserDetailsService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.PrematureJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import java.security.Key;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
@@ -70,6 +70,8 @@ public class JwtProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+        } catch (SignatureException e) {
+            throw new JwtHandler(ErrorStatus.INVALID_ACCESS_TOKEN);
         } catch (MalformedJwtException e) {
             throw new JwtHandler(ErrorStatus.INVALID_ACCESS_TOKEN);
         } catch (ExpiredJwtException e) {
@@ -79,7 +81,7 @@ public class JwtProvider {
         } catch (IllegalArgumentException e) {
             throw new JwtHandler(ErrorStatus.ILLEGAL_ARGUMENT_TOKEN);
         } catch (PrematureJwtException e) {
-            throw new JwtHandler(ErrorStatus.INVALID_ACCESS_TOKEN); // JWT_PREMATURE is not defined in ErrorStatus
+            throw new JwtHandler(ErrorStatus.INVALID_ACCESS_TOKEN);
         }
     }
 

@@ -3,6 +3,7 @@ package com.example.linkcargo.global.security;
 import com.example.linkcargo.global.jwt.JwtAuthorizationFilter;
 import com.example.linkcargo.global.jwt.JwtProvider;
 import com.example.linkcargo.global.jwt.JwtValidator;
+import com.example.linkcargo.global.resolver.ExceptionHandlerFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,13 +28,16 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
             .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
             .csrf(AbstractHttpConfigurer::disable)
+            // jwt filter
             .addFilterBefore(new JwtAuthorizationFilter(jwtProvider, jwtValidator),
-                UsernamePasswordAuthenticationFilter.class);
+                UsernamePasswordAuthenticationFilter.class)
+            // jwt exception handler filter
+            .addFilterBefore(new ExceptionHandlerFilter(), JwtAuthorizationFilter.class);
 
         return http.build();
     }
-
 }

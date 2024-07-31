@@ -31,6 +31,11 @@ public enum ErrorStatus implements BaseErrorCode {
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "AUTH409", "REFRESH 토큰이 존재하지 않습니다."),
     REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH410", "REFRESH 토큰이 만료되었습니다."),
 
+    // Cargo
+    INVALID_CARGO_INPUT(HttpStatus.BAD_REQUEST, "CARGO401", "유효하지 않은 CARGO 입력 정보입니다."),
+    CARGO_NOT_FOUND(HttpStatus.NOT_FOUND, "CARGO402", "해당 ID 의 CARGO 가 존재하지 않습니다."),
+    CARGO_USER_NOT_MATCH(HttpStatus.BAD_REQUEST, "CARGO403", "해당 사용자의 화물이 아닙니다."),
+
     // Schedule
     SCHEDULE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "SCHEDULE401", "이미 존재하는 선박 스케줄 입니다."),
     SCHEDULE_CREATED_FAIL(HttpStatus.NOT_FOUND, "SCHEDULE402", "선박 스케줄 생성에 실패하였습니다."),
@@ -38,11 +43,9 @@ public enum ErrorStatus implements BaseErrorCode {
     SCHEDULE_UPDATED_FAIL(HttpStatus.NOT_FOUND, "SCHEDULE404","선박 스케줄 변경에 실패하였습니다"),
     SCHEDULE_DELETED_FAIL(HttpStatus.NOT_FOUND, "SCHEDULE405","선박 스케줄 삭제에 실패하였습니다"),
 
-
     // Port
     IMPORT_PORT_NOT_FOUND(HttpStatus.NOT_FOUND, "PORT401", "존재 하지 않는 수입항 입니다."),
     EXPORT_PORT_NOT_FOUND(HttpStatus.NOT_FOUND, "PORT402", "존재 하지 않는 수출항 입니다.");
-
 
     private final HttpStatus httpStatus;
     private final String code;
