@@ -18,7 +18,7 @@ public class CustomUserDetail implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 
     @Override
@@ -45,4 +45,5 @@ public class CustomUserDetail implements UserDetails {
                "user=" + user +
                '}';
     }
+
 }

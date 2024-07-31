@@ -1,4 +1,4 @@
-package com.example.linkcargo.domain.user.dto.request;
+package com.example.linkcargo.domain.token.dto.request;
 
 import com.example.linkcargo.domain.user.Role;
 import com.example.linkcargo.domain.user.Status;

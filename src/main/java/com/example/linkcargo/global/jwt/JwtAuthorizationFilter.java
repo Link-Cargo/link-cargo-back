@@ -24,7 +24,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        List<String> excludePaths = Arrays.asList("/api/v1/users", "/swagger-ui/", "/v3/api-docs", "/swagger-resources", "/swagger-ui.html", "/webjars/");
+        // JWT 인증이 필요없는 URL (Security Context 에 사용자 정보 X)
+        List<String> excludePaths = Arrays.asList(
+            "/api/v1/users/register",
+            "/api/v1/users/login",
+            "/api/v1/users/refresh",
+            "/swagger-ui/",
+            "/v3/api-docs",
+            "/swagger-resources",
+            "/swagger-ui.html",
+            "/webjars/"
+        );
 
         String path = request.getRequestURI();
         return excludePaths.stream().anyMatch(path::startsWith);
@@ -39,8 +49,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         Authentication authentication = jwtProvider.getAuthentication(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        log.info("authentication = {}", authentication);
 
         filterChain.doFilter(request, response);
     }

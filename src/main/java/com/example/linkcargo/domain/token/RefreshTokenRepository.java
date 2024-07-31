@@ -1,11 +1,9 @@
-package com.example.linkcargo.domain.user.refreshToken;
+package com.example.linkcargo.domain.token;
 
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
-
-    boolean existsByUserIdAndToken(Long userId, String refreshToken);
 
     Optional<RefreshToken> findByUserIdAndToken(Long userId, String refreshToken);
 

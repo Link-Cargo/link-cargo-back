@@ -3,6 +3,7 @@ package com.example.linkcargo.domain.user;
 import com.example.linkcargo.domain.chat.Membership;
 import com.example.linkcargo.domain.forwarding.Forwarding;
 import com.example.linkcargo.domain.notification.Notification;
+import com.example.linkcargo.domain.user.dto.UserResponse;
 import com.example.linkcargo.global.entity.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -108,5 +109,21 @@ public class User extends BaseEntity {
                ", status=" + status +
                ", totalPrice=" + totalPrice +
                '}';
+    }
+
+    public UserResponse toUserResponse() {
+        return new UserResponse(
+            this.id,
+            this.role,
+            this.firstName,
+            this.lastName,
+            this.email,
+            this.phoneNumber,
+            this.companyName,
+            this.jobTitle,
+            this.businessNumber,
+            this.status,
+            this.totalPrice
+        );
     }
 }
