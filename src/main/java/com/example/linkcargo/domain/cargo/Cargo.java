@@ -50,5 +50,4 @@ public class Cargo extends MongoBaseEntity{
         private BigDecimal depth;
     }
 
-
 }
