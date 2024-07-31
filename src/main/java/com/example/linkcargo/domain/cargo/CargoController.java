@@ -10,6 +10,9 @@ import com.example.linkcargo.global.response.code.resultCode.SuccessStatus;
 import com.example.linkcargo.global.security.CustomUserDetail;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +39,9 @@ public class CargoController {
 
     @Operation(summary = "화물 추가", description = "화물 정보를 입력합니다. CargoRequest 사용")
     @PostMapping
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공")
+    })
     public ApiResponse<String> createCargo(@Login LoginInfo loginInfo, @Valid @RequestBody CargoRequest cargoRequest) {
         Cargo savedCargo = cargoService.createCargo(loginInfo.id(), cargoRequest);
         return ApiResponse.onSuccess(savedCargo.getId());
@@ -43,6 +49,10 @@ public class CargoController {
 
     @Operation(summary = "화물 조회", description = "특정 화물을 조회합니다.")
     @GetMapping("/{cargoId}")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402",description = "해당 ID 의 CARGO 가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
     public ApiResponse<CargoResponse> getCargo(@PathVariable("cargoId") String cargoId) {
         Cargo cargo = cargoService.getCargo(cargoId);
         return ApiResponse.onSuccess(new CargoResponse(cargo));
@@ -50,6 +60,9 @@ public class CargoController {
 
     @Operation(summary = "나의 화물 목록 조회 - 페이징", description = "내가 추가한 화물의 목록을 조회합니다.")
     @GetMapping("/all")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공")
+    })
     public ApiResponse<CargoPageResponse> getMyCargos(
         @Parameter(description = "페이지 번호") @RequestParam(value = "page", defaultValue = "0") int page,
         @Parameter(description = "페이지 크기") @RequestParam(value = "size", defaultValue = "10") int size,
@@ -63,6 +76,11 @@ public class CargoController {
 
     @Operation(summary = "나의 화물 수정", description = "나의 화물을 수정합니다. CargoRequest 사용")
     @PutMapping("/{cargoId}")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402",description = "해당 ID 의 CARGO 가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO403",description = "해당 사용자의 화물이 아닙니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
     public ApiResponse<String> updateMyCargo(
         @PathVariable("cargoId") String cargoId,
         @RequestBody CargoRequest cargoRequest,
@@ -74,6 +92,11 @@ public class CargoController {
 
     @Operation(summary = "나의 화물 삭제", description = "나의 화물을 삭제합니다.")
     @DeleteMapping("{cargoId}")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402",description = "해당 ID 의 CARGO 가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO403",description = "해당 사용자의 화물이 아닙니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
     public ApiResponse<SuccessStatus> deleteMyCargo(
         @PathVariable("cargoId") String cargoId,
         @AuthenticationPrincipal CustomUserDetail userDetail
