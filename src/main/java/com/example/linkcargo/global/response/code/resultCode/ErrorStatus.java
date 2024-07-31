@@ -29,7 +29,11 @@ public enum ErrorStatus implements BaseErrorCode {
 
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH408", "유효하지 않은 REFRESH 토큰입니다."),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "AUTH409", "REFRESH 토큰이 존재하지 않습니다."),
-    REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH410", "REFRESH 토큰이 만료되었습니다.");
+    REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH410", "REFRESH 토큰이 만료되었습니다."),
+
+    // Cargo
+    INVALID_CARGO_INPUT(HttpStatus.BAD_REQUEST, "CARGO401", "유효하지 않은 CARGO 입력 정보입니다."),
+    CARGO_NOT_FOUND(HttpStatus.NOT_FOUND, "CARGO402", "해당 ID 의 CARGO 가 존재하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

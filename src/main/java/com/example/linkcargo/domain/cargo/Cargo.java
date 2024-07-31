@@ -17,6 +17,7 @@ public class Cargo extends MongoBaseEntity{
 
     @Id
     private String id;
+    private Long userId;
 
     private String additionalInstructions;
     private String friendlyDescription;
@@ -48,4 +49,6 @@ public class Cargo extends MongoBaseEntity{
         private BigDecimal height;
         private BigDecimal depth;
     }
+
+
 }

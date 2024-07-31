@@ -5,6 +5,7 @@ import com.example.linkcargo.domain.user.Status;
 import com.example.linkcargo.domain.user.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
@@ -12,7 +13,8 @@ import java.util.ArrayList;
 
 public record UserRegisterRequest(
 
-    @NotBlank(message = "Role is mandatory")
+    // 프론트엔드쪽에서 ROLE 값 받아오는 걸로
+    @NotNull(message = "Role is mandatory")
     Role role,
 
     @NotBlank(message = "First name is mandatory")

@@ -106,8 +106,9 @@ public class CargoRequest {
         }
     }
 
-    public Cargo toEntity() {
+    public Cargo toEntity(Long userId) {
         return Cargo.builder()
+            .userId(userId)
             .additionalInstructions(this.additionalInstructions)
             .friendlyDescription(this.friendlyDescription)
             .insuranceRequired(this.insuranceRequired)

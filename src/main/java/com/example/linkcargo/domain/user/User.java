@@ -76,4 +76,20 @@ public class User extends JpaBaseEntity {
     public void updatePassword(String password) {
         this.password = password;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+               "id=" + id +
+               ", role=" + role +
+               ", firstName='" + firstName + '\'' +
+               ", lastName='" + lastName + '\'' +
+               ", email='" + email + '\'' +
+               ", password='" + password + '\'' +
+               ", phoneNumber='" + phoneNumber + '\'' +
+               ", companyName='" + companyName + '\'' +
+               ", jobTitle='" + jobTitle + '\'' +
+               ", businessNumber='" + businessNumber + '\'' +
+               '}';
+    }
 }
