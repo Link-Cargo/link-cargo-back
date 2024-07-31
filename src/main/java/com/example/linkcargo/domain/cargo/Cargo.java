@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.cargo;
 
+import com.example.linkcargo.domain.cargo.dto.request.CargoRequest;
 import com.example.linkcargo.global.entity.MongoBaseEntity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -23,6 +24,40 @@ public class Cargo extends MongoBaseEntity{
     private String friendlyDescription;
     private Boolean insuranceRequired;
     private CargoInfo cargoInfo;
+
+    public void update(CargoRequest cargoRequest) {
+        // 기본 필드 업데이트
+        this.additionalInstructions = cargoRequest.getAdditionalInstructions();
+        this.friendlyDescription = cargoRequest.getFriendlyDescription();
+        this.insuranceRequired = cargoRequest.getInsuranceRequired();
+
+        // CargoInfo 업데이트
+        CargoRequest.CargoInfoDto cargoInfoDto = cargoRequest.getCargoInfo();
+        if (cargoInfoDto != null) {
+            if (this.cargoInfo == null) {
+                this.cargoInfo = new CargoInfo();
+            }
+            this.cargoInfo.productName = cargoInfoDto.getProductName();
+            this.cargoInfo.hsCode = cargoInfoDto.getHsCode();
+            this.cargoInfo.incoterms = cargoInfoDto.getIncoterms();
+            this.cargoInfo.weight = cargoInfoDto.getWeight();
+            this.cargoInfo.value = cargoInfoDto.getValue();
+            this.cargoInfo.quantity = cargoInfoDto.getQuantity();
+
+            // BoxSize 업데이트
+            CargoRequest.BoxSizeDto boxSizeDto = cargoInfoDto.getBoxSize();
+            if (boxSizeDto != null) {
+                if (this.cargoInfo.boxSize == null) {
+                    this.cargoInfo.boxSize = new BoxSize();
+                }
+                this.cargoInfo.boxSize.width = boxSizeDto.getWidth();
+                this.cargoInfo.boxSize.height = boxSizeDto.getHeight();
+                this.cargoInfo.boxSize.depth = boxSizeDto.getDepth();
+            }
+        }
+    }
+
+
 
     @Getter
     @Setter

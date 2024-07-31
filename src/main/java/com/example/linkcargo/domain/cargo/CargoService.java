@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -52,8 +53,28 @@ public class CargoService {
     /**
      * 내 화물 수정
      */
-    public void updateMyCargo(Long userId, Long cargoId, CargoRequest cargoRequest) {
+    @Transactional
+    public Cargo updateMyCargo(Long userId, String cargoId, CargoRequest cargoRequest) {
+        Cargo cargo = cargoRepository.findById(cargoId)
+            .orElseThrow(() -> new CargoHandler(ErrorStatus.CARGO_NOT_FOUND));
+        if(!cargo.getUserId().equals(userId)){
+            throw new CargoHandler(ErrorStatus.CARGO_USER_NOT_MATCH);
+        }
+        cargo.update(cargoRequest);
+        cargoRepository.save(cargo);
+        return cargo;
+    }
 
+    /**
+     * 내 화물 삭제
+     */
+    public void deleteMyCargo(Long userId, String cargoId) {
+        Cargo cargo = cargoRepository.findById(cargoId)
+            .orElseThrow(() -> new CargoHandler(ErrorStatus.CARGO_NOT_FOUND));
+        if(!cargo.getUserId().equals(userId)){
+            throw new CargoHandler(ErrorStatus.CARGO_USER_NOT_MATCH);
+        }
+        cargoRepository.delete(cargo);
     }
 
     /**

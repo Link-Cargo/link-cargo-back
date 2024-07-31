@@ -6,6 +6,7 @@ import com.example.linkcargo.domain.cargo.dto.response.CargoResponse;
 import com.example.linkcargo.global.resolver.Login;
 import com.example.linkcargo.global.resolver.LoginInfo;
 import com.example.linkcargo.global.response.ApiResponse;
+import com.example.linkcargo.global.response.code.resultCode.SuccessStatus;
 import com.example.linkcargo.global.security.CustomUserDetail;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,15 +61,27 @@ public class CargoController {
         return ApiResponse.onSuccess(cargoPageResponse);
     }
 
-    @PutMapping("{cargoId}")
+    @Operation(summary = "나의 화물 수정", description = "나의 화물을 수정합니다. CargoRequest 사용")
+    @PutMapping("/{cargoId}")
     public ApiResponse<String> updateMyCargo(
-        @PathVariable("cargoId") Long cargoId,
+        @PathVariable("cargoId") String cargoId,
         @RequestBody CargoRequest cargoRequest,
         @AuthenticationPrincipal CustomUserDetail userDetail
     ) {
-        cargoService.updateMyCargo(userDetail.getId(), cargoId, cargoRequest);
-        return null;
+        Cargo udpatedCargo = cargoService.updateMyCargo(userDetail.getId(), cargoId, cargoRequest);
+        return ApiResponse.onSuccess(udpatedCargo.getId());
     }
+
+    @Operation(summary = "나의 화물 삭제", description = "나의 화물을 삭제합니다.")
+    @DeleteMapping("{cargoId}")
+    public ApiResponse<SuccessStatus> deleteMyCargo(
+        @PathVariable("cargoId") String cargoId,
+        @AuthenticationPrincipal CustomUserDetail userDetail
+    ) {
+        cargoService.deleteMyCargo(userDetail.getId(), cargoId);
+        return ApiResponse.onSuccess(SuccessStatus._OK);
+    }
+
 
     private Sort getSortObject(String sort) {
         switch (sort) {
