@@ -29,7 +29,7 @@ public class RefreshTokenController {
     private final RefreshTokenService refreshTokenService;
 
 
-    @Operation(summary = "회원 가입", description = "회원 가입. UserRegisterRequest 사용")
+    @Operation(summary = "회원 가입", description = "회원 가입을 수행합니다. UserRegisterRequest 사용")
     @PostMapping("/register")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
@@ -42,6 +42,7 @@ public class RefreshTokenController {
         return ApiResponse.onSuccess(joinedUser.getId());
     }
 
+    @Operation(summary = "로그인", description = "로그인을 수행합니다. UserLoginRequest 사용")
     @PostMapping("/login")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
@@ -53,6 +54,7 @@ public class RefreshTokenController {
         return ApiResponse.onSuccess(tokenResponse);
     }
 
+    @Operation(summary = "토큰 재발급", description = "토큰을 재발급합니다. 헤더의 Refresh-Token 사용")
     @GetMapping("/refresh")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
