@@ -3,8 +3,6 @@ package com.example.linkcargo.domain.cargo;
 import com.example.linkcargo.domain.cargo.dto.request.CargoRequest;
 import com.example.linkcargo.domain.cargo.dto.response.CargoPageResponse;
 import com.example.linkcargo.domain.cargo.dto.response.CargoResponse;
-import com.example.linkcargo.global.resolver.Login;
-import com.example.linkcargo.global.resolver.LoginInfo;
 import com.example.linkcargo.global.response.ApiResponse;
 import com.example.linkcargo.global.response.code.resultCode.SuccessStatus;
 import com.example.linkcargo.global.security.CustomUserDetail;
@@ -15,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -37,21 +36,37 @@ public class CargoController {
 
     private final CargoService cargoService;
 
-    @Operation(summary = "화물 추가", description = "화물 정보를 입력합니다. CargoRequest 사용")
+    @Operation(summary = "화물 한개 추가", description = "화물 정보를 한 개 추가합니다. CargoRequest 사용")
+//    @PostMapping
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공")
+    })
+    public ApiResponse<String> createCargo(
+        @Valid @RequestBody CargoRequest cargoRequest,
+        @AuthenticationPrincipal CustomUserDetail userDetail
+    ) {
+        Cargo savedCargo = cargoService.createCargo(userDetail.getId(), cargoRequest);
+        return ApiResponse.onSuccess(savedCargo.getId());
+    }
+
+    @Operation(summary = "화물 여러 개 추가", description = "화물 정보를 여러 개 추가합니다. List<CargoRequest> 사용")
     @PostMapping
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공")
     })
-    public ApiResponse<String> createCargo(@Login LoginInfo loginInfo, @Valid @RequestBody CargoRequest cargoRequest) {
-        Cargo savedCargo = cargoService.createCargo(loginInfo.id(), cargoRequest);
-        return ApiResponse.onSuccess(savedCargo.getId());
+    public ApiResponse<SuccessStatus> createCargos(
+        @Valid @RequestBody List<CargoRequest> cargoRequests,
+        @AuthenticationPrincipal CustomUserDetail userDetail
+        ) {
+        cargoService.createCargos(userDetail.getId(), cargoRequests);
+        return ApiResponse.onSuccess(SuccessStatus._OK);
     }
 
     @Operation(summary = "화물 조회", description = "특정 화물을 조회합니다.")
     @GetMapping("/{cargoId}")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402",description = "해당 ID 의 CARGO 가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402", description = "해당 ID 의 CARGO 가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     public ApiResponse<CargoResponse> getCargo(@PathVariable("cargoId") String cargoId) {
         CargoResponse cargoResponse = cargoService.getCargo(cargoId);
@@ -78,8 +93,8 @@ public class CargoController {
     @PutMapping("/{cargoId}")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402",description = "해당 ID 의 CARGO 가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO403",description = "해당 사용자의 화물이 아닙니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402", description = "해당 ID 의 CARGO 가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO403", description = "해당 사용자의 화물이 아닙니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     public ApiResponse<String> updateMyCargo(
         @PathVariable("cargoId") String cargoId,
@@ -94,8 +109,8 @@ public class CargoController {
     @DeleteMapping("{cargoId}")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402",description = "해당 ID 의 CARGO 가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO403",description = "해당 사용자의 화물이 아닙니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402", description = "해당 ID 의 CARGO 가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO403", description = "해당 사용자의 화물이 아닙니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     public ApiResponse<SuccessStatus> deleteMyCargo(
         @PathVariable("cargoId") String cargoId,
