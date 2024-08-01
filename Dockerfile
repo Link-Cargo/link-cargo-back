@@ -1,4 +1,5 @@
 FROM openjdk:17-jdk
+RUN mkdir -p /app/logs
 WORKDIR /app
 COPY build/libs/linkcargo-0.0.1-SNAPSHOT.jar app.jar
 COPY src/main/resources/application.yml /app/application.yml
