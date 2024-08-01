@@ -44,4 +44,5 @@ public class CustomUserDetail implements UserDetails {
                "user=" + user +
                '}';
     }
+
 }

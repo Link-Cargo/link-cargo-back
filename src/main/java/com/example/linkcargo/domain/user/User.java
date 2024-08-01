@@ -3,15 +3,31 @@ package com.example.linkcargo.domain.user;
 import com.example.linkcargo.domain.chat.Membership;
 import com.example.linkcargo.domain.forwarding.Forwarding;
 import com.example.linkcargo.domain.notification.Notification;
+import com.example.linkcargo.domain.user.dto.UserResponse;
 import com.example.linkcargo.global.entity.JpaBaseEntity;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
@@ -30,7 +46,7 @@ public class User extends JpaBaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "forwarding_id")
-    private Forwarding forwarding;
+    private Forwarding forwarding; // 기본적으로 null
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -47,7 +63,7 @@ public class User extends JpaBaseEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", unique = true)
     private String phoneNumber;
 
     @Column(name = "company_name")
@@ -56,7 +72,7 @@ public class User extends JpaBaseEntity {
     @Column(name = "job_title")
     private String jobTitle;
 
-    @Column(name = "business_number")
+    @Column(name = "business_number", unique = true)
     private String businessNumber;
 
     @Enumerated(EnumType.STRING)
@@ -90,6 +106,24 @@ public class User extends JpaBaseEntity {
                ", companyName='" + companyName + '\'' +
                ", jobTitle='" + jobTitle + '\'' +
                ", businessNumber='" + businessNumber + '\'' +
+               ", status=" + status +
+               ", totalPrice=" + totalPrice +
                '}';
+    }
+
+    public UserResponse toUserResponse() {
+        return new UserResponse(
+            this.id,
+            this.role,
+            this.firstName,
+            this.lastName,
+            this.email,
+            this.phoneNumber,
+            this.companyName,
+            this.jobTitle,
+            this.businessNumber,
+            this.status,
+            this.totalPrice
+        );
     }
 }

@@ -38,7 +38,7 @@ public class JwtProvider {
      */
     public String generateAccessToken(Long userId, String email) {
         log.info("generateToken 메서드 시작");
-        return "Bearer " + Jwts.builder()
+        return Jwts.builder()
             .claim("id", userId)
             .claim("email", email)
             .issuedAt(new Date())

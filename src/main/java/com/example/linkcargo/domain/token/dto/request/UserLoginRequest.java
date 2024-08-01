@@ -1,4 +1,4 @@
-package com.example.linkcargo.domain.user.dto.request;
+package com.example.linkcargo.domain.token.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

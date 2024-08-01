@@ -1,10 +1,11 @@
 package com.example.linkcargo.user;
 
 
+import com.example.linkcargo.domain.token.RefreshTokenService;
 import com.example.linkcargo.domain.user.Role;
 import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.domain.user.UserService;
-import com.example.linkcargo.domain.user.dto.request.UserRegisterRequest;
+import com.example.linkcargo.domain.token.dto.request.UserRegisterRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class UserServiceTest {
 
     @Autowired
-    UserService userService;
+    RefreshTokenService refreshTokenService;
 
     @Test
     void 정상_회원가입() {
@@ -29,7 +30,7 @@ public class UserServiceTest {
             "Software Engineer", // 직책
             "1234567890" // 사업자 번호
         );
-        User joinedUser = userService.join(userRegisterRequest);
+        User joinedUser = refreshTokenService.join(userRegisterRequest);
         Assertions.assertAll(
             () -> org.assertj.core.api.Assertions.assertThat(joinedUser.getFirstName()).isEqualTo(userRegisterRequest.firstName()),
             () -> org.assertj.core.api.Assertions.assertThat(joinedUser.getLastName()).isEqualTo(userRegisterRequest.lastName()),

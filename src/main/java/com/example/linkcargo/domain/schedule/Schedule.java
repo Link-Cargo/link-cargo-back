@@ -32,6 +32,9 @@ public class Schedule extends JpaBaseEntity {
     @Column(nullable = false)
     private String carrier;
 
+    @Column(nullable = false)
+    private String vessel;
+
     @Column(name = "etd")
     private LocalDateTime ETD;
 
