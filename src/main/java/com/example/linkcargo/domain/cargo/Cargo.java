@@ -20,6 +20,9 @@ public class Cargo extends MongoBaseEntity{
     private String id;
     private Long userId;
 
+    private Long exportPortId;
+    private Long importPortId;
+
     private String additionalInstructions;
     private String friendlyDescription;
     private Boolean insuranceRequired;
@@ -27,6 +30,8 @@ public class Cargo extends MongoBaseEntity{
 
     public void update(CargoRequest cargoRequest) {
         // 기본 필드 업데이트
+        this.exportPortId = cargoRequest.getExportPortId();
+        this.importPortId = cargoRequest.getImportPortId();
         this.additionalInstructions = cargoRequest.getAdditionalInstructions();
         this.friendlyDescription = cargoRequest.getFriendlyDescription();
         this.insuranceRequired = cargoRequest.getInsuranceRequired();
