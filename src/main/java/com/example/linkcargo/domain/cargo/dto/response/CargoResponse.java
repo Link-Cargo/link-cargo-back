@@ -1,9 +1,9 @@
 package com.example.linkcargo.domain.cargo.dto.response;
 
-import com.example.linkcargo.domain.cargo.Cargo;
+import com.example.linkcargo.domain.cargo.dto.CargoDTO;
 
 public record CargoResponse(
-    Cargo cargo
+    CargoDTO cargo
 ) {
 
 }
