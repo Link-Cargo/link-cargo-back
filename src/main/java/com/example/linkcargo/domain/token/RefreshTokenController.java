@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 @Tag(name = "1. Register, Login, Refresh", description = "회원 가입, 로그인, 리프레시 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users")
+@RequestMapping("/v1/users")
 public class RefreshTokenController {
 
     private final RefreshTokenService refreshTokenService;
