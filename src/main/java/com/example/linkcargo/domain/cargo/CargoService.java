@@ -26,13 +26,25 @@ public class CargoService {
     private final PortRepository portRepository;
 
     /**
-     * 화물 생성
+     * 화물 한 개 추가
      */
     public Cargo createCargo(Long userId, CargoRequest cargoRequest) {
         Cargo cargo = cargoRequest.toEntity(userId);
         cargo.prePersist();
 
         return cargoRepository.save(cargo);
+    }
+
+    /**
+     * 화물 여러 개 추가
+     */
+    public void createCargos(Long userId, List<CargoRequest> cargoRequests) {
+        for (CargoRequest cargoRequest : cargoRequests) {
+            Cargo cargo = cargoRequest.toEntity(userId);
+            cargo.prePersist();
+
+            cargoRepository.save(cargo);
+        }
     }
 
     /**
@@ -68,6 +80,7 @@ public class CargoService {
         }
         return cargoDTOS;
     }
+
     /**
      * 내 화물 수정
      */
@@ -79,6 +92,7 @@ public class CargoService {
             throw new CargoHandler(ErrorStatus.CARGO_USER_NOT_MATCH);
         }
         cargo.update(cargoRequest);
+        cargo.preUpdate();
         cargoRepository.save(cargo);
         return cargo;
     }
@@ -95,7 +109,5 @@ public class CargoService {
         cargoRepository.delete(cargo);
     }
 
-    /**
-     * 내 화물 수정
-     */
+
 }
