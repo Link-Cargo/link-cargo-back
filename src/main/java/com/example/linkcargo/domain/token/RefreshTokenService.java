@@ -5,6 +5,7 @@ import static java.util.Objects.isNull;
 import com.example.linkcargo.domain.token.dto.request.UserLoginRequest;
 import com.example.linkcargo.domain.token.dto.request.UserRegisterRequest;
 import com.example.linkcargo.domain.token.dto.response.TokenResponse;
+import com.example.linkcargo.domain.user.Status;
 import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.domain.user.UserRepository;
 import com.example.linkcargo.global.jwt.JwtProvider;
@@ -71,6 +72,18 @@ public class RefreshTokenService {
             }
             throw new UsersHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * 회원 탈퇴 - status DELETE 로 변경
+     */
+    public void unregister(String password, Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UsersHandler(ErrorStatus.USER_NOT_FOUND));
+        if(!passwordEncoder.matches(password, user.getPassword())){
+            throw new UsersHandler(ErrorStatus.USER_INVALID_PASSWORD);
+        }
+        user.changeStatus(Status.DELETED);
     }
 
     /**

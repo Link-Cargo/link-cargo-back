@@ -1,11 +1,14 @@
 package com.example.linkcargo.domain.token;
 
 
+import com.example.linkcargo.domain.token.dto.request.PasswordRequest;
 import com.example.linkcargo.domain.token.dto.response.TokenResponse;
 import com.example.linkcargo.domain.token.dto.request.UserLoginRequest;
 import com.example.linkcargo.domain.token.dto.request.UserRegisterRequest;
 import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.global.response.ApiResponse;
+import com.example.linkcargo.global.response.code.resultCode.SuccessStatus;
+import com.example.linkcargo.global.security.CustomUserDetail;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,6 +16,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
-@Tag(name = "1. Register, Login, Refresh", description = "회원 가입, 로그인, 리프레시 관련 API")
+@Tag(name = "1. Register/UnRegister, Login, Refresh", description = "회원 가입/탈퇴, 로그인, 리프레시 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
@@ -66,4 +71,19 @@ public class RefreshTokenController {
         return ApiResponse.onSuccess(tokenResponse);
     }
 
+
+    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴를 수행합니다. ")
+    @DeleteMapping("/unregister")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER403",description = "해당 정보의 유저를 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER404",description = "유저 정보가 일치하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<SuccessStatus> unregister(
+        @Valid @RequestBody PasswordRequest passwordRequest,
+        @AuthenticationPrincipal CustomUserDetail userDetail
+    ){
+        refreshTokenService.unregister(passwordRequest.password(), userDetail.getId());
+        return ApiResponse.onSuccess(SuccessStatus._OK);
+    }
 }

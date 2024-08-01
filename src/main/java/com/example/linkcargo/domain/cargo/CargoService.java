@@ -26,7 +26,7 @@ public class CargoService {
     private final PortRepository portRepository;
 
     /**
-     * 화물 생성
+     * 화물 한개 추가
      */
     public Cargo createCargo(Long userId, CargoRequest cargoRequest) {
         Cargo cargo = cargoRequest.toEntity(userId);
@@ -95,7 +95,4 @@ public class CargoService {
         cargoRepository.delete(cargo);
     }
 
-    /**
-     * 내 화물 수정
-     */
 }

@@ -18,6 +18,7 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_EXISTS_EMAIL(HttpStatus.BAD_REQUEST, "USER401", "중복된 이메일입니다."),
     USER_EXISTS_BUSINESS_NUMBER(HttpStatus.BAD_REQUEST, "USER402", "중복된 사업자번호입니다."),
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER403", "해당 정보의 유저를 찾을 수 없습니다."),
+    USER_INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "USER404", "유저 정보가 일치하지 않습니다."),
 
     // JWT
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH401", "유효하지 않은 ACCESS 토큰입니다."),

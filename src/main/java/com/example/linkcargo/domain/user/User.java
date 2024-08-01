@@ -126,4 +126,8 @@ public class User extends JpaBaseEntity {
             this.totalPrice
         );
     }
+
+    public void changeStatus(Status status) {
+        this.status = status;
+    }
 }
