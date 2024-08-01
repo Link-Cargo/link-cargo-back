@@ -9,6 +9,8 @@ import java.math.BigDecimal;
  * Long importPortId -> Port importPort
  */
 public record CargoDTO(
+    String id,
+    Long userId,
     Port exportPort,
     Port importPort,
     String additionalInstructions,

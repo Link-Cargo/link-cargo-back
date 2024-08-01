@@ -119,6 +119,8 @@ public class Cargo extends MongoBaseEntity {
         }
 
         return new CargoDTO(
+            id,
+            userId,
             exportPort,
             importPort,
             this.additionalInstructions,
