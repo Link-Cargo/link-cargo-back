@@ -52,7 +52,7 @@ public class CargoService {
     public CargoPageResponse getMyCargos(Long userId, PageRequest pageRequest) {
         Page<Cargo> cargos = cargoRepository.findAllByUserId(userId, pageRequest);
         return new CargoPageResponse(
-            makeCargoDTOList(cargos.getContent()), // 현재 페이지에 포함된 Cargo 객체들의 리스트
+            makeCargoDTOList(cargos.getContent()), // 현재 페이지에 포함된 Cargo 객체(CargoDTO 롤 변환한)들의 리스트
             cargos.getTotalElements(), // 전체 데이터의 총 개수
             cargos.getNumber(), // 현재 페이지의 페이지 번호
             cargos.getNumberOfElements() // 현재 페이지에 포함된 항목의 수
