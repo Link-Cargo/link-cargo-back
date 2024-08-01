@@ -1,12 +1,17 @@
 package com.example.linkcargo.domain.cargo;
 
+import com.example.linkcargo.domain.cargo.dto.CargoDTO;
 import com.example.linkcargo.domain.cargo.dto.request.CargoRequest;
+import com.example.linkcargo.domain.port.Port;
 import com.example.linkcargo.global.entity.MongoBaseEntity;
+import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import lombok.*;
-
-import java.math.BigDecimal;
 
 @Document(collection = "cargos")
 @Getter
@@ -14,11 +19,14 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Cargo extends MongoBaseEntity{
+public class Cargo extends MongoBaseEntity {
 
     @Id
     private String id;
     private Long userId;
+
+    private Long exportPortId;
+    private Long importPortId;
 
     private String additionalInstructions;
     private String friendlyDescription;
@@ -27,6 +35,8 @@ public class Cargo extends MongoBaseEntity{
 
     public void update(CargoRequest cargoRequest) {
         // 기본 필드 업데이트
+        this.exportPortId = cargoRequest.getExportPortId();
+        this.importPortId = cargoRequest.getImportPortId();
         this.additionalInstructions = cargoRequest.getAdditionalInstructions();
         this.friendlyDescription = cargoRequest.getFriendlyDescription();
         this.insuranceRequired = cargoRequest.getInsuranceRequired();
@@ -58,13 +68,13 @@ public class Cargo extends MongoBaseEntity{
     }
 
 
-
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
     public static class CargoInfo {
+
         private String productName;
         private String hsCode;
         private String incoterms;
@@ -80,9 +90,43 @@ public class Cargo extends MongoBaseEntity{
     @AllArgsConstructor
     @Builder
     public static class BoxSize {
+
         private BigDecimal width;
         private BigDecimal height;
         private BigDecimal depth;
     }
 
+    public CargoDTO toCargoDTO(Port exportPort, Port importPort) {
+        CargoDTO.CargoInfoDto cargoInfoDto = null;
+        if (this.cargoInfo != null) {
+            CargoDTO.BoxSizeDto boxSizeDto = null;
+            if (this.cargoInfo.getBoxSize() != null) {
+                boxSizeDto = new CargoDTO.BoxSizeDto(
+                    this.cargoInfo.getBoxSize().getWidth(),
+                    this.cargoInfo.getBoxSize().getHeight(),
+                    this.cargoInfo.getBoxSize().getDepth()
+                );
+            }
+            cargoInfoDto = new CargoDTO.CargoInfoDto(
+                this.cargoInfo.getProductName(),
+                this.cargoInfo.getHsCode(),
+                this.cargoInfo.getIncoterms(),
+                this.cargoInfo.getWeight(),
+                this.cargoInfo.getValue(),
+                this.cargoInfo.getQuantity(),
+                boxSizeDto
+            );
+        }
+
+        return new CargoDTO(
+            id,
+            userId,
+            exportPort,
+            importPort,
+            this.additionalInstructions,
+            this.friendlyDescription,
+            this.insuranceRequired,
+            cargoInfoDto
+        );
+    }
 }

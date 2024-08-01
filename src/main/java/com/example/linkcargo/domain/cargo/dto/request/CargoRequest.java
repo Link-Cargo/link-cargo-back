@@ -20,6 +20,12 @@ import lombok.Setter;
 @Builder
 public class CargoRequest {
 
+    @NotNull(message = "export port id is mandatory")
+    private Long exportPortId;
+
+    @NotNull(message = "export port id is mandatory")
+    private Long importPortId;
+
     @Size(max = 255, message = "Additional instructions must be less than 255 characters")
     private String additionalInstructions;
 
@@ -109,6 +115,8 @@ public class CargoRequest {
     public Cargo toEntity(Long userId) {
         return Cargo.builder()
             .userId(userId)
+            .exportPortId(this.exportPortId)
+            .importPortId(this.importPortId)
             .additionalInstructions(this.additionalInstructions)
             .friendlyDescription(this.friendlyDescription)
             .insuranceRequired(this.insuranceRequired)

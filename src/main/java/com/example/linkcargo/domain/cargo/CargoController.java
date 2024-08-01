@@ -54,8 +54,8 @@ public class CargoController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402",description = "해당 ID 의 CARGO 가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     public ApiResponse<CargoResponse> getCargo(@PathVariable("cargoId") String cargoId) {
-        Cargo cargo = cargoService.getCargo(cargoId);
-        return ApiResponse.onSuccess(new CargoResponse(cargo));
+        CargoResponse cargoResponse = cargoService.getCargo(cargoId);
+        return ApiResponse.onSuccess(cargoResponse);
     }
 
     @Operation(summary = "나의 화물 목록 조회 - 페이징", description = "내가 추가한 화물의 목록을 조회합니다.")
