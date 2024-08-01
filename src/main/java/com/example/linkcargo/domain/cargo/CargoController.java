@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "2. Cargo", description = "화물 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/users/cargos")
+@RequestMapping("/api/v1/cargos")
 public class CargoController {
 
     private final CargoService cargoService;

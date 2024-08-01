@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "3. Schedule", description = "선박 정보 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/schedules")
+@RequestMapping("/api/v1/schedules")
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
