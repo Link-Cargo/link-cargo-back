@@ -19,6 +19,7 @@ public class SwaggerConfig {
                 .description("LinkCargo 서버 API 명세서")
                 .version("1.0.0");
 
+
         String jwtSchemeName = "JWT TOKEN";
         // API 요청 헤더에 인증정보 포함
         SecurityRequirement securityRequirement = new SecurityRequirement().addList(jwtSchemeName);
@@ -31,9 +32,10 @@ public class SwaggerConfig {
                         .bearerFormat("JWT"));
 
         return new OpenAPI()
-                .addServersItem(new Server().url("/"))
+                .addServersItem(new Server().url("/api"))
                 .info(info)
                 .addSecurityItem(securityRequirement)
                 .components(components);
+
     }
 }
