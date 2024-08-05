@@ -7,6 +7,7 @@ import com.example.linkcargo.global.resolver.Login;
 import com.example.linkcargo.global.resolver.LoginInfo;
 import com.example.linkcargo.global.response.ApiResponse;
 import com.example.linkcargo.global.response.code.resultCode.SuccessStatus;
+import com.example.linkcargo.global.security.CustomUserDetail;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
@@ -32,7 +34,7 @@ public class ScheduleController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE401",description = "이미 존재하는 선박스케줄 입니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE402",description = "선박정보 생성에 실패하였습니다", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
-    public ApiResponse<Long> createSchedule(@Login LoginInfo loginInfo, @RequestBody ScheduleCreateUpdateRequest request) {
+    public ApiResponse<Long> createSchedule(@AuthenticationPrincipal CustomUserDetail userDetail, @RequestBody ScheduleCreateUpdateRequest request) {
         Long resultId = scheduleService.createSchedule(request);
         return ApiResponse.onSuccess(resultId);
     }
@@ -44,7 +46,7 @@ public class ScheduleController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE403",description = "선박 스케줄이 존재 하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     public ApiResponse<ScheduleInfoResponse> findSchedule(
-            @Login LoginInfo loginInfo,
+            @AuthenticationPrincipal CustomUserDetail userDetail,
             @Parameter(description = "선박 스케줄 아이디") @PathVariable("scheduleId") Long scheduleId) {
         ScheduleInfoResponse scheduleInfoResponse = scheduleService.findSchedule(scheduleId);
         return ApiResponse.onSuccess(scheduleInfoResponse);
@@ -56,7 +58,7 @@ public class ScheduleController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
     })
     public ApiResponse<ScheduleListResponse> findSchedules(
-            @Login LoginInfo loginInfo,
+            @AuthenticationPrincipal CustomUserDetail userDetail,
             @Parameter(description = "페이지 번호") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size
     ) {
@@ -72,7 +74,7 @@ public class ScheduleController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE404",description = "선박 스케줄 변경에 실패했습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     public ApiResponse<SuccessStatus> modifySchedule(
-            @Login LoginInfo loginInfo,
+            @AuthenticationPrincipal CustomUserDetail userDetail,
             @Parameter(description = "선박 스케줄 아이디") @PathVariable Long scheduleId,
             @RequestBody ScheduleCreateUpdateRequest request
     ) {
@@ -88,7 +90,7 @@ public class ScheduleController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE405",description = "선박 스케줄 삭제에 실패했습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     public ApiResponse<SuccessStatus> removeSchedule(
-            @Login LoginInfo loginInfo,
+            @AuthenticationPrincipal CustomUserDetail userDetail,
             @Parameter(description = "선박 스케줄 아이디") @PathVariable Long scheduleId
     ) {
         scheduleService.removeSchedule(scheduleId);
@@ -101,7 +103,7 @@ public class ScheduleController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
     })
     public ApiResponse<ScheduleListResponse> searchSchedules(
-            @Login LoginInfo loginInfo,
+            @AuthenticationPrincipal CustomUserDetail userDetail,
             @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size
     ) {
