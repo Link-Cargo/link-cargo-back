@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class PortService {
 
     private final PortRepository portRepository;
+
+    @Transactional
     public Long createPort(PortCreateUpdateRequest request) {
         // 같은 이름의 항구가 존재하는지 확인
         if (portRepository.existsByName(request.name())) {
