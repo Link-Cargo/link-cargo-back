@@ -29,8 +29,8 @@ public class Attachment {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "message_id", nullable = false)
-    private Message message;
+    @JoinColumn(name = "chat_id", nullable = false)
+    private Chat chat;
 
     @Column(name = "file_type", nullable = false)
     private String fileType;
