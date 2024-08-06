@@ -1,6 +1,7 @@
 package com.example.linkcargo.domain.chat;
 
 import com.example.linkcargo.domain.user.User;
+import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -23,7 +24,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "chats")
-public class Chat {
+public class Chat extends JpaBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

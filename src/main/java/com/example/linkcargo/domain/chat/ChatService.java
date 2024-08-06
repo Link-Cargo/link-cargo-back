@@ -47,7 +47,7 @@ public class ChatService {
      * 채팅방의 채팅 목록 조회
      */
     public List<Chat> getChatsByRoomId(Long chatRoomId) {
-        List<Chat> chats = chatRepository.findAllByChatRoomId(chatRoomId);
+        List<Chat> chats = chatRepository.findAllByChatRoomIdOrderByCreatedAtDesc(chatRoomId);
         return chats;
     }
 
