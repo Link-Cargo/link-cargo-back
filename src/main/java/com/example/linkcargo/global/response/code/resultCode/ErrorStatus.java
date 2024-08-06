@@ -40,8 +40,8 @@ public enum ErrorStatus implements BaseErrorCode {
     SCHEDULE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "SCHEDULE401", "이미 존재하는 선박 스케줄 입니다."),
     SCHEDULE_CREATED_FAIL(HttpStatus.NOT_FOUND, "SCHEDULE402", "선박 스케줄 생성에 실패하였습니다."),
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE403   ", "선박 스케줄이 존재 하지 않습니다.."),
-    SCHEDULE_UPDATED_FAIL(HttpStatus.NOT_FOUND, "SCHEDULE404","선박 스케줄 변경에 실패하였습니다"),
-    SCHEDULE_DELETED_FAIL(HttpStatus.NOT_FOUND, "SCHEDULE405","선박 스케줄 삭제에 실패하였습니다"),
+    SCHEDULE_UPDATED_FAIL(HttpStatus.NOT_FOUND, "SCHEDULE404", "선박 스케줄 변경에 실패하였습니다"),
+    SCHEDULE_DELETED_FAIL(HttpStatus.NOT_FOUND, "SCHEDULE405", "선박 스케줄 삭제에 실패하였습니다"),
 
     // Port
     IMPORT_PORT_NOT_FOUND(HttpStatus.NOT_FOUND, "PORT401", "존재 하지 않는 수입항 입니다."),

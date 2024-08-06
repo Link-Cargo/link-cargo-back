@@ -1,4 +1,4 @@
-package com.example.linkcargo.domain.chat;
+package com.example.linkcargo.domain.chat.Entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

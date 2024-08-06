@@ -1,5 +1,6 @@
-package com.example.linkcargo.domain.chat;
+package com.example.linkcargo.domain.chat.Entity;
 
+import com.example.linkcargo.domain.chat.ChatRoom;
 import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.Column;

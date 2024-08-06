@@ -1,6 +1,8 @@
 package com.example.linkcargo.domain.chat;
 
-import com.example.linkcargo.domain.chat.dto.request.ChatRequest;
+import com.example.linkcargo.domain.chat.Entity.Chat;
+import com.example.linkcargo.domain.chat.Entity.Membership;
+import com.example.linkcargo.domain.chat.Entity.RoomStatus;
 import com.example.linkcargo.domain.chat.repository.ChatRepository;
 import com.example.linkcargo.domain.chat.repository.ChatRoomRepository;
 import com.example.linkcargo.domain.chat.repository.MemberShipRepository;
@@ -26,7 +28,8 @@ public class ChatService {
      * 채팅방 생성 또는 조회
      */
     public ChatRoom createOrGetChatRoom(Long userId, Long targetUserId) {
-        Optional<ChatRoom> chatRoom = chatRoomRepository.findByUserIdAndTargetUserId(userId, targetUserId);
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findByUserIdAndTargetUserId(userId,
+            targetUserId);
 
         // 채팅방이 존재하는 경우
         if (chatRoom.isPresent()) {

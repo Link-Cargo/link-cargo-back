@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.chat;
 
+import com.example.linkcargo.domain.chat.Entity.Chat;
 import com.example.linkcargo.domain.chat.dto.request.ChatRequest;
 import com.example.linkcargo.domain.chat.dto.request.ChatRequest.MessageType;
 import com.example.linkcargo.domain.user.UserService;
@@ -35,8 +36,10 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         sessions.add(session);
     }
 
+    // TODO 에러 어떻게 처리할건지, 핸들러 사용?
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(WebSocketSession session, TextMessage message)
+        throws Exception {
         String payload = message.getPayload();
         log.info("payload {}", payload);
 
@@ -58,7 +61,8 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     /**
      * 채팅방 입장 메시지
      */
-    private void handleEnterMessage(WebSocketSession session, ChatRequest chatRequest, Long userId) throws IOException {
+    private void handleEnterMessage(WebSocketSession session, ChatRequest chatRequest, Long userId)
+        throws IOException {
         Long targetUserId = chatRequest.targetUserId();
 
         ChatRoom chatRoom = chatService.createOrGetChatRoom(userId, targetUserId);
@@ -88,7 +92,8 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     /**
      * 채팅 전송 메시지
      */
-    private void handleChatMessage(ChatRequest chatRequest, Long chatRoomId, Long userId) throws IOException {
+    private void handleChatMessage(ChatRequest chatRequest, Long chatRoomId, Long userId)
+        throws IOException {
         Chat chat = Chat.builder()
             .chatRoom(chatService.getChatRoom(chatRoomId))
             .sender(userService.getUser(userId))
@@ -101,7 +106,8 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status)
+        throws Exception {
         log.info("{} 연결 끊김", session.getId());
         sessions.remove(session);
         for (Set<WebSocketSession> chatRoomSessions : chatRoomSessionMap.values()) {
@@ -109,7 +115,8 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         }
     }
 
-    private void sendMessageToChatRoom(ChatRequest chatRequest, Set<WebSocketSession> chatRoomSession) {
+    private void sendMessageToChatRoom(ChatRequest chatRequest,
+        Set<WebSocketSession> chatRoomSession) {
         chatRoomSession.parallelStream().forEach(sess -> sendMessage(sess, chatRequest));
     }
 

@@ -8,6 +8,7 @@ import com.example.linkcargo.domain.schedule.dto.response.ScheduleListResponse;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.PortHandler;
 import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,8 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -33,17 +32,17 @@ public class ScheduleService {
 
         // 이미 존재하는 스케줄인지 확인
         if (scheduleRepository.existsByCarrierAndETDAndETAAndTransportType(
-                request.carrier(),
-                request.ETD(),
-                request.ETA(),
-                request.transportType())) {
+            request.carrier(),
+            request.ETD(),
+            request.ETA(),
+            request.transportType())) {
             throw new ScheduleHandler(ErrorStatus.SCHEDULE_ALREADY_EXISTS);
         }
 
         Port exportPort = portRepository.findById(request.exportPortId())
-                .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
+            .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
         Port importPort = portRepository.findById(request.importPortId())
-                .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
+            .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
 
         Schedule schedule = request.toEntity(exportPort, importPort);
 
@@ -57,23 +56,25 @@ public class ScheduleService {
     }
 
     public ScheduleInfoResponse findSchedule(Long scheduleId) {
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+            .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
         return ScheduleInfoResponse.fromEntity(schedule);
     }
 
     public ScheduleListResponse findSchedules(int page, int size) {
-        Page<Schedule> schedulePage = scheduleRepository.findAll(PageRequest.of(page,size));
+        Page<Schedule> schedulePage = scheduleRepository.findAll(PageRequest.of(page, size));
         return ScheduleListResponse.fromEntity(schedulePage);
     }
 
     @Transactional
     public void modifySchedule(Long scheduleId, ScheduleCreateUpdateRequest request) {
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+            .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
 
         Port exportPort = portRepository.findById(request.exportPortId())
-                .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
+            .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
         Port importPort = portRepository.findById(request.importPortId())
-                .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
+            .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
 
         schedule.setExportPort(exportPort);
         schedule.setImportPort(importPort);
@@ -95,7 +96,8 @@ public class ScheduleService {
 
     @Transactional
     public void removeSchedule(Long scheduleId) {
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+            .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
 
         try {
             scheduleRepository.delete(schedule);

@@ -57,7 +57,7 @@ public class CargoController {
     public ApiResponse<SuccessStatus> createCargos(
         @Valid @RequestBody List<CargoRequest> cargoRequests,
         @AuthenticationPrincipal CustomUserDetail userDetail
-        ) {
+    ) {
         cargoService.createCargos(userDetail.getId(), cargoRequests);
         return ApiResponse.onSuccess(SuccessStatus._OK);
     }
@@ -85,7 +85,8 @@ public class CargoController {
         @AuthenticationPrincipal CustomUserDetail userDetail
     ) {
         PageRequest pageRequest = PageRequest.of(page, size, getSortObject(sort));
-        CargoPageResponse cargoPageResponse = cargoService.getMyCargos(userDetail.getId(), pageRequest);
+        CargoPageResponse cargoPageResponse = cargoService.getMyCargos(userDetail.getId(),
+            pageRequest);
         return ApiResponse.onSuccess(cargoPageResponse);
     }
 

@@ -1,6 +1,5 @@
 package com.example.linkcargo.domain.test;
 
-import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.domain.user.dto.UserResponse;
 import com.example.linkcargo.global.security.CustomUserDetail;
 import lombok.extern.slf4j.Slf4j;

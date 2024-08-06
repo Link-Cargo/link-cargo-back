@@ -62,11 +62,12 @@ public class RefreshTokenService {
 
             CustomUserDetail customUserDetail = (CustomUserDetail) authentication.getPrincipal();
             TokenResponse tokenResponse = createTokens(customUserDetail);
-            RefreshToken refreshToken = new RefreshToken(customUserDetail.getId(), tokenResponse.refreshToken());
+            RefreshToken refreshToken = new RefreshToken(customUserDetail.getId(),
+                tokenResponse.refreshToken());
             refreshTokenRepository.save(refreshToken);
             return tokenResponse;
         } catch (AuthenticationException e) {
-            if(e instanceof BadCredentialsException){
+            if (e instanceof BadCredentialsException) {
                 throw new UsersHandler(ErrorStatus.USER_NOT_FOUND);
             }
             throw new UsersHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
