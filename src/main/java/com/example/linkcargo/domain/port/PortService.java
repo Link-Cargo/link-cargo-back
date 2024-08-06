@@ -64,4 +64,16 @@ public class PortService {
             throw new PortHandler(ErrorStatus.PORT_UPDATED_FAIL);
         }
     }
+
+    @Transactional
+    public void removePort(Long portId) {
+        Port existingPort = portRepository.findById(portId)
+                .orElseThrow(() -> new PortHandler(ErrorStatus.PORT_NOT_FOUND));
+
+        try {
+            portRepository.delete(existingPort);
+        } catch (Exception e) {
+            throw new PortHandler(ErrorStatus.PORT_DELETED_FAIL);
+        }
+    }
 }

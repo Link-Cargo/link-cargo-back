@@ -53,6 +53,7 @@ public class PortController {
     @PutMapping("/{portId}")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "PORT403",description = "이미 존재하는 항구 입니다..", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "PORT405", description = "업데이트할 항구를 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "PORT406", description = "항구 업데이트에 실패하였습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
@@ -61,6 +62,18 @@ public class PortController {
             @PathVariable Long portId,
             @RequestBody PortCreateUpdateRequest request) {
         portService.modifyPort(portId, request);
+        return ApiResponse.onSuccess(SuccessStatus._OK);
+    }
+
+    @Operation(summary = "항구 삭제", description = "항구를 삭제합니다.")
+    @DeleteMapping("/{portId}")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "PORT405", description = "업데이트할 항구를 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "PORT407", description = "항구 삭제에 실패하였습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<SuccessStatus> removePort(@AuthenticationPrincipal CustomUserDetail userDetail, @PathVariable Long portId) {
+        portService.removePort(portId);
         return ApiResponse.onSuccess(SuccessStatus._OK);
     }
 }
