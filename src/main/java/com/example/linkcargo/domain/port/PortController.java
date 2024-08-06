@@ -4,6 +4,7 @@ import com.example.linkcargo.domain.port.dto.request.PortCreateUpdateRequest;
 import com.example.linkcargo.domain.port.dto.response.PortReadResponse;
 import com.example.linkcargo.domain.schedule.dto.response.ScheduleListResponse;
 import com.example.linkcargo.global.response.ApiResponse;
+import com.example.linkcargo.global.response.code.resultCode.SuccessStatus;
 import com.example.linkcargo.global.security.CustomUserDetail;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -46,5 +47,20 @@ public class PortController {
     ) {
         List<PortReadResponse> portList = portService.findPorts();
         return ApiResponse.onSuccess(portList);
+    }
+
+    @Operation(summary = "항구 업데이트", description = "항구 정보를 업데이트 합니다. PortCreateUpdateRequest 사용")
+    @PutMapping("/{portId}")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "PORT405", description = "업데이트할 항구를 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "PORT406", description = "항구 업데이트에 실패하였습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<SuccessStatus> modifyPort(
+            @AuthenticationPrincipal CustomUserDetail userDetail,
+            @PathVariable Long portId,
+            @RequestBody PortCreateUpdateRequest request) {
+        portService.modifyPort(portId, request);
+        return ApiResponse.onSuccess(SuccessStatus._OK);
     }
 }

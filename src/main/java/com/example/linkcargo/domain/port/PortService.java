@@ -2,6 +2,7 @@ package com.example.linkcargo.domain.port;
 
 import com.example.linkcargo.domain.port.dto.request.PortCreateUpdateRequest;
 import com.example.linkcargo.domain.port.dto.response.PortReadResponse;
+import com.example.linkcargo.domain.schedule.PortType;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.PortHandler;
 import lombok.RequiredArgsConstructor;
@@ -43,5 +44,24 @@ public class PortService {
         return ports.stream()
                 .map(PortReadResponse::fromEntity)
                 .toList();
+    }
+
+    @Transactional
+    public void modifyPort(Long portId, PortCreateUpdateRequest request) {
+        Port existingPort = portRepository.findById(portId)
+                .orElseThrow(() -> new PortHandler(ErrorStatus.PORT_NOT_FOUND));
+
+        if (portRepository.existsByNameAndIdNot(request.name(), portId)) {
+            throw new PortHandler(ErrorStatus.PORT_ALREADY_EXISTS);
+        }
+
+        existingPort.setName(request.name());
+        existingPort.setType(PortType.valueOf(request.type()));
+
+        try {
+            portRepository.save(existingPort);
+        } catch (Exception e) {
+            throw new PortHandler(ErrorStatus.PORT_UPDATED_FAIL);
+        }
     }
 }
