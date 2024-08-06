@@ -1,12 +1,16 @@
 package com.example.linkcargo.domain.port;
 
 import com.example.linkcargo.domain.port.dto.request.PortCreateUpdateRequest;
+import com.example.linkcargo.domain.port.dto.response.PortReadResponse;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.PortHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,5 +35,13 @@ public class PortService {
         } catch (Exception e){
             throw new PortHandler(ErrorStatus.PORT_CREATED_FAIL);
         }
+    }
+
+    public List<PortReadResponse> findPorts() {
+        List<Port> ports = portRepository.findAll();
+
+        return ports.stream()
+                .map(PortReadResponse::fromEntity)
+                .toList();
     }
 }
