@@ -30,4 +30,9 @@ public class ChatRoom extends JpaBaseEntity {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Membership> memberships = new ArrayList<>();
+
+    public ChatRoom(String title, RoomStatus roomStatus) {
+        this.title = title;
+        this.status = roomStatus;
+    }
 }
