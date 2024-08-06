@@ -42,7 +42,6 @@ public class ChatService {
         return chatRoomRepository.save(newChatRoom);
     }
 
-
     /**
      * 채팅방의 채팅 목록 조회
      */

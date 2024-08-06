@@ -55,6 +55,9 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         }
     }
 
+    /**
+     * 채팅방 입장 메시지
+     */
     private void handleEnterMessage(WebSocketSession session, ChatRequest chatRequest, Long userId) throws IOException {
         Long targetUserId = chatRequest.targetUserId();
 
@@ -79,9 +82,12 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         Map<String, Object> response = new HashMap<>();
         response.put("messageType", MessageType.ENTER);
         response.put("chatRoomId", chatRoom.getId());
-        sendMessage(session, response);
+        sendMessage(session, response); // 클라이언트 세션에게 채팅방 ID 전송
     }
 
+    /**
+     * 채팅 전송 메시지
+     */
     private void handleChatMessage(ChatRequest chatRequest, Long chatRoomId, Long userId) throws IOException {
         Chat chat = Chat.builder()
             .chatRoom(chatService.getChatRoom(chatRoomId))

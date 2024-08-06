@@ -17,7 +17,7 @@ public class ChatController {
 
 
     /**
-     * 채팅방 메시지 목록 조회
+     * 채팅방 메시지 목록 조회(최근순)
      */
     @GetMapping("/{chatRoomId}/messages")
     public ResponseEntity<List<Chat>> getMessages(@PathVariable Long chatRoomId) {
