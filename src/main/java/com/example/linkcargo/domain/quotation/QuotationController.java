@@ -42,7 +42,7 @@ public class QuotationController {
         return ApiResponse.onSuccess(resultId);
     }
 
-    @Operation(summary = "화주 견적서 요청", description = "화주 측에서 여러 개의 견적서 초안을 작성합니다. QuotationConsignorRequest 사용")
+    @Operation(summary = "화주 견적서 여러 개 요청", description = "화주 측에서 여러 개의 견적서 초안을 작성합니다. QuotationConsignorRequest 사용")
     @PostMapping("/bulk")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
