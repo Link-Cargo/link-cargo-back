@@ -50,7 +50,10 @@ public enum ErrorStatus implements BaseErrorCode {
     PORT_CREATED_FAIL(HttpStatus.NOT_FOUND, "PORT404", "항구 생성에 실패하였습니다."),
     PORT_NOT_FOUND(HttpStatus.NOT_FOUND, "PORT405", "항구가 존재 하지 않습니다.."),
     PORT_UPDATED_FAIL(HttpStatus.NOT_FOUND, "PORT406","항구 변경에 실패하였습니다"),
-    PORT_DELETED_FAIL(HttpStatus.NOT_FOUND, "PORT407","항구 삭제에 실패하였습니다");
+    PORT_DELETED_FAIL(HttpStatus.NOT_FOUND, "PORT407","항구 삭제에 실패하였습니다"),
+
+    // Quotation
+    QUOTATION_DUPLICATE(HttpStatus.BAD_REQUEST, "QUOTATION401","이미 동일한 견적서가 존재합니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

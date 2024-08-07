@@ -1,12 +1,16 @@
 package com.example.linkcargo.domain.quotation;
 
 
-import com.example.linkcargo.global.entity.JpaBaseEntity;
-import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
+import com.example.linkcargo.global.entity.MongoBaseEntity;
 import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "quotations")
 @Getter
@@ -14,16 +18,21 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Quotation extends JpaBaseEntity {
+public class Quotation extends MongoBaseEntity {
 
     @Id
-    private Long id;
+    private String id;
 
+    @Indexed
     private String userId;
+
+    private QuotationStatus quotationStatus;
 
     private Freight freight;
 
     private Cost cost;
+
+    private String particulars;
 
     @Getter
     @Setter
@@ -31,7 +40,9 @@ public class Quotation extends JpaBaseEntity {
     @AllArgsConstructor
     @Builder
     public static class Freight {
-        private Long scheduleId;
+
+        @Indexed
+        private String scheduleId;
 
         private String remark;
     }
@@ -42,7 +53,9 @@ public class Quotation extends JpaBaseEntity {
     @AllArgsConstructor
     @Builder
     public static class Cost {
-        private Long cargoId;
+
+        @Indexed
+        private String cargoId;
 
         private ChargeExport chargeExport;
 
@@ -57,6 +70,7 @@ public class Quotation extends JpaBaseEntity {
     @AllArgsConstructor
     @Builder
     public static class ChargeExport {
+
         private TEU CIC;
 
         private TEU DO_FEE;
@@ -80,6 +94,7 @@ public class Quotation extends JpaBaseEntity {
     @AllArgsConstructor
     @Builder
     public static class TEU {
+
         private String unit;
         private BigDecimal LCL;
         private String remark;
@@ -91,6 +106,7 @@ public class Quotation extends JpaBaseEntity {
     @AllArgsConstructor
     @Builder
     public static class FreightCost {
+
         private BigDecimal LCL;
         private BigDecimal CBM;
         private BigDecimal SUM;
