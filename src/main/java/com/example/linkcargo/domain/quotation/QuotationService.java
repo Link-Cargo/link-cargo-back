@@ -47,6 +47,7 @@ public class QuotationService {
 
 
         Quotation quotation = request.toEntity(String.valueOf(userId));
+        quotation.prePersist();
         quotation.setQuotationStatus(QuotationStatus.BASIC_INFO);
         Quotation savedQuotation = quotationRepository.save(quotation);
         return savedQuotation.getId();
@@ -75,6 +76,7 @@ public class QuotationService {
                     .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
 
                 Quotation quotation = request.toEntity(String.valueOf(userId));
+                quotation.prePersist();
                 quotation.setQuotationStatus(QuotationStatus.BASIC_INFO);
                 Quotation savedQuotation = quotationRepository.save(quotation);
                 return savedQuotation.getId();
