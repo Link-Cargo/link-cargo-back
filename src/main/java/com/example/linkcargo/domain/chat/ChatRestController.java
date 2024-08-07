@@ -14,10 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/chat")
-public class ChatController {
+public class ChatRestController {
 
     private final ChatService chatService;
-
 
     /**
      * 채팅방 메시지 목록 조회(최근순)

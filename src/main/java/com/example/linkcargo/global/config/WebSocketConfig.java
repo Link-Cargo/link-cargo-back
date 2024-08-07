@@ -1,29 +1,39 @@
 package com.example.linkcargo.global.config;
 
-import com.example.linkcargo.global.jwt.JwtAuthorizationFilter;
-import lombok.RequiredArgsConstructor;
+import com.example.linkcargo.domain.chat.JwtChannelInterceptor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.socket.WebSocketHandler;
-import org.springframework.web.socket.config.annotation.EnableWebSocket;
-import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
-import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.springframework.messaging.simp.config.ChannelRegistration;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
-@EnableWebSocket
-@RequiredArgsConstructor
-public class WebSocketConfig implements WebSocketConfigurer {
+@EnableWebSocketMessageBroker
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final WebSocketHandler webSocketHandler;
-    private final JwtAuthorizationFilter jwtAuthorizationFilter;
+    private final JwtChannelInterceptor jwtChannelInterceptor;
 
-    @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        // 웹 소켓 인드포인트 설정
-        // ws://localhost:8080/ws/chat 으로 요청이 들어오면 websocket 통신을 진행
-        // 모든 IP 에서 접속 가능하도록 설정(모든 CORS) 요청 허용
-        registry
-            .addHandler(webSocketHandler, "/ws/chat")
-            .setAllowedOrigins("*");
+    public WebSocketConfig(JwtChannelInterceptor jwtChannelInterceptor) {
+        this.jwtChannelInterceptor = jwtChannelInterceptor;
     }
 
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws/chat")
+            .setAllowedOriginPatterns("*");
+    }
+
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry config) {
+        // 클라이언트가 발행한 메시지를 수신할 경로
+        config.enableSimpleBroker("/sub");
+        // 클라이언트가 메시지를 발행할 경로
+        config.setApplicationDestinationPrefixes("/pub");
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(jwtChannelInterceptor);
+    }
 }
