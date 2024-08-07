@@ -49,7 +49,7 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
                     customUserDetail, null, customUserDetail.getAuthorities()
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                accessor.getSessionAttributes().put("user", customUserDetail); // 웹소켓 세션에 유저 정보 저장 - 웹소켓 세션 유지되는 동안 계속 조회 가능
+                accessor.getSessionAttributes().put("userId", customUserDetail.getId()); // 웹소켓 세션에 유저 정보 저장 - 웹소켓 세션 유지되는 동안 계속 조회 가능
             } else{
                 log.error("Authorization header is not found");
                 return null; // 헤더가 없을 경우 메시지 중단
