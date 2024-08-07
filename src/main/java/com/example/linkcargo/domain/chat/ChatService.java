@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,22 +28,26 @@ public class ChatService {
     /**
      * 채팅방 생성 또는 조회
      */
+    @Transactional
     public ChatRoom createOrGetChatRoom(Long userId, Long targetUserId) {
         Optional<ChatRoom> chatRoom = chatRoomRepository.findByUserIdAndTargetUserId(userId,
             targetUserId);
 
         // 채팅방이 존재하는 경우
         if (chatRoom.isPresent()) {
-            return chatRoom.get(); // 첫 번째 채팅방 반환
+            return chatRoom.get(); // 채팅방 반환
         }
 
         // 채팅방이 존재하지 않는 경우 -> 새로 생성
         ChatRoom newChatRoom = new ChatRoom();
         newChatRoom.setTitle("Chat Room between " + userId + " and " + targetUserId); // 제목 설정
         newChatRoom.setStatus(RoomStatus.ENABLED); // 기본 상태 설정
+        ChatRoom savedChatRoom = chatRoomRepository.save(newChatRoom);
+        addUserToChatRoom(userId, savedChatRoom.getId());
+        addUserToChatRoom(targetUserId, savedChatRoom.getId());
 
         // 저장 후 반환
-        return chatRoomRepository.save(newChatRoom);
+        return savedChatRoom;
     }
 
     /**
