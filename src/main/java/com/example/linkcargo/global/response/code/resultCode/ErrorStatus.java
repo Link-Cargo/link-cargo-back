@@ -45,7 +45,12 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // Port
     IMPORT_PORT_NOT_FOUND(HttpStatus.NOT_FOUND, "PORT401", "존재 하지 않는 수입항 입니다."),
-    EXPORT_PORT_NOT_FOUND(HttpStatus.NOT_FOUND, "PORT402", "존재 하지 않는 수출항 입니다.");
+    EXPORT_PORT_NOT_FOUND(HttpStatus.NOT_FOUND, "PORT402", "존재 하지 않는 수출항 입니다."),
+    PORT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "PORT403", "이미 존재하는 항구 입니다."),
+    PORT_CREATED_FAIL(HttpStatus.NOT_FOUND, "PORT404", "항구 생성에 실패하였습니다."),
+    PORT_NOT_FOUND(HttpStatus.NOT_FOUND, "PORT405", "항구가 존재 하지 않습니다.."),
+    PORT_UPDATED_FAIL(HttpStatus.NOT_FOUND, "PORT406","항구 변경에 실패하였습니다"),
+    PORT_DELETED_FAIL(HttpStatus.NOT_FOUND, "PORT407","항구 삭제에 실패하였습니다");
 
     private final HttpStatus httpStatus;
     private final String code;
