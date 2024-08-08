@@ -4,6 +4,8 @@ import com.example.linkcargo.domain.chat.Entity.Chat;
 import com.example.linkcargo.domain.chat.Entity.ChatRoom;
 import com.example.linkcargo.domain.chat.Entity.Membership;
 import com.example.linkcargo.domain.chat.Entity.RoomStatus;
+import com.example.linkcargo.domain.chat.dto.response.ChatContentResponse;
+import com.example.linkcargo.domain.chat.dto.response.ChatRoomResponse;
 import com.example.linkcargo.domain.chat.repository.ChatRepository;
 import com.example.linkcargo.domain.chat.repository.ChatRoomRepository;
 import com.example.linkcargo.domain.chat.repository.MemberShipRepository;
@@ -57,16 +59,26 @@ public class ChatService {
     /**
      * 채팅방의 채팅 목록 조회
      */
-    public List<Chat> getChatsByRoomId(Long chatRoomId) {
+    public List<ChatContentResponse> getChatsByRoomId(Long chatRoomId) {
         List<Chat> chats = chatRepository.findAllByChatRoomIdOrderByCreatedAtDesc(chatRoomId);
-        return chats;
+        List<ChatContentResponse> chatContentResponses = chats.stream().map(
+            chat -> new ChatContentResponse(
+                chat.getChatRoom().getId(),
+                chat.getSender().getId(),
+                chat.getContent())
+        ).toList();
+        return chatContentResponses;
     }
 
     /**
      * 유저의 모든 채팅방 조회
      */
-    public List<ChatRoom> getChatRooms(Long userId) {
-        return chatRoomRepository.findAllByUserId(userId);
+    public List<ChatRoomResponse> getChatRooms(Long userId) {
+        List<ChatRoom> chatRooms = chatRoomRepository.findAllByUserId(userId);
+        List<ChatRoomResponse> chatRoomResponses = chatRooms.stream()
+            .map(chatRoom -> new ChatRoomResponse(chatRoom.getId(),
+                chatRoom.getTitle(), chatRoom.getStatus())).toList();
+        return chatRoomResponses;
     }
 
     /**

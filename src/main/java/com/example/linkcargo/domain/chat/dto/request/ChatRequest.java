@@ -1,4 +1,4 @@
-package com.example.linkcargo.domain.chat.dto;
+package com.example.linkcargo.domain.chat.dto.request;
 
 public record ChatRequest(
     Long chatRoomId, // 채팅방 ID

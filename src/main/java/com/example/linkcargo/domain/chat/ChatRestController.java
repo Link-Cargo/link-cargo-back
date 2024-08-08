@@ -1,17 +1,23 @@
 package com.example.linkcargo.domain.chat;
 
-import com.example.linkcargo.domain.chat.Entity.Chat;
-import com.example.linkcargo.domain.chat.Entity.ChatRoom;
+import com.example.linkcargo.domain.chat.dto.response.ChatContentResponse;
+import com.example.linkcargo.domain.chat.dto.response.ChatContentsResponse;
+import com.example.linkcargo.domain.chat.dto.response.ChatRoomResponse;
+import com.example.linkcargo.domain.chat.dto.response.ChatRoomsResponse;
+import com.example.linkcargo.global.response.ApiResponse;
 import com.example.linkcargo.global.security.CustomUserDetail;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "6. Chat", description = "채팅 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/chat")
@@ -19,23 +25,25 @@ public class ChatRestController {
 
     private final ChatService chatService;
 
-    /**
-     * 채팅방 메시지 목록 조회(최근순)
-     */
+    @Operation(summary = "채팅방 메시지 목록 조회(최근순)", description = "특정 채팅방의 메시지 목록을 조회합니다.")
     @GetMapping("/{chatRoomId}/messages")
-    public ResponseEntity<List<Chat>> getMessages(@PathVariable Long chatRoomId) {
-        List<Chat> messages = chatService.getChatsByRoomId(chatRoomId);
-        return ResponseEntity.ok(messages);
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공")
+    })
+    public ApiResponse<ChatContentsResponse> getMessages(@PathVariable Long chatRoomId) {
+        List<ChatContentResponse> chatContentResponses = chatService.getChatsByRoomId(chatRoomId);
+        return ApiResponse.onSuccess(new ChatContentsResponse(chatContentResponses));
     }
 
-    /**
-     * 채팅방 목록 조회
-     */
+    @Operation(summary = "채팅방 목록 조회", description = "유저의 채팅방의 목록을 조회합니다.")
     @GetMapping("/rooms")
-    public ResponseEntity<List<ChatRoom>> getAllChatRooms(
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공")
+    })
+    public ApiResponse<ChatRoomsResponse> getAllChatRooms(
         @AuthenticationPrincipal CustomUserDetail userDetail
     ) {
-        List<ChatRoom> chatRooms = chatService.getChatRooms(userDetail.getId());
-        return ResponseEntity.ok(chatRooms);
+        List<ChatRoomResponse> chatRoomResponses = chatService.getChatRooms(userDetail.getId());
+        return ApiResponse.onSuccess(new ChatRoomsResponse(chatRoomResponses));
     }
 }
