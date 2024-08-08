@@ -1,13 +1,8 @@
 package com.example.linkcargo.global.data;
 
 import com.example.linkcargo.domain.cargo.CargoService;
-import com.example.linkcargo.domain.cargo.dto.request.CargoRequest;
-import com.example.linkcargo.domain.port.Port;
 import com.example.linkcargo.domain.port.PortRepository;
-import com.example.linkcargo.domain.schedule.PortType;
 import com.example.linkcargo.domain.token.RefreshTokenService;
-import jakarta.annotation.PostConstruct;
-import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -23,7 +18,7 @@ public class DataLoader {
 
 //    @PostConstruct
 //    public void init() {
-        // USER - 데이터 넣어지긴 하는데 로그인 시 해당 유저를 DB 애서 못찾음
+    // USER - 데이터 넣어지긴 하는데 로그인 시 해당 유저를 DB 애서 못찾음
 //        UserRegisterRequest userRegisterRequest = new UserRegisterRequest(
 //            Role.CONSIGNOR, // 예시 역할
 //            "John", // 예시 이름
@@ -37,7 +32,7 @@ public class DataLoader {
 //        );
 //        User joinedUser = refreshTokenService.join(userRegisterRequest);
 
-        // PORT
+    // PORT
 //        Port exportPort = Port.builder()
 //            .name("Export Port A") // 포트 이름 설정
 //            .type(PortType.EXPORT) // 포트 타입 설정 (예: EXPORT)

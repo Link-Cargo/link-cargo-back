@@ -39,12 +39,25 @@ public class CargoRequest {
     @NotNull(message = "Cargo info is required")
     private CargoInfoDto cargoInfo;
 
+    public Cargo toEntity(Long userId) {
+        return Cargo.builder()
+            .userId(userId)
+            .exportPortId(this.exportPortId)
+            .importPortId(this.importPortId)
+            .additionalInstructions(this.additionalInstructions)
+            .friendlyDescription(this.friendlyDescription)
+            .insuranceRequired(this.insuranceRequired)
+            .cargoInfo(this.cargoInfo.toEntity())
+            .build();
+    }
+
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
     public static class CargoInfoDto {
+
         @NotBlank(message = "Product name is required")
         @Size(max = 255, message = "Product name must be less than 255 characters")
         private String productName;
@@ -91,6 +104,7 @@ public class CargoRequest {
     @AllArgsConstructor
     @Builder
     public static class BoxSizeDto {
+
         @NotNull(message = "Width is required")
         @DecimalMin(value = "0.0", inclusive = false, message = "Width must be greater than zero")
         private BigDecimal width;
@@ -110,17 +124,5 @@ public class CargoRequest {
                 .depth(this.depth)
                 .build();
         }
-    }
-
-    public Cargo toEntity(Long userId) {
-        return Cargo.builder()
-            .userId(userId)
-            .exportPortId(this.exportPortId)
-            .importPortId(this.importPortId)
-            .additionalInstructions(this.additionalInstructions)
-            .friendlyDescription(this.friendlyDescription)
-            .insuranceRequired(this.insuranceRequired)
-            .cargoInfo(this.cargoInfo.toEntity())
-            .build();
     }
 }

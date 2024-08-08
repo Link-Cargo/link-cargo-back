@@ -1,7 +1,7 @@
-package com.example.linkcargo.domain.port;
+package com.example.linkcargo.domain.chat.Entity;
 
-import com.example.linkcargo.domain.schedule.PortType;
 import com.example.linkcargo.global.entity.JpaBaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,7 +9,10 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,18 +25,26 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "ports")
-public class Port extends JpaBaseEntity {
+@Table(name = "chat_rooms")
+public class ChatRoom extends JpaBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String title;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PortType type;
+    private RoomStatus status;
 
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Membership> memberships = new ArrayList<>();
+
+    public ChatRoom(String title, RoomStatus roomStatus) {
+        this.title = title;
+        this.status = roomStatus;
+    }
 }

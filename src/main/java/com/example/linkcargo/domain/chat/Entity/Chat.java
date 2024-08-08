@@ -1,6 +1,7 @@
-package com.example.linkcargo.domain.chat;
+package com.example.linkcargo.domain.chat.Entity;
 
 import com.example.linkcargo.domain.user.User;
+import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,8 +23,8 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "messages")
-public class Message {
+@Table(name = "chats")
+public class Chat extends JpaBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,9 +35,11 @@ public class Message {
     private ChatRoom chatRoom;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id", nullable = false)
+    @JoinColumn(name = "sender_id", nullable = false) // 작성자
     private User sender;
 
     @Column(nullable = false)
     private String content;
+
+
 }

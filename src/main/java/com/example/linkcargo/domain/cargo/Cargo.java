@@ -67,35 +67,6 @@ public class Cargo extends MongoBaseEntity {
         }
     }
 
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class CargoInfo {
-
-        private String productName;
-        private String hsCode;
-        private String incoterms;
-        private BigDecimal weight;
-        private BigDecimal value;
-        private Integer quantity;
-        private BoxSize boxSize;
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class BoxSize {
-
-        private BigDecimal width;
-        private BigDecimal height;
-        private BigDecimal depth;
-    }
-
     public CargoDTO toCargoDTO(Port exportPort, Port importPort) {
         CargoDTO.CargoInfoDto cargoInfoDto = null;
         if (this.cargoInfo != null) {
@@ -128,5 +99,33 @@ public class Cargo extends MongoBaseEntity {
             this.insuranceRequired,
             cargoInfoDto
         );
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class CargoInfo {
+
+        private String productName;
+        private String hsCode;
+        private String incoterms;
+        private BigDecimal weight;
+        private BigDecimal value;
+        private Integer quantity;
+        private BoxSize boxSize;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class BoxSize {
+
+        private BigDecimal width;
+        private BigDecimal height;
+        private BigDecimal depth;
     }
 }

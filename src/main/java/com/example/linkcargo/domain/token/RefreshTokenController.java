@@ -1,14 +1,15 @@
 package com.example.linkcargo.domain.token;
 
 
-import com.example.linkcargo.domain.token.dto.response.TokenResponse;
 import com.example.linkcargo.domain.token.dto.request.UserLoginRequest;
 import com.example.linkcargo.domain.token.dto.request.UserRegisterRequest;
+import com.example.linkcargo.domain.token.dto.response.TokenResponse;
 import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @Tag(name = "1. Register, Login, Refresh", description = "회원 가입, 로그인, 리프레시 관련 API")
 @RestController
@@ -33,8 +33,8 @@ public class RefreshTokenController {
     @PostMapping("/register")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER401",description = "이미 존재하는 이메일 입니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER402",description = "이미 존재하는 사업자 번호 입니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER401", description = "이미 존재하는 이메일 입니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER402", description = "이미 존재하는 사업자 번호 입니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     public ApiResponse<Long> join(
         @Valid @RequestBody UserRegisterRequest userRegisterRequest) {
@@ -46,7 +46,7 @@ public class RefreshTokenController {
     @PostMapping("/login")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER403",description = "해당 정보의 유저를 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER403", description = "해당 정보의 유저를 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     public ApiResponse<TokenResponse> login(
         @Valid @RequestBody UserLoginRequest userLoginRequest) {
@@ -58,7 +58,7 @@ public class RefreshTokenController {
     @GetMapping("/refresh")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "AUTH408",description = "유효하지 않은 REFRESH 토큰입니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "AUTH408", description = "유효하지 않은 REFRESH 토큰입니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     public ApiResponse<TokenResponse> refresh(HttpServletRequest request) {
         String refreshToken = request.getHeader("Refresh-Token");
