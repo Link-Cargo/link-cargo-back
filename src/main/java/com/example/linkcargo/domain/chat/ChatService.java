@@ -1,6 +1,7 @@
 package com.example.linkcargo.domain.chat;
 
 import com.example.linkcargo.domain.chat.Entity.Chat;
+import com.example.linkcargo.domain.chat.Entity.ChatRoom;
 import com.example.linkcargo.domain.chat.Entity.Membership;
 import com.example.linkcargo.domain.chat.Entity.RoomStatus;
 import com.example.linkcargo.domain.chat.repository.ChatRepository;
@@ -43,9 +44,12 @@ public class ChatService {
         newChatRoom.setTitle("Chat Room between " + userId + " and " + targetUserId); // 제목 설정
         newChatRoom.setStatus(RoomStatus.ENABLED); // 기본 상태 설정
         ChatRoom savedChatRoom = chatRoomRepository.save(newChatRoom);
-        addUserToChatRoom(userId, savedChatRoom.getId());
-        addUserToChatRoom(targetUserId, savedChatRoom.getId());
-
+        if (!isUserInChatRoom(userId, savedChatRoom.getId())) {
+            addUserToChatRoom(userId, savedChatRoom.getId());
+        }
+        if (!isUserInChatRoom(targetUserId, savedChatRoom.getId())) {
+            addUserToChatRoom(targetUserId, savedChatRoom.getId());
+        }
         // 저장 후 반환
         return savedChatRoom;
     }

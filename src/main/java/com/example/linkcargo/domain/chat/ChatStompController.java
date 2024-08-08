@@ -1,8 +1,10 @@
 package com.example.linkcargo.domain.chat;
 
 import com.example.linkcargo.domain.chat.Entity.Chat;
+import com.example.linkcargo.domain.chat.Entity.ChatRoom;
+import com.example.linkcargo.domain.chat.dto.ChatEnterResponse;
 import com.example.linkcargo.domain.chat.dto.ChatRequest;
-import com.example.linkcargo.domain.chat.dto.ChatResponse;
+import com.example.linkcargo.domain.chat.dto.ChatContentResponse;
 import com.example.linkcargo.domain.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -39,27 +41,28 @@ public class ChatStompController {
         // 채팅방 입장 메시지를 보낸 경우 (프론트엔드가 "/user/queue/reply" 를 구독한 상태)
         if (chatRequest.messageType().equals(ChatRequest.MessageType.ENTER)) {
             log.info("ENTER message, chatRequest: {}", chatRequest);
-            ChatResponse chatResponse = handleEnterMessage(chatRequest, userId);
-            messagingTemplate.convertAndSendToUser(sessionId, "/queue/reply", chatResponse, createHeaders(sessionId));
+            ChatEnterResponse chatEnterResponse = handleEnterMessage(chatRequest, userId);
+            messagingTemplate.convertAndSendToUser(sessionId, "/queue/reply", chatEnterResponse, createHeaders(sessionId));
             log.info("Message sent to /user/queue/reply for session: {}", sessionId);
         }
 
         // 채팅 전송 메시지를 보낸 경우 (프론트엔드가 "/sub/chatroom/{id}" 를 구독한 상태)
         if (chatRequest.messageType().equals(ChatRequest.MessageType.CHAT)) {
             log.info("CHAT message, chatRequest: {}", chatRequest);
-            ChatResponse chatResponse = handleChatMessage(chatRequest, chatRoomId, userId);
-            messagingTemplate.convertAndSend("/sub/chatroom/" + chatRoomId, chatResponse);
+            ChatContentResponse chatContentResponseResponse = handleChatMessage(chatRequest, chatRoomId, userId);
+            messagingTemplate.convertAndSend("/sub/chatroom/" + chatRoomId,
+                chatContentResponseResponse);
         }
     }
 
-    private ChatResponse handleEnterMessage(ChatRequest chatRequest, Long userId) {
+    private ChatEnterResponse handleEnterMessage(ChatRequest chatRequest, Long userId) {
         Long targetUserId = chatRequest.targetUserId();
         ChatRoom chatRoom = chatService.createOrGetChatRoom(userId, targetUserId);
 
-        return new ChatResponse("Entered chat room", chatRoom.getId());
+        return new ChatEnterResponse(chatRoom.getId());
     }
 
-    private ChatResponse handleChatMessage(ChatRequest chatRequest, Long chatRoomId, Long userId) {
+    private ChatContentResponse handleChatMessage(ChatRequest chatRequest, Long chatRoomId, Long userId) {
         Chat chat = Chat.builder()
             .chatRoom(chatService.getChatRoom(chatRoomId))
             .sender(userService.getUser(userId))
@@ -67,7 +70,7 @@ public class ChatStompController {
             .build();
         chatService.saveChat(chat);
 
-        return new ChatResponse("Chat message sent", chatRoomId, chatRequest.content());
+        return new ChatContentResponse(chatRoomId, chatRequest.content());
     }
 
     private MessageHeaders createHeaders(String sessionId) {

@@ -30,6 +30,7 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         log.info("connection request, interceptor,  preSend method!");
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        log.info("sessionId: {}", accessor.getSessionId());
 
         // 연결 요청 시 JWT 검증
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {

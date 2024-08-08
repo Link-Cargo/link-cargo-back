@@ -1,6 +1,7 @@
 package com.example.linkcargo.domain.chat;
 
 import com.example.linkcargo.domain.chat.Entity.Chat;
+import com.example.linkcargo.domain.chat.Entity.ChatRoom;
 import com.example.linkcargo.global.security.CustomUserDetail;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

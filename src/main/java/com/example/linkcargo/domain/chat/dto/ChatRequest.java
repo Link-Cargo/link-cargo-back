@@ -12,3 +12,18 @@ public record ChatRequest(
         CHAT // 일반 채팅 메시지
     }
 }
+
+/**
+ * 채팅방 입장 메시지 형식
+ * {
+ *     "messageType": "ENTER"
+ *     "targetUserId": "Number",
+ * }
+ *
+ * 채팅 전송 메시지 형식
+ * {
+ *     "messageType": "CHAT"
+ *     "chatRoomId": "Number",
+ *     "content": "String",
+ * }
+ */
