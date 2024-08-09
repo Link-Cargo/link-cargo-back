@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.schedule;
 
+import com.example.linkcargo.domain.image.ImageService;
 import com.example.linkcargo.domain.port.Port;
 import com.example.linkcargo.domain.port.PortRepository;
 import com.example.linkcargo.domain.schedule.dto.request.ScheduleCreateUpdateRequest;
@@ -8,6 +9,7 @@ import com.example.linkcargo.domain.schedule.dto.response.ScheduleListResponse;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.PortHandler;
 import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,7 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final PortRepository portRepository;
+    private final ImageService imageService;
 
     @Transactional
     public Long createSchedule(ScheduleCreateUpdateRequest request) {
@@ -58,12 +61,13 @@ public class ScheduleService {
 
     public ScheduleInfoResponse findSchedule(Long scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
-        return ScheduleInfoResponse.fromEntity(schedule);
+        return ScheduleInfoResponse.fromEntity(schedule,"");
     }
 
     public ScheduleListResponse findSchedules(int page, int size) {
         Page<Schedule> schedulePage = scheduleRepository.findAll(PageRequest.of(page,size));
-        return ScheduleListResponse.fromEntity(schedulePage);
+        List<String> imageUrls = imageService.selectRandomImages("vessel",schedulePage.getSize());
+        return ScheduleListResponse.fromEntity(schedulePage,imageUrls);
     }
 
     @Transactional
@@ -107,8 +111,9 @@ public class ScheduleService {
     public ScheduleListResponse searchSchedules(int page, int size) {
         LocalDateTime now = LocalDateTime.now();
         Pageable pageable = PageRequest.of(page, size, Sort.by("ETD").ascending());
-
         Page<Schedule> schedulesPage = scheduleRepository.findByETDAfter(now, pageable);
-        return ScheduleListResponse.fromEntity(schedulesPage);
+        List<String> imageUrls = imageService.selectRandomImages("vessel",schedulesPage.getSize());
+
+        return ScheduleListResponse.fromEntity(schedulesPage, imageUrls);
     }
 }
