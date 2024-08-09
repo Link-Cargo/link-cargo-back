@@ -2,6 +2,7 @@ package com.example.linkcargo.domain.port;
 
 import com.example.linkcargo.domain.port.dto.request.PortCreateUpdateRequest;
 import com.example.linkcargo.domain.port.dto.response.PortReadResponse;
+import com.example.linkcargo.domain.schedule.PortType;
 import com.example.linkcargo.domain.schedule.dto.response.ScheduleListResponse;
 import com.example.linkcargo.global.response.ApiResponse;
 import com.example.linkcargo.global.response.code.resultCode.SuccessStatus;
@@ -75,5 +76,18 @@ public class PortController {
     public ApiResponse<SuccessStatus> removePort(@AuthenticationPrincipal CustomUserDetail userDetail, @PathVariable Long portId) {
         portService.removePort(portId);
         return ApiResponse.onSuccess(SuccessStatus._OK);
+    }
+
+    @Operation(summary = "항구 타입에 따른 조회 ", description = "PortType에 따라서 항구를 조회 합니다. PortReadResponse 사용")
+    @GetMapping("/search")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+    })
+    public ApiResponse<List<PortReadResponse>> findPortsByType(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @RequestParam PortType type
+    ) {
+        List<PortReadResponse> portList = portService.findPortsByType(type);
+        return ApiResponse.onSuccess(portList);
     }
 }
