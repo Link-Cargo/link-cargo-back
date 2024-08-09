@@ -108,10 +108,10 @@ public class ScheduleService {
         }
     }
 
-    public ScheduleListResponse searchSchedules(int page, int size) {
+    public ScheduleListResponse searchSchedules(Long exportPortId, Long importPortId, int page, int size) {
         LocalDateTime now = LocalDateTime.now();
         Pageable pageable = PageRequest.of(page, size, Sort.by("ETD").ascending());
-        Page<Schedule> schedulesPage = scheduleRepository.findByETDAfter(now, pageable);
+        Page<Schedule> schedulesPage = scheduleRepository.findByExportPortIdAndImportPortIdAndETDAfter(exportPortId, importPortId, now, pageable);
         List<String> imageUrls = imageService.selectRandomImages("vessel",schedulesPage.getSize());
 
         return ScheduleListResponse.fromEntity(schedulesPage, imageUrls);
