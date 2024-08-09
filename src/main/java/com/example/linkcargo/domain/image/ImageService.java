@@ -42,4 +42,24 @@ public class ImageService {
 
         return savedImages;
     }
+
+
+    public List<String> selectRandomImages(String keyword, int count) {
+        List<String> allUrls = imageRepository.findUrlsByNameContaining(keyword);
+
+        List<String> result = new ArrayList<>(count);
+        String lastUsedUrl = null;
+
+        for (int i = 0; i < count; i++) {
+            String selectedUrl;
+            do {
+                selectedUrl = allUrls.get((int) (Math.random() * allUrls.size()));
+            } while (selectedUrl.equals(lastUsedUrl));
+
+            result.add(selectedUrl);
+            lastUsedUrl = selectedUrl;
+        }
+
+        return result;
+    }
 }

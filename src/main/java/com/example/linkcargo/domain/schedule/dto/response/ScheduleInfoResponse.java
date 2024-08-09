@@ -9,6 +9,7 @@ public record ScheduleInfoResponse(
         Long id,
         Long exportPortId,
         Long importPortId,
+        String imageUrl,
         String carrier,
         String vessel,
         LocalDateTime ETD,
@@ -20,11 +21,12 @@ public record ScheduleInfoResponse(
         LocalDateTime created_at,
         LocalDateTime updated_at
 ) {
-    public static ScheduleInfoResponse fromEntity(Schedule schedule) {
+    public static ScheduleInfoResponse fromEntity(Schedule schedule, String imageUrl) {
         return new ScheduleInfoResponse(
                 schedule.getId(),
                 schedule.getExportPort().getId(),
                 schedule.getImportPort().getId(),
+                imageUrl,
                 schedule.getCarrier(),
                 schedule.getVessel(),
                 schedule.getETD(),
