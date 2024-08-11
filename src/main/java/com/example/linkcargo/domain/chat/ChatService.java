@@ -13,12 +13,15 @@ import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.domain.user.UserRepository;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.UsersHandler;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatService {
@@ -60,12 +63,14 @@ public class ChatService {
      * 채팅방의 채팅 목록 조회
      */
     public List<ChatContentResponse> getChatsByRoomId(Long chatRoomId) {
-        List<Chat> chats = chatRepository.findAllByChatRoomIdOrderByCreatedAtDesc(chatRoomId);
+        List<Chat> chats = chatRepository.findAllByChatRoomIdOrderByCreatedAtAsc(chatRoomId);
         List<ChatContentResponse> chatContentResponses = chats.stream().map(
             chat -> new ChatContentResponse(
                 chat.getChatRoom().getId(),
                 chat.getSender().getId(),
-                chat.getContent())
+                chat.getContent(),
+                chat.getCreatedAt()
+            )
         ).toList();
         return chatContentResponses;
     }
@@ -75,11 +80,46 @@ public class ChatService {
      */
     public List<ChatRoomResponse> getChatRooms(Long userId) {
         List<ChatRoom> chatRooms = chatRoomRepository.findAllByUserId(userId);
-        List<ChatRoomResponse> chatRoomResponses = chatRooms.stream()
-            .map(chatRoom -> new ChatRoomResponse(chatRoom.getId(),
-                chatRoom.getTitle(), chatRoom.getStatus())).toList();
+
+        List<ChatRoomResponse> chatRoomResponses = new ArrayList<>();
+        for (ChatRoom chatRoom : chatRooms) {
+            List<Chat> latestChats = chatRepository.findLatestChatByChatRoomId(
+                chatRoom.getId());
+
+            String latestChatContent = "대화 기록이 없습니다."; // 기본값 설정
+            if (!latestChats.isEmpty()) {
+                // 최신 채팅의 첫 번째 항목을 가져옴
+                Chat latestChat = latestChats.get(0);
+                latestChatContent = latestChat.getContent();
+            }
+
+            List<Membership> memberships =
+                memberShipRepository.findMembershipsByChatRoomIdAndExcludeUser(chatRoom.getId(),
+                    userId);
+
+            if (memberships.isEmpty()) {
+                log.info("해당 채팅방의 참여 유저(membership) 이 존재하지 않습니다.");
+                continue; // 회원이 없는 경우 처리, 필요에 따라 추가 로직 구현
+            }
+
+            User targetUser = memberships.get(0).getUser();
+
+            // ChatRoomResponse 객체 생성
+            ChatRoomResponse response = new ChatRoomResponse(
+                chatRoom.getId(),
+                targetUser.getId(),
+                targetUser.getFirstName() + " " + targetUser.getLastName(),
+                chatRoom.getTitle(),
+                latestChatContent,
+                chatRoom.getStatus()
+            );
+
+            chatRoomResponses.add(response);
+        }
+
         return chatRoomResponses;
     }
+
 
     /**
      * 채팅 저장

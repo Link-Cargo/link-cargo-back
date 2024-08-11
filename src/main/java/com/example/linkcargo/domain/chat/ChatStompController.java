@@ -6,6 +6,8 @@ import com.example.linkcargo.domain.chat.dto.response.ChatEnterResponse;
 import com.example.linkcargo.domain.chat.dto.request.ChatRequest;
 import com.example.linkcargo.domain.chat.dto.response.ChatContentResponse;
 import com.example.linkcargo.domain.user.UserService;
+import java.util.Date;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
@@ -68,10 +70,10 @@ public class ChatStompController {
             .sender(userService.getUser(userId))
             .content(chatRequest.content())
             .build();
-        chatService.saveChat(chat);
+        Chat savedChat = chatService.saveChat(chat);
 
         // 채팅방 ID, 작성자 ID, 내용
-        return new ChatContentResponse(chatRoomId, userId, chatRequest.content());
+        return new ChatContentResponse(chatRoomId, userId, chatRequest.content(), savedChat.getCreatedAt());
     }
 
     private MessageHeaders createHeaders(String sessionId) {

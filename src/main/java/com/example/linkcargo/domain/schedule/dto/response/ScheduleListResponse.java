@@ -2,6 +2,7 @@ package com.example.linkcargo.domain.schedule.dto.response;
 
 import com.example.linkcargo.domain.schedule.Schedule;
 
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.Builder;
