@@ -5,36 +5,37 @@ import com.example.linkcargo.domain.schedule.TransportType;
 import java.time.LocalDateTime;
 
 public record ScheduleInfoResponse(
-    Long id,
-    Long exportPortId,
-    Long importPortId,
-    String carrier,
-    String vessel,
-    LocalDateTime ETD,
-    LocalDateTime ETA,
-    TransportType transportType,
-    Integer transitTime,
-    LocalDateTime documentCutOff,
-    LocalDateTime cargoCutOff,
-    LocalDateTime created_at,
-    LocalDateTime updated_at
+        Long id,
+        Long exportPortId,
+        Long importPortId,
+        String imageUrl,
+        String carrier,
+        String vessel,
+        LocalDateTime ETD,
+        LocalDateTime ETA,
+        TransportType transportType,
+        Integer transitTime,
+        LocalDateTime documentCutOff,
+        LocalDateTime cargoCutOff,
+        LocalDateTime created_at,
+        LocalDateTime updated_at
 ) {
-
-    public static ScheduleInfoResponse fromEntity(Schedule schedule) {
+    public static ScheduleInfoResponse fromEntity(Schedule schedule, String imageUrl) {
         return new ScheduleInfoResponse(
-            schedule.getId(),
-            schedule.getExportPort().getId(),
-            schedule.getImportPort().getId(),
-            schedule.getCarrier(),
-            schedule.getVessel(),
-            schedule.getETD(),
-            schedule.getETA(),
-            schedule.getTransportType(),
-            schedule.getTransitTime(),
-            schedule.getDocumentCutOff(),
-            schedule.getCargoCutOff(),
-            schedule.getCreatedAt(),
-            schedule.getUpdatedAt()
+                schedule.getId(),
+                schedule.getExportPort().getId(),
+                schedule.getImportPort().getId(),
+                imageUrl,
+                schedule.getCarrier(),
+                schedule.getVessel(),
+                schedule.getETD(),
+                schedule.getETA(),
+                schedule.getTransportType(),
+                schedule.getTransitTime(),
+                schedule.getDocumentCutOff(),
+                schedule.getCargoCutOff(),
+                schedule.getCreatedAt(),
+                schedule.getUpdatedAt()
         );
     }
 }

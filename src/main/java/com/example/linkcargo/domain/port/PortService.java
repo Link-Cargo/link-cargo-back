@@ -76,4 +76,12 @@ public class PortService {
             throw new PortHandler(ErrorStatus.PORT_DELETED_FAIL);
         }
     }
+
+    public List<PortReadResponse> findPortsByType(PortType type) {
+        List<Port> ports = portRepository.findAllByType(type);
+
+        return ports.stream()
+            .map(PortReadResponse::fromEntity)
+            .collect(Collectors.toList());
+    }
 }

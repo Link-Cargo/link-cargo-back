@@ -103,17 +103,19 @@ public class ScheduleController {
         return ApiResponse.onSuccess(SuccessStatus._OK);
     }
 
-    @Operation(summary = "선박 스케줄 검색", description = "ETD 기준으로 필터링 및 정렬된 선박 스케줄을 검색합니다.")
+    @Operation(summary = "선박 스케줄 검색", description = "수출항, 수입항 번호가 일치하면서, ETD 기준으로 필터링 및 정렬된 선박 스케줄을 검색합니다.")
     @GetMapping("/search")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
     public ApiResponse<ScheduleListResponse> searchSchedules(
-        @AuthenticationPrincipal CustomUserDetail userDetail,
-        @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
-        @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size
+            @AuthenticationPrincipal CustomUserDetail userDetail,
+            @Parameter(description = "수출항 ID") @RequestParam Long exportPortId,
+            @Parameter(description = "수입항 ID") @RequestParam Long importPortId,
+            @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size
     ) {
-        ScheduleListResponse schedules = scheduleService.searchSchedules(page, size);
+        ScheduleListResponse schedules = scheduleService.searchSchedules(exportPortId, importPortId, page, size);
         return ApiResponse.onSuccess(schedules);
     }
 
