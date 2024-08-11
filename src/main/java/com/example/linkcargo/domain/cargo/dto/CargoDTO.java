@@ -4,9 +4,8 @@ import com.example.linkcargo.domain.port.Port;
 import java.math.BigDecimal;
 
 /**
- * Cargo 가 Jpa 를 사용하지 않기 때문에, 아래 변환과정을 거친 DTO 를 반환한다.
- * Long exportPortId -> Port exportPort
- * Long importPortId -> Port importPort
+ * Cargo 가 Jpa 를 사용하지 않기 때문에, 아래 변환과정을 거친 DTO 를 반환한다. Long exportPortId -> Port exportPort Long
+ * importPortId -> Port importPort
  */
 public record CargoDTO(
     String id,
@@ -28,6 +27,7 @@ public record CargoDTO(
         Integer quantity,
         BoxSizeDto boxSize
     ) {
+
     }
 
     public record BoxSizeDto(
@@ -35,5 +35,6 @@ public record CargoDTO(
         BigDecimal height,
         BigDecimal depth
     ) {
+
     }
 }

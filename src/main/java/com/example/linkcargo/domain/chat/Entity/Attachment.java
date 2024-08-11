@@ -1,7 +1,5 @@
-package com.example.linkcargo.domain.notification;
+package com.example.linkcargo.domain.chat.Entity;
 
-import com.example.linkcargo.domain.user.User;
-import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -23,23 +21,23 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "notifications")
-public class Notification extends JpaBaseEntity {
+@Table(name = "attachments")
+public class Attachment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "chat_id", nullable = false)
+    private Chat chat;
 
-    @Column(nullable = false)
-    private String title;
+    @Column(name = "file_type", nullable = false)
+    private String fileType;
 
-    @Column(columnDefinition = "TEXT")
-    private String content;
+    @Column(name = "file_path", nullable = false)
+    private String filePath;
 
-    @Column(name = "is_read")
-    private boolean isRead;
+    @Column(name = "file_name", nullable = false)
+    private String fileName;
 }

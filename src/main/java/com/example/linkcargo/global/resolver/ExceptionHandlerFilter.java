@@ -8,7 +8,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import lombok.Data;
 import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -38,7 +37,8 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
-        ErrorResponse errorResponse = new ErrorResponse(false, errorCode.getReason().getCode(), errorCode.getReason().getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(false, errorCode.getReason().getCode(),
+            errorCode.getReason().getMessage());
         try {
             response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
         } catch (IOException e) {
@@ -50,5 +50,7 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
         boolean isSuccess,
         String code,
         String msg
-    ) {}
+    ) {
+
+    }
 }

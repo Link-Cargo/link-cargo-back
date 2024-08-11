@@ -19,8 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -36,17 +34,17 @@ public class ScheduleService {
 
         // 이미 존재하는 스케줄인지 확인
         if (scheduleRepository.existsByCarrierAndETDAndETAAndTransportType(
-                request.carrier(),
-                request.ETD(),
-                request.ETA(),
-                request.transportType())) {
+            request.carrier(),
+            request.ETD(),
+            request.ETA(),
+            request.transportType())) {
             throw new ScheduleHandler(ErrorStatus.SCHEDULE_ALREADY_EXISTS);
         }
 
         Port exportPort = portRepository.findById(request.exportPortId())
-                .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
+            .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
         Port importPort = portRepository.findById(request.importPortId())
-                .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
+            .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
 
         Schedule schedule = request.toEntity(exportPort, importPort);
 
@@ -72,12 +70,13 @@ public class ScheduleService {
 
     @Transactional
     public void modifySchedule(Long scheduleId, ScheduleCreateUpdateRequest request) {
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+            .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
 
         Port exportPort = portRepository.findById(request.exportPortId())
-                .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
+            .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
         Port importPort = portRepository.findById(request.importPortId())
-                .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
+            .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
 
         schedule.setExportPort(exportPort);
         schedule.setImportPort(importPort);
@@ -99,7 +98,8 @@ public class ScheduleService {
 
     @Transactional
     public void removeSchedule(Long scheduleId) {
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+            .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
 
         try {
             scheduleRepository.delete(schedule);
