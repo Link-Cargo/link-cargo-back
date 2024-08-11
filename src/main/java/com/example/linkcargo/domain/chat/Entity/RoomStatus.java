@@ -1,4 +1,4 @@
-package com.example.linkcargo.domain.chat;
+package com.example.linkcargo.domain.chat.Entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

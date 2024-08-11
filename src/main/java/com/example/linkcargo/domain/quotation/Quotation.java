@@ -1,6 +1,5 @@
 package com.example.linkcargo.domain.quotation;
 
-
 import com.example.linkcargo.global.entity.MongoBaseEntity;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;

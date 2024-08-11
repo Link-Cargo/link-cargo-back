@@ -2,7 +2,6 @@ package com.example.linkcargo.domain.schedule.dto.response;
 
 import com.example.linkcargo.domain.schedule.Schedule;
 import com.example.linkcargo.domain.schedule.TransportType;
-
 import java.time.LocalDateTime;
 
 public record ScheduleInfoResponse(

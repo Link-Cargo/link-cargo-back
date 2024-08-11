@@ -1,6 +1,7 @@
-package com.example.linkcargo.domain.chat;
+package com.example.linkcargo.domain.chat.Entity;
 
-import jakarta.persistence.Column;
+import com.example.linkcargo.domain.user.User;
+import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -21,23 +22,24 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "attachments")
-public class Attachment {
+@Table(name = "memberships")
+public class Membership extends JpaBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "message_id", nullable = false)
-    private Message message;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(name = "file_type", nullable = false)
-    private String fileType;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chat_room_id", nullable = false)
+    private ChatRoom chatRoom;
 
-    @Column(name = "file_path", nullable = false)
-    private String filePath;
-
-    @Column(name = "file_name", nullable = false)
-    private String fileName;
+    public Membership(User user, ChatRoom chatRoom) {
+        this.user = user;
+        this.chatRoom = chatRoom;
+    }
 }
+

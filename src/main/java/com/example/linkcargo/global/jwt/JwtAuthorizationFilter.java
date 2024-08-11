@@ -33,7 +33,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             "/api/v3/api-docs",
             "/api/swagger-resources",
             "/api/swagger-ui.html",
-            "/api/webjars/", "/swagger-ui/index.html" ,"/v1/users/register","/v3/api-docs", "/swagger-ui/","/swagger-resources","swagger-ui.html"
+            "/api/webjars/", "/swagger-ui/index.html", "/v1/users/register", "/v3/api-docs",
+            "/swagger-ui/", "/swagger-resources", "swagger-ui.html",
+            "/ws/chat"  // 웹소켓 엔드포인트
         );
 
         String path = request.getRequestURI();

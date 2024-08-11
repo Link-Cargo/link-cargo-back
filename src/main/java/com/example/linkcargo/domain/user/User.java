@@ -1,6 +1,6 @@
 package com.example.linkcargo.domain.user;
 
-import com.example.linkcargo.domain.chat.Membership;
+import com.example.linkcargo.domain.chat.Entity.Membership;
 import com.example.linkcargo.domain.forwarding.Forwarding;
 import com.example.linkcargo.domain.notification.Notification;
 import com.example.linkcargo.domain.user.dto.UserResponse;

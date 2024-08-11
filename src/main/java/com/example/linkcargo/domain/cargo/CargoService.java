@@ -88,7 +88,7 @@ public class CargoService {
     public Cargo updateMyCargo(Long userId, String cargoId, CargoRequest cargoRequest) {
         Cargo cargo = cargoRepository.findById(cargoId)
             .orElseThrow(() -> new CargoHandler(ErrorStatus.CARGO_NOT_FOUND));
-        if(!cargo.getUserId().equals(userId)){
+        if (!cargo.getUserId().equals(userId)) {
             throw new CargoHandler(ErrorStatus.CARGO_USER_NOT_MATCH);
         }
         cargo.update(cargoRequest);
@@ -103,7 +103,7 @@ public class CargoService {
     public void deleteMyCargo(Long userId, String cargoId) {
         Cargo cargo = cargoRepository.findById(cargoId)
             .orElseThrow(() -> new CargoHandler(ErrorStatus.CARGO_NOT_FOUND));
-        if(!cargo.getUserId().equals(userId)){
+        if (!cargo.getUserId().equals(userId)) {
             throw new CargoHandler(ErrorStatus.CARGO_USER_NOT_MATCH);
         }
         cargoRepository.delete(cargo);
