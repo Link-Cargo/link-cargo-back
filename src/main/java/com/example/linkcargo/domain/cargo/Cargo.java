@@ -25,13 +25,41 @@ public class Cargo extends MongoBaseEntity {
     private String id;
     private Long userId;
 
-    private Long exportPortId;
-    private Long importPortId;
+    private Long exportPortId; // 출발지
+    private Long importPortId; // 도착지
 
     private String additionalInstructions;
     private String friendlyDescription;
     private Boolean insuranceRequired;
     private CargoInfo cargoInfo;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class CargoInfo {
+
+        private String productName;
+        private String hsCode;
+        private String incoterms;
+        private BigDecimal weight;
+        private BigDecimal value;
+        private Integer quantity;
+        private BoxSize boxSize;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class BoxSize {
+
+        private BigDecimal width;
+        private BigDecimal height;
+        private BigDecimal depth;
+    }
 
     public void update(CargoRequest cargoRequest) {
         // 기본 필드 업데이트
@@ -99,33 +127,5 @@ public class Cargo extends MongoBaseEntity {
             this.insuranceRequired,
             cargoInfoDto
         );
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class CargoInfo {
-
-        private String productName;
-        private String hsCode;
-        private String incoterms;
-        private BigDecimal weight;
-        private BigDecimal value;
-        private Integer quantity;
-        private BoxSize boxSize;
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class BoxSize {
-
-        private BigDecimal width;
-        private BigDecimal height;
-        private BigDecimal depth;
     }
 }

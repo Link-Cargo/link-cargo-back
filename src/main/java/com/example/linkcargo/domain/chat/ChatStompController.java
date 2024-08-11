@@ -6,6 +6,7 @@ import com.example.linkcargo.domain.chat.dto.response.ChatEnterResponse;
 import com.example.linkcargo.domain.chat.dto.request.ChatRequest;
 import com.example.linkcargo.domain.chat.dto.response.ChatContentResponse;
 import com.example.linkcargo.domain.user.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
@@ -18,17 +19,12 @@ import org.springframework.stereotype.Controller;
 
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 public class ChatStompController {
 
     private final ChatService chatService;
     private final UserService userService;
     private final SimpMessagingTemplate messagingTemplate;
-
-    public ChatStompController(ChatService chatService, UserService userService, SimpMessagingTemplate messagingTemplate) {
-        this.chatService = chatService;
-        this.userService = userService;
-        this.messagingTemplate = messagingTemplate;
-    }
 
     @MessageMapping("/chat")
     public void handleChatMessage(Message<?> message, ChatRequest chatRequest) {
