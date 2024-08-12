@@ -2,6 +2,7 @@ package com.example.linkcargo.domain.cargo;
 
 import com.example.linkcargo.domain.cargo.dto.CargoDTO;
 import com.example.linkcargo.domain.cargo.dto.request.CargoRequest;
+import com.example.linkcargo.domain.cargo.dto.request.CargosRequest;
 import com.example.linkcargo.domain.cargo.dto.response.CargoPageResponse;
 import com.example.linkcargo.domain.cargo.dto.response.CargoResponse;
 import com.example.linkcargo.domain.port.Port;
@@ -26,21 +27,18 @@ public class CargoService {
     private final PortRepository portRepository;
 
     /**
-     * 화물 한 개 추가
-     */
-    public Cargo createCargo(Long userId, CargoRequest cargoRequest) {
-        Cargo cargo = cargoRequest.toEntity(userId);
-        cargo.prePersist();
-
-        return cargoRepository.save(cargo);
-    }
-
-    /**
      * 화물 여러 개 추가
      */
-    public void createCargos(Long userId, List<CargoRequest> cargoRequests) {
-        for (CargoRequest cargoRequest : cargoRequests) {
-            Cargo cargo = cargoRequest.toEntity(userId);
+    @Transactional
+    public void createCargos(Long userId, CargosRequest cargosRequest) {
+        for (CargoRequest cargoRequest : cargosRequest.cargos()) {
+            Cargo cargo = cargoRequest.toEntity(
+                userId,
+                cargosRequest.exportPortId(),
+                cargosRequest.importPortId(),
+                cargosRequest.wishExportDate(),
+                cargosRequest.incoterms()
+            );
             cargo.prePersist();
 
             cargoRepository.save(cargo);
