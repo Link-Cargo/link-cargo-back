@@ -12,9 +12,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -88,4 +90,20 @@ public class ForwardingController {
         forwardingService.removeForwarding(forwardingId);
         return ApiResponse.onSuccess(SuccessStatus._OK);
     }
+
+    @Operation(summary = "포워더 포워딩 업체 등록", description = "포워더가 자신이 속한 포워딩 업체를 지정합니다..")
+    @PatchMapping("/users/{forwardingId}")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER403", description = "유저가 존재 하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "FORWARDING403", description = "포워딩 업체가 존재 하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<SuccessStatus> selectForwarding(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @Parameter(description = "포워딩 업체 아이디") @PathVariable Long forwardingId
+    ) {
+        forwardingService.selectForwarding(forwardingId, userDetail.getId());
+        return ApiResponse.onSuccess(SuccessStatus._OK);
+    }
 }
+

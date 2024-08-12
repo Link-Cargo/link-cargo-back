@@ -58,6 +58,8 @@ public enum ErrorStatus implements BaseErrorCode {
     FORWARDING_NOT_FOUND(HttpStatus.NOT_FOUND, "FORWARDING403", "포워딩 업체가 존재 하지 않습니다."),
     FORWARDING_UPDATED_FAIL(HttpStatus.NOT_FOUND, "FORWARDING404","포워딩 업체 변경에 실패하였습니다"),
     FORWARDING_DELETED_FAIL(HttpStatus.NOT_FOUND, "FORWARDING405","포워딩 업체 삭제에 실패하였습니다"),
+    NOT_FORWARDER(HttpStatus.BAD_REQUEST, "FORWARDING406","포워더 역활이 아닙니다."),
+
 
 
 
