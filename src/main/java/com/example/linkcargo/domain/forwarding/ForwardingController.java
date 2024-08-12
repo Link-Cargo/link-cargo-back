@@ -62,8 +62,8 @@ public class ForwardingController {
     @PutMapping("/{forwardingId}")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "FORWARDING403", description = "선박 스케줄이 존재 하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "FORWARDING404", description = "선박 스케줄 변경에 실패했습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "FORWARDING403", description = "포워딩 업체가 존재 하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "FORWARDING404", description = "포워딩 업체 변경에 실패했습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     public ApiResponse<SuccessStatus> modifyForwarding(
         @AuthenticationPrincipal CustomUserDetail userDetail,
