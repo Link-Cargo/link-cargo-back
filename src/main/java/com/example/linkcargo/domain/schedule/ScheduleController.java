@@ -112,10 +112,11 @@ public class ScheduleController {
             @AuthenticationPrincipal CustomUserDetail userDetail,
             @Parameter(description = "수출항 ID") @RequestParam Long exportPortId,
             @Parameter(description = "수입항 ID") @RequestParam Long importPortId,
+            @Parameter(description = "화주가 입력한 화물의 CBM") @RequestParam Double inputCBM,
             @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size
     ) {
-        ScheduleListResponse schedules = scheduleService.searchSchedules(exportPortId, importPortId, page, size);
+        ScheduleListResponse schedules = scheduleService.searchSchedules(exportPortId, importPortId, inputCBM, page, size);
         return ApiResponse.onSuccess(schedules);
     }
 

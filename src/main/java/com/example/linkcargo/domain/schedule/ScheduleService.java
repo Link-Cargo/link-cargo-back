@@ -109,10 +109,22 @@ public class ScheduleService {
         }
     }
 
-    public ScheduleListResponse searchSchedules(Long exportPortId, Long importPortId, int page, int size) {
+    public ScheduleListResponse searchSchedules(Long exportPortId, Long importPortId, Double inputCBM, int page, int size) {
         LocalDateTime now = LocalDateTime.now();
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("ETD").ascending());
-        Page<Schedule> schedulesPage = scheduleRepository.findByExportPortIdAndImportPortIdAndETDAfter(exportPortId, importPortId, now, pageable);
+
+        Integer limitCBM = null;
+
+        if (inputCBM <= 28) {
+            limitCBM = 28;
+        } else if (inputCBM > 28 && inputCBM <= 48) {
+            limitCBM = 48;
+        }
+
+        Page<Schedule> schedulesPage = scheduleRepository.findByExportPortIdAndImportPortIdAndETDAfterAndLimitCBM(
+            exportPortId, importPortId, now, limitCBM, pageable
+        );
         List<String> imageUrls = imageService.selectRandomImages("vessel",schedulesPage.getSize());
 
         return ScheduleListResponse.fromEntity(schedulesPage, imageUrls);

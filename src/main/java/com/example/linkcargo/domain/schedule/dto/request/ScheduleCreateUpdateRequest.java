@@ -51,7 +51,7 @@ public record ScheduleCreateUpdateRequest(
 ) {
 
     public Schedule toEntity(Port exportPort, Port importPort) {
-        int CBM;
+        Integer CBM = null;
 
         if (this.limitSize == 20) {
             CBM = 28;
