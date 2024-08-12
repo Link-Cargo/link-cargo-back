@@ -48,4 +48,17 @@ public record ForwardingCreateUpdateRequest(
             .build();
     }
 
+    public Forwarding updateEntity(Forwarding forwarding) {
+        forwarding.setFirmName(this.firmName);
+        forwarding.setBusinessNumber(this.businessNumber);
+        forwarding.setMainSubject(this.mainSubject);
+        forwarding.setFirmUrl(this.firmUrl);
+        forwarding.setFirmAddress(this.firmAddress);
+        forwarding.setFoundedYear(this.foundedYear);
+        forwarding.setFirmCeo(this.firmCeo);
+        forwarding.setFirmTel(this.firmTel);
+
+        return forwarding;
+    }
+
 }
