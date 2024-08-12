@@ -2,7 +2,6 @@ package com.example.linkcargo.domain.forwarding;
 
 import com.example.linkcargo.domain.forwarding.dto.request.ForwardingCreateUpdateRequest;
 import com.example.linkcargo.domain.forwarding.dto.response.ForwardingInfoResponse;
-import com.example.linkcargo.domain.schedule.dto.request.ScheduleCreateUpdateRequest;
 import com.example.linkcargo.global.response.ApiResponse;
 import com.example.linkcargo.global.response.code.resultCode.SuccessStatus;
 import com.example.linkcargo.global.security.CustomUserDetail;
@@ -14,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +30,7 @@ public class ForwardingController {
 
     private final ForwardingService forwardingService;
 
-    @Operation(summary = "포워딩 업체 생성", description = "포워딩 업체를 생성합니다.. ForwardingCreateUpdateRequest 사용")
+    @Operation(summary = "포워딩 업체 생성", description = "포워딩 업체를 생성합니다. ForwardingCreateUpdateRequest 사용")
     @PostMapping("")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
@@ -71,6 +71,21 @@ public class ForwardingController {
         @RequestBody ForwardingCreateUpdateRequest request
     ) {
         forwardingService.modifyForwarding(forwardingId, request);
+        return ApiResponse.onSuccess(SuccessStatus._OK);
+    }
+
+    @Operation(summary = "포워딩 업체 삭제", description = "포워딩 업체를 삭제합니다.")
+    @DeleteMapping("/{forwardingId}")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "FORWARDING403", description = "포워딩 업체가 존재 하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "FORWARDING405", description = "포워딩 업체 삭제에 실패했습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<SuccessStatus> removeForwarding(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @Parameter(description = "포워딩 업체 아이디") @PathVariable Long forwardingId
+    ) {
+        forwardingService.removeForwarding(forwardingId);
         return ApiResponse.onSuccess(SuccessStatus._OK);
     }
 }

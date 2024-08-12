@@ -56,4 +56,16 @@ public class ForwardingService {
 
 
     }
+
+    @Transactional
+    public void removeForwarding(Long forwardingId) {
+        Forwarding forwarding = forwardingRepository.findById(forwardingId)
+            .orElseThrow(()-> new ForwardingHandler(ErrorStatus.FORWARDING_NOT_FOUND));
+
+        try {
+            forwardingRepository.delete(forwarding);
+        } catch (Exception e) {
+            throw new ForwardingHandler(ErrorStatus.FORWARDING_UPDATED_FAIL);
+        }
+    }
 }
