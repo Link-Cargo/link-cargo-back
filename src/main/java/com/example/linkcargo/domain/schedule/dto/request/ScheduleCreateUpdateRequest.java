@@ -7,6 +7,7 @@ import com.example.linkcargo.domain.schedule.TransportType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 
 public record ScheduleCreateUpdateRequest(
@@ -35,6 +36,13 @@ public record ScheduleCreateUpdateRequest(
     @Min(value = 1, message = "Transit time should be at least 1")
     Integer transitTime,
 
+    @NotNull(message = "Limit size is mandatory")
+    @Pattern(regexp = "20|40", message = "limitSize must be 20 or 40")
+    Integer limitSize,
+
+    @NotNull(message = "Qty is mandatory")
+    Integer Qty,
+
     @NotNull(message = "Document cut off is mandatory")
     LocalDateTime documentCutOff,
 
@@ -43,6 +51,14 @@ public record ScheduleCreateUpdateRequest(
 ) {
 
     public Schedule toEntity(Port exportPort, Port importPort) {
+        int CBM;
+
+        if (this.Qty == 20) {
+            CBM = 28;
+        } else {
+            CBM = 48;
+        }
+
         return Schedule.builder()
             .exportPort(exportPort)
             .importPort(importPort)
@@ -50,6 +66,9 @@ public record ScheduleCreateUpdateRequest(
             .vessel(this.vessel)
             .ETD(this.ETD)
             .ETA(this.ETA)
+            .limitSize(this.limitSize)
+            .Qty(this.Qty)
+            .CBM(CBM)
             .transportType(this.transportType)
             .transitTime(this.transitTime)
             .documentCutOff(this.documentCutOff)

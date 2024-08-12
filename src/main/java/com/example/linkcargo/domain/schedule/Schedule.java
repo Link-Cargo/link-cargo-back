@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -60,6 +61,15 @@ public class Schedule extends JpaBaseEntity {
 
     @Column(name = "transit_time")
     private Integer transitTime;
+
+    @Column(name = "limit_size")
+    private Integer limitSize;
+
+    @Column(name = "Qty")
+    private Integer Qty;
+
+    @Column(name = "CBM")
+    private Integer CBM;
 
     @Column(name = "document_cut_off")
     private LocalDateTime documentCutOff;
