@@ -3,11 +3,13 @@ package com.example.linkcargo.domain.quotation;
 import com.example.linkcargo.domain.cargo.Cargo;
 import com.example.linkcargo.domain.cargo.CargoRepository;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationConsignorRequest;
+import com.example.linkcargo.domain.quotation.dto.request.QuotationForwarderRequest;
 import com.example.linkcargo.domain.schedule.Schedule;
 import com.example.linkcargo.domain.schedule.ScheduleRepository;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.GeneralException;
 import com.example.linkcargo.global.response.exception.handler.CargoHandler;
+import com.example.linkcargo.global.response.exception.handler.QuotationHandler;
 import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +31,7 @@ public class QuotationService {
     @Transactional
     public String createQuotationByConsignor(QuotationConsignorRequest request, Long userId) {
 
-        boolean isDuplicate = quotationRepository.existsByUserIdAndCost_CargoIdAndFreight_ScheduleId(
+        boolean isDuplicate = quotationRepository.existsByConsignorIdAndCost_CargoIdAndFreight_ScheduleId(
             String.valueOf(userId),
             request.cargoId(),
             String.valueOf(request.scheduleId())
@@ -59,7 +61,7 @@ public class QuotationService {
     public List<String> createQuotationsByConsignor(List<QuotationConsignorRequest> requests, Long userId) {
         return requests.stream()
             .map(request -> {
-                boolean isDuplicate = quotationRepository.existsByUserIdAndCost_CargoIdAndFreight_ScheduleId(
+                boolean isDuplicate = quotationRepository.existsByConsignorIdAndCost_CargoIdAndFreight_ScheduleId(
                     String.valueOf(userId),
                     request.cargoId(),
                     String.valueOf(request.scheduleId())
@@ -82,5 +84,22 @@ public class QuotationService {
                 return savedQuotation.getId();
             })
             .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public String updateQuotationByForwarder(QuotationForwarderRequest request, Long userId) {
+        Quotation quotation = quotationRepository.findById(request.quotationId())
+            .orElseThrow(() -> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
+
+        try {
+            Quotation updatedQuotation = request.updateQuotation(quotation, String.valueOf(userId));
+            updatedQuotation.setQuotationStatus(QuotationStatus.DETAIL_INFO);
+            quotationRepository.save(updatedQuotation);
+        } catch (Exception e) {
+            throw new QuotationHandler(ErrorStatus.QUOTATION_UPDATED_FAIL);
+        }
+
+        return quotation.getId();
+
     }
 }

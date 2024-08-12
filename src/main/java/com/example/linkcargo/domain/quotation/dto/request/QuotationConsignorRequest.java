@@ -11,10 +11,6 @@ public record QuotationConsignorRequest(
         @NotNull(message = "Cargo ID is mandatory")
         String cargoId,
 
-        String HSCode,
-
-        String productName,
-
         String particulars
 ) {
 
@@ -32,7 +28,8 @@ public record QuotationConsignorRequest(
                 .build();
 
         return Quotation.builder()
-                .userId(userId)
+                .consignorId(userId)
+                .forwarderId(null)
                 .quotationStatus(QuotationStatus.BASIC_INFO)
                 .freight(freight)
                 .cost(cost)

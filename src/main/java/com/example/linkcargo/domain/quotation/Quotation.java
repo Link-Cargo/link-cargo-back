@@ -23,7 +23,10 @@ public class Quotation extends MongoBaseEntity {
     private String id;
 
     @Indexed
-    private String userId;
+    private String forwarderId;
+
+    @Indexed
+    private String consignorId;
 
     private QuotationStatus quotationStatus;
 
@@ -70,6 +73,8 @@ public class Quotation extends MongoBaseEntity {
     @Builder
     public static class ChargeExport {
 
+        private TEU THC;
+
         private TEU CIC;
 
         private TEU DO_FEE;
@@ -85,6 +90,8 @@ public class Quotation extends MongoBaseEntity {
         private TEU WARFAGE_FEE;
 
         private TEU TRUCKING;
+
+        private BigDecimal SUM;
     }
 
     @Getter
