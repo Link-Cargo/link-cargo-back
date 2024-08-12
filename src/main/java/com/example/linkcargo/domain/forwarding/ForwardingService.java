@@ -1,6 +1,7 @@
 package com.example.linkcargo.domain.forwarding;
 
 import com.example.linkcargo.domain.forwarding.dto.request.ForwardingCreateUpdateRequest;
+import com.example.linkcargo.domain.forwarding.dto.response.ForwardingInfoResponse;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.ForwardingHandler;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +32,12 @@ public class ForwardingService {
         } catch (Exception e) {
             throw new ForwardingHandler(ErrorStatus.FORWARDING_CREATED_FAIL);
         }
+    }
+
+    public ForwardingInfoResponse findForwarding(Long forwardingId) {
+        Forwarding forwarding = forwardingRepository.findById(forwardingId)
+            .orElseThrow(()-> new ForwardingHandler(ErrorStatus.FORWARDING_NOT_FOUND));
+
+        return ForwardingInfoResponse.fromEntity(forwarding);
     }
 }

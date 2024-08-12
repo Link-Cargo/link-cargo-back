@@ -1,15 +1,19 @@
 package com.example.linkcargo.domain.forwarding;
 
 import com.example.linkcargo.domain.forwarding.dto.request.ForwardingCreateUpdateRequest;
+import com.example.linkcargo.domain.forwarding.dto.response.ForwardingInfoResponse;
 import com.example.linkcargo.global.response.ApiResponse;
 import com.example.linkcargo.global.security.CustomUserDetail;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,5 +40,18 @@ public class ForwardingController {
     {
         Long resultId = forwardingService.createForwarding(request);
         return ApiResponse.onSuccess(resultId);
+    }
+
+    @Operation(summary = "포워딩 업체 단일 조회 ", description = "포워딩 업체 아이디에 따라 포워딩 업체를 조회 합니다. ForwardingInfoResponse 사용")
+    @GetMapping("/{forwardingId}")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "FORWARDING403", description = "포워딩 업체가 존재 하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<ForwardingInfoResponse> findForwarding(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @Parameter(description = "포워딩 업체 아이디") @PathVariable("forwardingId") Long forwardingId) {
+        ForwardingInfoResponse forwardingInfoResponse = forwardingService.findForwarding(forwardingId);
+        return ApiResponse.onSuccess(forwardingInfoResponse);
     }
 }
