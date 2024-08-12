@@ -53,7 +53,7 @@ public record ScheduleCreateUpdateRequest(
     public Schedule toEntity(Port exportPort, Port importPort) {
         int CBM;
 
-        if (this.Qty == 20) {
+        if (this.limitSize == 20) {
             CBM = 28;
         } else {
             CBM = 48;
@@ -68,7 +68,7 @@ public record ScheduleCreateUpdateRequest(
             .ETA(this.ETA)
             .limitSize(this.limitSize)
             .Qty(this.Qty)
-            .CBM(CBM)
+            .limitCBM(CBM)
             .transportType(this.transportType)
             .transitTime(this.transitTime)
             .documentCutOff(this.documentCutOff)

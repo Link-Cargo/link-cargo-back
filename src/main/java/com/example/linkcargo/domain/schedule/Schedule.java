@@ -69,7 +69,7 @@ public class Schedule extends JpaBaseEntity {
     private Integer Qty;
 
     @Column(name = "CBM")
-    private Integer CBM;
+    private Integer limitCBM;
 
     @Column(name = "document_cut_off")
     private LocalDateTime documentCutOff;
