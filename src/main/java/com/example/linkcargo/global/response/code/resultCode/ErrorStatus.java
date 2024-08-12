@@ -52,6 +52,11 @@ public enum ErrorStatus implements BaseErrorCode {
     PORT_UPDATED_FAIL(HttpStatus.NOT_FOUND, "PORT406","항구 변경에 실패하였습니다"),
     PORT_DELETED_FAIL(HttpStatus.NOT_FOUND, "PORT407","항구 삭제에 실패하였습니다"),
 
+    // Forwarding
+    FORWARDING_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "FORWARDING401", "이미 존재하는 포워딩 업체 입니다."),
+    FORWARDING_CREATED_FAIL(HttpStatus.NOT_FOUND, " FORWARDING402", "포워딩 업체 생성에 실패하였습니다."),
+
+
     // S3
     S3_FILE_NAME_ERROR(HttpStatus.BAD_REQUEST, "S3401","잘못된 형식의 파일입니다."),
 
@@ -61,6 +66,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // Quotation
     QUOTATION_DUPLICATE(HttpStatus.BAD_REQUEST, "QUOTATION401","이미 동일한 견적서가 존재합니다.");
+
 
     private final HttpStatus httpStatus;
     private final String code;
