@@ -75,4 +75,21 @@ public record ScheduleCreateUpdateRequest(
             .cargoCutOff(this.cargoCutOff)
             .build();
     }
+
+    public Schedule updateEntity(Schedule existingSchedule, Port exportPort, Port importPort) {
+        existingSchedule.setExportPort(exportPort);
+        existingSchedule.setImportPort(importPort);
+        existingSchedule.setCarrier(this.carrier());
+        existingSchedule.setVessel(this.vessel());
+        existingSchedule.setETD(this.ETD());
+        existingSchedule.setETA(this.ETA());
+        existingSchedule.setTransportType(this.transportType());
+        existingSchedule.setTransitTime(this.transitTime());
+        existingSchedule.setLimitSize(this.limitSize());
+        existingSchedule.setQty(this.Qty());
+        existingSchedule.setDocumentCutOff(this.documentCutOff());
+        existingSchedule.setCargoCutOff(this.cargoCutOff());
+
+        return existingSchedule;
+    }
 }

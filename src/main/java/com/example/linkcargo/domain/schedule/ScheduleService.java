@@ -79,19 +79,10 @@ public class ScheduleService {
         Port importPort = portRepository.findById(request.importPortId())
             .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
 
-        schedule.setExportPort(exportPort);
-        schedule.setImportPort(importPort);
-        schedule.setCarrier(request.carrier());
-        schedule.setVessel(request.vessel());
-        schedule.setETD(request.ETD());
-        schedule.setETA(request.ETA());
-        schedule.setTransportType(request.transportType());
-        schedule.setTransitTime(request.transitTime());
-        schedule.setDocumentCutOff(request.documentCutOff());
-        schedule.setCargoCutOff(request.cargoCutOff());
+        Schedule updatedSchedule = request.updateEntity(schedule,exportPort,importPort);
 
         try {
-            scheduleRepository.save(schedule);
+            scheduleRepository.save(updatedSchedule);
         } catch (Exception e) {
             throw new ScheduleHandler(ErrorStatus.SCHEDULE_UPDATED_FAIL);
         }
