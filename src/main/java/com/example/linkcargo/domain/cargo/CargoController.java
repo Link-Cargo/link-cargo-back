@@ -1,6 +1,7 @@
 package com.example.linkcargo.domain.cargo;
 
 import com.example.linkcargo.domain.cargo.dto.request.CargoRequest;
+import com.example.linkcargo.domain.cargo.dto.request.CargosRequest;
 import com.example.linkcargo.domain.cargo.dto.response.CargoPageResponse;
 import com.example.linkcargo.domain.cargo.dto.response.CargoResponse;
 import com.example.linkcargo.global.response.ApiResponse;
@@ -36,29 +37,16 @@ public class CargoController {
 
     private final CargoService cargoService;
 
-    @Operation(summary = "화물 한개 추가", description = "화물 정보를 한 개 추가합니다. CargoRequest 사용")
-//    @PostMapping
-    @ApiResponses({
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공")
-    })
-    public ApiResponse<String> createCargo(
-        @Valid @RequestBody CargoRequest cargoRequest,
-        @AuthenticationPrincipal CustomUserDetail userDetail
-    ) {
-        Cargo savedCargo = cargoService.createCargo(userDetail.getId(), cargoRequest);
-        return ApiResponse.onSuccess(savedCargo.getId());
-    }
-
-    @Operation(summary = "화물 여러 개 추가", description = "화물 정보를 여러 개 추가합니다. List<CargoRequest> 사용")
+    @Operation(summary = "화물 여러 개 추가", description = "화물 정보를 여러 개 추가합니다. CargosRequest 사용")
     @PostMapping
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공")
     })
     public ApiResponse<SuccessStatus> createCargos(
-        @Valid @RequestBody List<CargoRequest> cargoRequests,
+        @Valid @RequestBody CargosRequest cargosRequest,
         @AuthenticationPrincipal CustomUserDetail userDetail
     ) {
-        cargoService.createCargos(userDetail.getId(), cargoRequests);
+        cargoService.createCargos(userDetail.getId(), cargosRequest);
         return ApiResponse.onSuccess(SuccessStatus._OK);
     }
 
