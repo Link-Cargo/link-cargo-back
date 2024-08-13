@@ -283,7 +283,7 @@ public class QuotationCalculationService {
                 .build())
             .cost(Quotation.Cost.builder()
                 .cargoIds(cargoIds)
-                .totalCost(totalCost)
+                .totalCost(totalCost.multiply(BigDecimal.valueOf(applied_exchange_rate)))
                 .build())
             .build();
 
