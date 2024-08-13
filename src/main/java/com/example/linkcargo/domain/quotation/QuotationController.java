@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "4. Quotation", description = "견적서 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/quotations")
+@RequestMapping("/api/v1/quotations")
 public class QuotationController {
 
     private final QuotationService quotationService;

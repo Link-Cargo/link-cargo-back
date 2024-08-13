@@ -18,12 +18,12 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "6. Image", description = "이미지 업로드 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/images")
+@RequestMapping("/api/v1/images")
 public class ImageController {
     private final ImageService imageService;
 
     @PostMapping(path = "/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "파일 업로드 API", description = "ImageListDto 사용")
+    @Operation(summary = "이미지 파일 업로드 API", description = "ImageListDto 사용")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "IMAGE402", description = "이미지 업로드 실패",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
