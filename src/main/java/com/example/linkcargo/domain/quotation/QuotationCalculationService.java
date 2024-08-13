@@ -33,9 +33,8 @@ import org.springframework.web.client.RestTemplate;
 @Transactional(readOnly = true)
 public class QuotationCalculationService {
 
-
-    @Value("${api-key.export-import-bok.secretKey}")
-    private String apiKey;
+//    @Value("${api-key.export-import-bok.secretKey}")
+//    private String apiKey;
 
     private final QuotationRepository quotationRepository;
     private final CargoRepository cargoRepository;
@@ -115,8 +114,8 @@ public class QuotationCalculationService {
         return cargos.stream()
             .map(cargo -> {
                 BigDecimal cargoValue = cargo.getCargoInfo().getValue();
-                Integer cargoQuantity = cargo.getCargoInfo().getQuantity();
-                Integer quantityPerBox = 10; // 임시
+                Integer cargoQuantity = cargo.getCargoInfo().getTotalQuantity();
+                Integer quantityPerBox = cargo.getCargoInfo().getQuantityPerBox();
                 int totalBoxQuantity = cargoQuantity / quantityPerBox;
                 BigDecimal unitPriceInForeignCurrency = cargoValue.divide(exchangeRate, 2, RoundingMode.HALF_UP);
                 BigDecimal boxWidth = cargo.getCargoInfo().getBoxSize().getWidth();
