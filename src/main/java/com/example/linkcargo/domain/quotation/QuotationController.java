@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class QuotationController {
 
     private final QuotationService quotationService;
+    private final QuotationCalculationService quotationCalculationService;
 
     @Operation(summary = "화주 견적서 요청 ", description = "화주 측에서 견적서 초안을 작성합니다. QuotationConsignorRequest 사용")
     @PostMapping("")
@@ -42,7 +43,7 @@ public class QuotationController {
         @AuthenticationPrincipal CustomUserDetail userDetail,
         @RequestBody QuotationConsignorRequest request) {
         Quotation quotation = quotationService.createQuotationByConsignor(request, userDetail.getId());
-//        quotationService.updateQuotationByAlgorithm(quotation);
+        quotationCalculationService.updateQuotationByAlgorithm(quotation);
         return ApiResponse.onSuccess(quotation.getId());
     }
 
@@ -61,7 +62,7 @@ public class QuotationController {
 
         List<String> quotationIds = new ArrayList<>();
         for (Quotation quotation : quotations) {
-//            quotationService.updateQuotationByAlgorithm(quotation);
+            quotationCalculationService.updateQuotationByAlgorithm(quotation);
             quotationIds.add(quotation.getId());
         }
         return ApiResponse.onSuccess(quotationIds);
