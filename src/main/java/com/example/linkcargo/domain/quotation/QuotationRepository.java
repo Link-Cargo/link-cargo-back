@@ -1,8 +1,9 @@
 package com.example.linkcargo.domain.quotation;
 
+import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface QuotationRepository extends MongoRepository<Quotation, String> {
 
-    boolean existsByUserIdAndCost_CargoIdAndFreight_ScheduleId(String userId, String cargoId, String scheduleId);
+    boolean existsByConsignorIdAndFreight_ScheduleId(String s, String s1);
 }
