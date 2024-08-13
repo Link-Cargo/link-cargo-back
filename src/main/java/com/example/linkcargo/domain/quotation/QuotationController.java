@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -40,8 +41,9 @@ public class QuotationController {
     public ApiResponse<String> createQuotationByConsignor(
         @AuthenticationPrincipal CustomUserDetail userDetail,
         @RequestBody QuotationConsignorRequest request) {
-        String resultId = quotationService.createQuotationByConsignor(request, userDetail.getId());
-        return ApiResponse.onSuccess(resultId);
+        Quotation quotation = quotationService.createQuotationByConsignor(request, userDetail.getId());
+//        quotationService.updateQuotationByAlgorithm(quotation);
+        return ApiResponse.onSuccess(quotation.getId());
     }
 
     @Operation(summary = "화주 견적서 여러 개 요청", description = "화주 측에서 여러 개의 견적서 초안을 작성합니다. QuotationConsignorRequest 사용")
@@ -55,9 +57,15 @@ public class QuotationController {
     public ApiResponse<List<String>> createQuotationsByConsignor(
         @AuthenticationPrincipal CustomUserDetail userDetail,
         @RequestBody List<QuotationConsignorRequest> requests) {
+        List<Quotation> quotations = quotationService.createQuotationsByConsignor(requests, userDetail.getId());
 
-        List<String> resultIds = quotationService.createQuotationsByConsignor(requests, userDetail.getId());
-        return ApiResponse.onSuccess(resultIds);
+        List<String> quotationIds = new ArrayList<>();
+        for (Quotation quotation : quotations) {
+//            quotationService.updateQuotationByAlgorithm(quotation);
+            quotationIds.add(quotation.getId());
+        }
+        return ApiResponse.onSuccess(quotationIds);
+
     }
 
     @Operation(summary = "포워더 견적서 업데이트", description = "포워더 측에서 기존 견적서를 업데이트합니다. QuotationForwarderRequest 사용")

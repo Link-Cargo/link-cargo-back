@@ -152,7 +152,7 @@ public record QuotationForwarderRequest(
             
 
             Quotation.Cost cost = Quotation.Cost.builder()
-                .cargoId(quotation.getCost().getCargoId())
+                .cargoIds(quotation.getCost().getCargoIds())
                 .chargeExport(chargeExport)
                 .freightCost(freightCost)
                 .totalCost(totalCost)

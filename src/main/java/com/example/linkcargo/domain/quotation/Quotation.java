@@ -2,6 +2,7 @@ package com.example.linkcargo.domain.quotation;
 
 import com.example.linkcargo.global.entity.MongoBaseEntity;
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -57,7 +58,7 @@ public class Quotation extends MongoBaseEntity {
     public static class Cost {
 
         @Indexed
-        private String cargoId;
+        private List<String> cargoIds;
 
         private ChargeExport chargeExport;
 
