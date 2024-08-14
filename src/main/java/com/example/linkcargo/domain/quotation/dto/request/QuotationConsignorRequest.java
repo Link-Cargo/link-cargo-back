@@ -10,9 +10,8 @@ public record QuotationConsignorRequest(
         Long scheduleId,
 
         @NotNull(message = "Cargo ID is mandatory")
-        List<String> cargoIds,
+        List<String> cargoIds
 
-        String particulars
 ) {
 
     public Quotation toEntity(String userId) {
@@ -31,10 +30,10 @@ public record QuotationConsignorRequest(
         return Quotation.builder()
                 .consignorId(userId)
                 .forwarderId(null)
+                .particulars(null)
                 .quotationStatus(QuotationStatus.BASIC_INFO)
                 .freight(freight)
                 .cost(cost)
-                .particulars(this.particulars)
                 .build();
     }
 }
