@@ -1,6 +1,8 @@
 package com.example.linkcargo.domain.dashboard;
 
 import com.example.linkcargo.domain.cargo.CargoRepository;
+import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionReasonResponse;
+import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionReasonResponse.PredictionReason;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationCompareResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationResponse;
@@ -30,7 +32,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -179,5 +183,62 @@ public class DashboardService {
             .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
 
         return DashboardPredictionResponse.fromEntity(exportPort.getName(), importPort.getName(), predictionList);
+    }
+
+    // todo
+    // openai API 사용을 API 호출 시가 아닌 AI 서버에서 가져올 때 진행하는 것이 어떤지
+    public DashboardPredictionReasonResponse getPredictionReasonInfo() {
+
+        LocalDate today = LocalDate.now();
+
+        int currentYear = today.getYear();
+        int currentMonth = today.getMonthValue();
+
+        LocalDate sixMonthsLater = today.plusMonths(6);
+        int endYear = sixMonthsLater.getYear();
+        int endMonth = sixMonthsLater.getMonthValue();
+
+        List<Prediction> predictions = predictionRepository.findPredictionsWithinPeriod(
+            currentYear, currentMonth, endYear, endMonth);
+
+        // 임시
+        String reason = "openai answer";
+
+        predictions.sort((p1, p2) -> {
+            if (!Objects.equals(p1.getYear(), p2.getYear())) {
+                return Integer.compare(p1.getYear(), p2.getYear());
+            }
+            return Integer.compare(p1.getMonth(), p2.getMonth());
+        });
+
+        List<PredictionReason> predictionReasons = IntStream.range(0, predictions.size() - 1)
+            .mapToObj(i -> {
+                Prediction current = predictions.get(i);
+                Prediction next = predictions.get(i + 1);
+
+                String status = Integer.parseInt(next.getFreightCostIndex()) > Integer.parseInt(current.getFreightCostIndex()) ? "rising" : "falling";
+
+                Map<String, String> currentDate = Map.of(
+                    "year", String.valueOf(current.getYear()),
+                    "month", String.valueOf(current.getMonth())
+                );
+                Map<String, String> nextDate = Map.of(
+                    "year", String.valueOf(next.getYear()),
+                    "month", String.valueOf(next.getMonth())
+                );
+
+                return PredictionReason.fromEntity(
+                    List.of(currentDate, nextDate),
+                    status,
+                    reason
+                );
+            })
+            .collect(Collectors.toList());
+
+        return DashboardPredictionReasonResponse.fromEntity(predictionReasons);
+
+
+
+
     }
 }
