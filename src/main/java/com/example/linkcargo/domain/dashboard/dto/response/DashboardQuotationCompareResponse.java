@@ -1,8 +1,5 @@
 package com.example.linkcargo.domain.dashboard.dto.response;
 
-import com.example.linkcargo.domain.quotation.Quotation;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

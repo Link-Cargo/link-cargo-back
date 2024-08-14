@@ -1,12 +1,15 @@
 package com.example.linkcargo.domain.dashboard;
 
-import static com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationCompareResponse.fromEntity;
-
 import com.example.linkcargo.domain.cargo.CargoRepository;
+import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationCompareResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationResponse;
 import com.example.linkcargo.domain.forwarding.Forwarding;
 import com.example.linkcargo.domain.forwarding.ForwardingRepository;
+import com.example.linkcargo.domain.port.Port;
+import com.example.linkcargo.domain.port.PortRepository;
+import com.example.linkcargo.domain.prediction.Prediction;
+import com.example.linkcargo.domain.prediction.PredictionRepository;
 import com.example.linkcargo.domain.quotation.Quotation;
 import com.example.linkcargo.domain.quotation.QuotationRepository;
 import com.example.linkcargo.domain.quotation.QuotationStatus;
@@ -16,19 +19,21 @@ import com.example.linkcargo.domain.schedule.ScheduleRepository;
 import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.domain.user.UserRepository;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
+import com.example.linkcargo.global.response.exception.handler.PortHandler;
 import com.example.linkcargo.global.response.exception.handler.QuotationHandler;
 import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
 import com.example.linkcargo.global.response.exception.handler.UsersHandler;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +48,9 @@ public class DashboardService {
     private final ScheduleRepository scheduleRepository;
     private final ForwardingRepository forwardingRepository;
     private final UserRepository userRepository;
+    private final PredictionRepository predictionRepository;
+    private final PortRepository portRepository;
+
     public Integer convertToInteger(BigDecimal value) {
         return value.setScale(0, RoundingMode.HALF_UP).intValue();
     }
@@ -139,11 +147,37 @@ public class DashboardService {
             "truckingCost", truckingCostList
         );
 
-        DashboardQuotationCompareResponse dashboardQuotationCompareResponse =
-            DashboardQuotationCompareResponse.fromEntity(dashboardQuotationResponses,
-                compareCostMap);
+        return DashboardQuotationCompareResponse.fromEntity(dashboardQuotationResponses, compareCostMap);
 
-        return dashboardQuotationCompareResponse;
     }
 
+    public DashboardPredictionResponse getPredictionInfo(Long exportPortId, Long importPortId) {
+        LocalDate today = LocalDate.now();
+
+        int currentYear = today.getYear();
+        int currentMonth = today.getMonthValue();
+
+        LocalDate sixMonthsLater = today.plusMonths(6);
+        int endYear = sixMonthsLater.getYear();
+        int endMonth = sixMonthsLater.getMonthValue();
+
+        List<Prediction> predictions = predictionRepository.findPredictionsWithinPeriod(
+            currentYear, currentMonth, endYear, endMonth);
+
+        Map<Pair<String,String>,Integer> predictionList = predictions.stream()
+            .collect(Collectors.toMap(
+                prediction -> Pair.of(
+                    String.valueOf(prediction.getYear()),
+                    String.valueOf(prediction.getMonth())
+                ),
+                prediction -> Integer.parseInt(prediction.getFreightCostIndex()),
+                (v1, v2) -> v1));
+
+        Port exportPort = portRepository.findById(exportPortId)
+            .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
+        Port importPort = portRepository.findById(importPortId)
+            .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
+
+        return DashboardPredictionResponse.fromEntity(exportPort.getName(), importPort.getName(), predictionList);
+    }
 }
