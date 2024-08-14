@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.dashboard;
 
+import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationCompareResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationResponse;
 import com.example.linkcargo.global.response.ApiResponse;
 import com.example.linkcargo.global.security.CustomUserDetail;
@@ -19,9 +20,10 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
     @GetMapping("")
-    public ApiResponse<DashboardQuotationResponse> test(
+    public ApiResponse<DashboardQuotationCompareResponse> test(
         @AuthenticationPrincipal CustomUserDetail userDetail
     ) {
-        return ApiResponse.onSuccess(dashboardService.getTheCheapestQuotation(userDetail.getId()));
+        return ApiResponse.onSuccess(dashboardService.getQuotationsForComparing(userDetail.getId(),
+            String.valueOf(1)));
     }
 }
