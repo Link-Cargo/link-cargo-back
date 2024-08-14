@@ -6,7 +6,6 @@ import com.example.linkcargo.domain.schedule.Schedule;
 import com.example.linkcargo.domain.schedule.ScheduleRepository;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.CargoHandler;
-import com.example.linkcargo.global.response.exception.handler.GeneralHandler;
 import com.example.linkcargo.global.response.exception.handler.QuotationHandler;
 import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,8 +33,8 @@ import org.springframework.web.client.RestTemplate;
 @Transactional(readOnly = true)
 public class QuotationCalculationService {
 
-//    @Value("${api-key.export-import-bok.secretKey}")
-//    private String apiKey;
+    @Value("${api-key.export-import-bok.secretKey}")
+    private String apiKey;
 
     private final QuotationRepository quotationRepository;
     private final CargoRepository cargoRepository;
@@ -92,20 +92,6 @@ public class QuotationCalculationService {
         private BigDecimal overseaTrucking; // 내륙 운송료
         private BigDecimal totalOverseaExpenses; // 국외 발생 총 경비
     }
-
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @Builder
-    static
-    public class Incoterms {
-        private BigDecimal incotermsFOB; // FOB 개당 원가
-        private BigDecimal incotermsCFR; // CFR 원가
-        private BigDecimal incotermsCIF; // CIF 원가
-        private BigDecimal incotermsDAP; // DAP 원가
-        private BigDecimal incotermsDDP; // DDP 원가
-    }
-
 
 
     public List<CargoBaseInfo> processCargos(List<Cargo> cargos, Integer appliedExchangeRate) {
@@ -181,15 +167,56 @@ public class QuotationCalculationService {
             .build();
     }
 
-    public QuotationOverseaExpense calculateOverseaExpense(BigDecimal totalCBM, Integer totalExportQuantity, BigDecimal incoterms) {
-        BigDecimal freightCost = totalCBM.multiply(BigDecimal.valueOf(10));
-        BigDecimal cargoInsurance = incoterms
+    public QuotationOverseaExpense calculateOverseaExpense(
+        BigDecimal totalCBM,
+        BigDecimal AMForAFS,
+        Integer totalExportQuantity,
+        BigDecimal incotermsPOB,
+        String incotermsType,
+        Integer freight
+    ) {
+        BigDecimal freightCost = totalCBM.multiply(BigDecimal.valueOf(freight));
+        BigDecimal cargoInsurance = incotermsPOB
             .multiply(BigDecimal.valueOf(1.1))
             .multiply(BigDecimal.valueOf(0.0004))
             .multiply(BigDecimal.valueOf(totalExportQuantity));
 
         BigDecimal inspectionFee = new BigDecimal("250.00");
         BigDecimal overseaTrucking =  new BigDecimal("250.00");
+
+
+        BigDecimal incoterms = null;
+
+        BigDecimal incotermsCFR = freightCost
+            .add(AMForAFS)
+            .divide(BigDecimal.valueOf(totalExportQuantity), 2, RoundingMode.HALF_UP)
+            .add(incotermsPOB);
+
+        BigDecimal incotermsCIF = cargoInsurance
+            .divide(BigDecimal.valueOf(totalExportQuantity), 2, RoundingMode.HALF_UP)
+            .add(incotermsCFR);
+
+        BigDecimal incotermsDAP = overseaTrucking
+            .divide(BigDecimal.valueOf(totalExportQuantity), 2, RoundingMode.HALF_UP)
+            .add(incotermsCIF);
+
+        BigDecimal incotermsDDP = inspectionFee
+            .divide(BigDecimal.valueOf(totalExportQuantity), 2, RoundingMode.HALF_UP)
+            .add(incotermsDAP);
+
+        // todo
+        // 인코텀즈 비용에 따른 국외 발생 경비의 차이
+        if (Objects.equals(incotermsType, "CFR")) {
+            incoterms = incotermsCFR;
+
+        } else if (Objects.equals(incotermsType, "CIF")) {
+            incoterms = incotermsCIF;
+
+        } else if (Objects.equals(incotermsType, "DAP")) {
+            incoterms = incotermsDAP;
+        } else {
+            incoterms = incotermsDDP;
+        }
 
         BigDecimal totalOverseaExpenses = freightCost
             .add(cargoInsurance)
@@ -205,23 +232,22 @@ public class QuotationCalculationService {
             .build();
     }
 
-
+    // 실시간 환율 라이브러리
     public String getExchange() {
-//        String url = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON" +
-//            "?authkey=" + apiKey +
-//            "&data=AP01";
-//        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-//
-//        try {
-//            JsonNode rootNode = objectMapper.readTree(response.getBody());
-//            for (JsonNode node : rootNode) {
-//                if ("미국 달러".equals(node.get("cur_nm").asText())) {
-//                    return node.get("kftc_bkpr").asText();
-//                }
-//            }
-//        } catch (Exception e) {
-//            throw new GeneralHandler(ErrorStatus.EXTERNAL_API_ERROR);
-//        }
+        String url = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON" +
+            "?authkey=" + apiKey +
+            "&data=AP01";
+
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            JsonNode rootNode = objectMapper.readTree(response.getBody());
+            for (JsonNode node : rootNode) {
+                if ("미국 달러".equals(node.get("cur_nm").asText())) {
+                    return node.get("kftc_bkpr").asText();
+                }
+            }
+        } catch (Exception ignored) {
+        }
         return "1320";
     }
 
@@ -239,35 +265,51 @@ public class QuotationCalculationService {
         Schedule schedule = scheduleRepository.findById(Long.valueOf(quotation.getFreight().getScheduleId()))
             .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
 
+        Cargo firstCargo = cargos.get(0);
+
         // 화물정보
         BigDecimal totalWeight = cargos.stream()
             .map(cargo -> cargo.getCargoInfo().getWeight())
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        // 환율
         int applied_exchange_rate = Integer.parseInt(getExchange());
 
+        // 자세한 화물 정보
         List<CargoBaseInfo> cargoBaseInfos = processCargos(cargos, applied_exchange_rate);
 
+        // 모든 화물의 CBM
         BigDecimal cargosTotalCBM = cargoBaseInfos.stream()
             .map(CargoBaseInfo::getTotalCBM)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        // 국내 발생 경비
         QuotationDomesticExpense domesticExpense = calculateDomesticExpense(cargosTotalCBM, applied_exchange_rate);
 
+
+        // 모든 화물의 외화 환산 총액
         BigDecimal cargosTotalAmountInForeignCurrency = cargoBaseInfos.stream()
             .map(CargoBaseInfo::getTotalAmountInForeignCurrency)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        // 모든 화물의 총 수출 물품 수량의 합
         Integer cargosTotalExportQuantity = cargoBaseInfos.stream()
             .map(CargoBaseInfo::getTotalExportQuantity)
             .reduce(0, Integer::sum);
 
+        // Incoterms 개당 원가
         BigDecimal incotermsFOB = (domesticExpense.getTotalDomesticExpenses())
             .subtract(domesticExpense.getAMForAFS())
             .add(cargosTotalAmountInForeignCurrency)
             .divide(BigDecimal.valueOf(cargosTotalExportQuantity), 2, RoundingMode.HALF_UP);
 
-        QuotationOverseaExpense overseaExpense = calculateOverseaExpense(cargosTotalCBM, cargosTotalExportQuantity, incotermsFOB);
+        // todo
+        // 임시 운임 비용
+        Integer freight = 10;
+
+        // 국외 발생 경비
+        QuotationOverseaExpense overseaExpense
+            = calculateOverseaExpense(cargosTotalCBM, domesticExpense.getAMForAFS(), cargosTotalExportQuantity, incotermsFOB, firstCargo.getIncoterms(), freight);
 
         BigDecimal domesticExpenseTotalCost = domesticExpense.getTotalDomesticExpenses();
         BigDecimal overseaExpenseTotalCost = overseaExpense.getTotalOverseaExpenses();
