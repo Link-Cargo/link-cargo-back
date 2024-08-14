@@ -51,7 +51,9 @@ public record QuotationForwarderRequest(
 
     @NotNull(message = "TRUCKING LCL is mandatory")
     BigDecimal truckingLCL,
-    String truckingRemark
+    String truckingRemark,
+
+    String particulars
 
 
 ) {
@@ -160,7 +162,7 @@ public record QuotationForwarderRequest(
 
             quotation.setCost(cost);
             quotation.setForwarderId(userId);
-
+            quotation.setParticulars(this.particulars);
 
         }
         return quotation;
