@@ -35,6 +35,8 @@ public class DashboardService {
     private final ForwardingRepository forwardingRepository;
     private final UserRepository userRepository;
 
+    // todo
+    // 견적서 조회 시 여러 개의 scheduleId가 있는데 어떤 기준으로 판별할 것 인지
     public DashboardQuotationResponse getTheCheapestQuotation(Long consignorId) {
         List<Quotation> quotations = quotationRepository.findQuotationsByConsignorId(String.valueOf(consignorId));
 

@@ -251,8 +251,7 @@ public class QuotationCalculationService {
         return "1320";
     }
 
-    @Transactional
-    public void updateQuotationByAlgorithm(Quotation inputQuotation) {
+    public BigDecimal calculateTotalCost(Quotation inputQuotation) {
         Quotation quotation = quotationRepository.findById(inputQuotation.getId())
             .orElseThrow(() -> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
 
@@ -261,9 +260,6 @@ public class QuotationCalculationService {
             .map(cargoId -> cargoRepository.findById(cargoId)
                 .orElseThrow(() -> new CargoHandler(ErrorStatus.CARGO_NOT_FOUND)))
             .toList();
-
-        Schedule schedule = scheduleRepository.findById(Long.valueOf(quotation.getFreight().getScheduleId()))
-            .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
 
         Cargo firstCargo = cargos.get(0);
 
@@ -314,7 +310,18 @@ public class QuotationCalculationService {
         BigDecimal domesticExpenseTotalCost = domesticExpense.getTotalDomesticExpenses();
         BigDecimal overseaExpenseTotalCost = overseaExpense.getTotalOverseaExpenses();
 
-        BigDecimal totalCost = domesticExpenseTotalCost.add(overseaExpenseTotalCost);
+        return domesticExpenseTotalCost.add(overseaExpenseTotalCost);
+    }
+    @Transactional
+    public void updateQuotationByAlgorithm(Quotation quotation) {
+        List<String> cargoIds = quotation.getCost().getCargoIds();
+
+        Schedule schedule = scheduleRepository.findById(Long.valueOf(quotation.getFreight().getScheduleId()))
+            .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
+
+        BigDecimal totalCost = calculateTotalCost(quotation);
+
+        int applied_exchange_rate = Integer.parseInt(getExchange());
 
         Quotation createdQuotation = Quotation.builder()
             .quotationStatus(QuotationStatus.PREDICTION_SHEET)
