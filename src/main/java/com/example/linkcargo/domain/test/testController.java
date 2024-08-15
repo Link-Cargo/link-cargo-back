@@ -1,6 +1,6 @@
 package com.example.linkcargo.domain.test;
 
-import com.example.linkcargo.domain.user.dto.UserResponse;
+import com.example.linkcargo.domain.user.dto.response.UserResponse;
 import com.example.linkcargo.global.security.CustomUserDetail;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
