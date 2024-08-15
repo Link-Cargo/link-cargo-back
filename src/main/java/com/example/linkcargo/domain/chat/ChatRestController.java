@@ -1,9 +1,11 @@
 package com.example.linkcargo.domain.chat;
 
+import com.example.linkcargo.global.s3.dto.FileDTO;
 import com.example.linkcargo.domain.chat.dto.response.ChatContentResponse;
 import com.example.linkcargo.domain.chat.dto.response.ChatContentsResponse;
 import com.example.linkcargo.domain.chat.dto.response.ChatRoomResponse;
 import com.example.linkcargo.domain.chat.dto.response.ChatRoomsResponse;
+import com.example.linkcargo.domain.user.dto.response.FilesResponse;
 import com.example.linkcargo.domain.user.UserS3Service;
 import com.example.linkcargo.domain.user.dto.response.FileResponse;
 import com.example.linkcargo.global.response.ApiResponse;
@@ -32,6 +34,7 @@ public class ChatRestController {
     private final ChatService chatService;
     private final UserS3Service userS3Service;
 
+    // TODO 이거 오래된 순으로 바꿔야 할 듯
     @Operation(summary = "채팅방 메시지 목록 조회(최근순)", description = "특정 채팅방의 메시지 목록을 조회합니다.")
     @GetMapping("/{chatRoomId}/messages")
     @ApiResponses({
@@ -67,5 +70,18 @@ public class ChatRestController {
     ) {
         FileResponse fileResponse = userS3Service.uploadFile(file, chatRoomId, userDetail.getId());
         return ApiResponse.onSuccess(fileResponse);
+    }
+
+    @Operation(summary = "채팅방에 업로드 된 파일 목록 조회", description = "채팅방에 업로드된 파일 목록을 조회합니다.")
+    @GetMapping("/{chatRoomId}/file")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+    })
+    public ApiResponse<FilesResponse> getAllFilesInChatRoom(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @PathVariable("chatRoomId") Long chatRoomId
+    ) {
+        FilesResponse filesResponse = userS3Service.getAllObjectsInChatRoom(chatRoomId);
+        return ApiResponse.onSuccess(filesResponse);
     }
 }
