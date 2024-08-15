@@ -79,19 +79,10 @@ public class ScheduleService {
         Port importPort = portRepository.findById(request.importPortId())
             .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
 
-        schedule.setExportPort(exportPort);
-        schedule.setImportPort(importPort);
-        schedule.setCarrier(request.carrier());
-        schedule.setVessel(request.vessel());
-        schedule.setETD(request.ETD());
-        schedule.setETA(request.ETA());
-        schedule.setTransportType(request.transportType());
-        schedule.setTransitTime(request.transitTime());
-        schedule.setDocumentCutOff(request.documentCutOff());
-        schedule.setCargoCutOff(request.cargoCutOff());
+        Schedule updatedSchedule = request.updateEntity(schedule,exportPort,importPort);
 
         try {
-            scheduleRepository.save(schedule);
+            scheduleRepository.save(updatedSchedule);
         } catch (Exception e) {
             throw new ScheduleHandler(ErrorStatus.SCHEDULE_UPDATED_FAIL);
         }
@@ -109,10 +100,22 @@ public class ScheduleService {
         }
     }
 
-    public ScheduleListResponse searchSchedules(Long exportPortId, Long importPortId, int page, int size) {
+    public ScheduleListResponse searchSchedules(Long exportPortId, Long importPortId, Double inputCBM, int page, int size) {
         LocalDateTime now = LocalDateTime.now();
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("ETD").ascending());
-        Page<Schedule> schedulesPage = scheduleRepository.findByExportPortIdAndImportPortIdAndETDAfter(exportPortId, importPortId, now, pageable);
+
+        Integer limitCBM = null;
+
+        if (inputCBM <= 28) {
+            limitCBM = 28;
+        } else if (inputCBM > 28 && inputCBM <= 48) {
+            limitCBM = 48;
+        }
+
+        Page<Schedule> schedulesPage = scheduleRepository.findByExportPortIdAndImportPortIdAndETDAfterAndLimitCBM(
+            exportPortId, importPortId, now, limitCBM, pageable
+        );
         List<String> imageUrls = imageService.selectRandomImages("vessel",schedulesPage.getSize());
 
         return ScheduleListResponse.fromEntity(schedulesPage, imageUrls);

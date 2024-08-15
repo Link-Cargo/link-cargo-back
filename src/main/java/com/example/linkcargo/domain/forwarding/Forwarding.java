@@ -32,11 +32,31 @@ public class Forwarding extends JpaBaseEntity {
     private Long id;
 
     @Column(name = "company_name", nullable = false)
-    private String companyName;
+    private String firmName;
 
     @Column(name = "business_number", unique = true, nullable = false)
     private String businessNumber;
 
+    @Column(name = "firm_logo")
+    private String firmLogoImageUrl;
+
+    @Column(name = "main_subject")
+    private String mainSubject;
+
+    @Column(name = "firm_url")
+    private String firmUrl;
+
+    @Column(name = "firm_address")
+    private String firmAddress;
+
+    @Column(name = "founded_year")
+    private Integer foundedYear;
+
+    @Column(name = "ceo")
+    private String firmCeo;
+
+    @Column(name = "tel")
+    private String firmTel;
 
     @OneToMany(mappedBy = "forwarding", cascade = CascadeType.ALL)
     @Builder.Default
