@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.user;
 
+import com.example.linkcargo.domain.user.dto.request.UserPasswordUpdateRequest;
 import com.example.linkcargo.domain.user.dto.response.UserResponse;
 import com.example.linkcargo.global.response.ApiResponse;
 import com.example.linkcargo.global.response.code.resultCode.SuccessStatus;
@@ -66,4 +67,19 @@ public class UserController {
         UserResponse userResponse = userService.getUserProfile(userDetail.getId());
         return ApiResponse.onSuccess(userResponse);
     }
+
+    @PutMapping("/profile/password")
+    @Operation(summary = "비밀번호 변경", description = "내 비밀번호를 변경합니다.")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER403", description = "해당 정보의 유저를 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<SuccessStatus> getProfile(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @Valid @RequestBody UserPasswordUpdateRequest userPasswordUpdateRequest
+    ) {
+        userService.changePassword(userDetail.getId(), userPasswordUpdateRequest);
+        return ApiResponse.onSuccess(SuccessStatus._OK);
+    }
+
 }
