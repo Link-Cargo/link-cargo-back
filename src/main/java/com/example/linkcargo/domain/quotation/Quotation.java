@@ -2,6 +2,7 @@ package com.example.linkcargo.domain.quotation;
 
 import com.example.linkcargo.global.entity.MongoBaseEntity;
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,7 +24,10 @@ public class Quotation extends MongoBaseEntity {
     private String id;
 
     @Indexed
-    private String userId;
+    private String forwarderId;
+
+    @Indexed
+    private String consignorId;
 
     private QuotationStatus quotationStatus;
 
@@ -54,7 +58,7 @@ public class Quotation extends MongoBaseEntity {
     public static class Cost {
 
         @Indexed
-        private String cargoId;
+        private List<String> cargoIds;
 
         private ChargeExport chargeExport;
 
@@ -69,6 +73,8 @@ public class Quotation extends MongoBaseEntity {
     @AllArgsConstructor
     @Builder
     public static class ChargeExport {
+
+        private TEU THC;
 
         private TEU CIC;
 
@@ -85,6 +91,8 @@ public class Quotation extends MongoBaseEntity {
         private TEU WARFAGE_FEE;
 
         private TEU TRUCKING;
+
+        private BigDecimal SUM;
     }
 
     @Getter

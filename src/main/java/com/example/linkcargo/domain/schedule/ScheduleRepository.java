@@ -7,5 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     boolean existsByCarrierAndETDAndETAAndTransportType(String carrier, LocalDateTime etd, LocalDateTime eta, TransportType transportType);
-    Page<Schedule> findByExportPortIdAndImportPortIdAndETDAfter(Long exportPortId, Long importPortId, LocalDateTime etd, Pageable pageable);
+    Page<Schedule> findByExportPortIdAndImportPortIdAndETDAfterAndLimitCBM(
+        Long exportPortId,
+        Long importPortId,
+        LocalDateTime etdAfter,
+        Integer limitCBM,
+        Pageable pageable
+    );
 }
