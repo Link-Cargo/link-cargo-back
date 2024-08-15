@@ -1,4 +1,4 @@
-package com.example.linkcargo.domain.user.dto;
+package com.example.linkcargo.domain.user.dto.response;
 
 import com.example.linkcargo.domain.user.Role;
 import com.example.linkcargo.domain.user.Status;
@@ -10,6 +10,7 @@ public record UserResponse(
     String firstName,
     String lastName,
     String email,
+    String profile,
     String phoneNumber,
     String companyName,
     String jobTitle,

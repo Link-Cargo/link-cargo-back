@@ -3,7 +3,7 @@ package com.example.linkcargo.domain.user;
 import com.example.linkcargo.domain.chat.Entity.Membership;
 import com.example.linkcargo.domain.forwarding.Forwarding;
 import com.example.linkcargo.domain.notification.Notification;
-import com.example.linkcargo.domain.user.dto.UserResponse;
+import com.example.linkcargo.domain.user.dto.response.UserResponse;
 import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -63,6 +63,9 @@ public class User extends JpaBaseEntity {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private String profile;
+
     @Column(name = "phone_number", unique = true)
     private String phoneNumber;
 
@@ -96,19 +99,22 @@ public class User extends JpaBaseEntity {
     @Override
     public String toString() {
         return "User{" +
-               "id=" + id +
-               ", role=" + role +
-               ", firstName='" + firstName + '\'' +
-               ", lastName='" + lastName + '\'' +
-               ", email='" + email + '\'' +
-               ", password='" + password + '\'' +
-               ", phoneNumber='" + phoneNumber + '\'' +
-               ", companyName='" + companyName + '\'' +
-               ", jobTitle='" + jobTitle + '\'' +
-               ", businessNumber='" + businessNumber + '\'' +
-               ", status=" + status +
-               ", totalPrice=" + totalPrice +
-               '}';
+                "id=" + id +
+                ", role=" + role +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", profile='" + profile + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", companyName='" + companyName + '\'' +
+                ", jobTitle='" + jobTitle + '\'' +
+                ", businessNumber='" + businessNumber + '\'' +
+                ", status=" + status +
+                ", totalPrice=" + totalPrice +
+                ", notifications=" + notifications +
+                ", memberships=" + memberships +
+                '}';
     }
 
     public UserResponse toUserResponse() {
@@ -118,6 +124,7 @@ public class User extends JpaBaseEntity {
             this.firstName,
             this.lastName,
             this.email,
+            this.profile,
             this.phoneNumber,
             this.companyName,
             this.jobTitle,
@@ -125,5 +132,13 @@ public class User extends JpaBaseEntity {
             this.status,
             this.totalPrice
         );
+    }
+
+    public void resetProfile() {
+        this.profile = "https://play-lh.googleusercontent.com/38AGKCqmbjZ9OuWx4YjssAz3Y0DTWbiM5HB0ove1pNBq_o9mtWfGszjZNxZdwt_vgHo=w240-h480-rw";
+    }
+
+    public void updateProfile(String s3ProfileImage) {
+        this.profile = s3ProfileImage;
     }
 }
