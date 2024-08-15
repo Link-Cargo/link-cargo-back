@@ -19,6 +19,7 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_EXISTS_EMAIL(HttpStatus.BAD_REQUEST, "USER401", "중복된 이메일입니다."),
     USER_EXISTS_BUSINESS_NUMBER(HttpStatus.BAD_REQUEST, "USER402", "중복된 사업자번호입니다."),
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER403", "해당 정보의 유저를 찾을 수 없습니다."),
+    USER_PROFILE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,"USER404",  "프로필 업로드에 실패했습니다."),
 
     // JWT
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH401", "유효하지 않은 ACCESS 토큰입니다."),
@@ -76,10 +77,11 @@ public enum ErrorStatus implements BaseErrorCode {
     QUOTATION_NOT_FOUND(HttpStatus.NOT_FOUND, "QUOTATION402", "견적서가 존재하지 않습니다."),
     QUOTATION_UPDATED_FAIL(HttpStatus.NOT_FOUND, "QUOTATION403","포워더 견적서 업데이트에 실패하였습니다"),
 
+    // CHAT
+    CHAT_FILE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "CHAT401","파일 업로드에 살패했습니다."),
+
     // ETC
     EXTERNAL_API_ERROR(HttpStatus.BAD_REQUEST, "ETC401", "외부 API 호출 오류");
-
-
 
 
     private final HttpStatus httpStatus;

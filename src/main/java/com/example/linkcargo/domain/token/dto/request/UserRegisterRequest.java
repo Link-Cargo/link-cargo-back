@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
@@ -51,6 +52,7 @@ public record UserRegisterRequest(
             .lastName(this.lastName)
             .email(this.email)
             .password(this.password)
+            .profile("https://play-lh.googleusercontent.com/38AGKCqmbjZ9OuWx4YjssAz3Y0DTWbiM5HB0ove1pNBq_o9mtWfGszjZNxZdwt_vgHo=w240-h480-rw")
             .phoneNumber(this.phoneNumber)
             .companyName(this.companyName)
             .jobTitle(this.jobTitle)
