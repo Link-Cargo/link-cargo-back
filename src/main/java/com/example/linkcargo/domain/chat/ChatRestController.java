@@ -34,6 +34,7 @@ public class ChatRestController {
     private final ChatService chatService;
     private final UserS3Service userS3Service;
 
+    // TODO 이거 오래된 순으로 바꿔야 할 듯
     @Operation(summary = "채팅방 메시지 목록 조회(최근순)", description = "특정 채팅방의 메시지 목록을 조회합니다.")
     @GetMapping("/{chatRoomId}/messages")
     @ApiResponses({
