@@ -3,6 +3,7 @@ package com.example.linkcargo.domain.user;
 import com.example.linkcargo.domain.chat.Entity.Membership;
 import com.example.linkcargo.domain.forwarding.Forwarding;
 import com.example.linkcargo.domain.notification.Notification;
+import com.example.linkcargo.domain.user.dto.UserDTO;
 import com.example.linkcargo.domain.user.dto.response.UserResponse;
 import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.CascadeType;
@@ -119,18 +120,21 @@ public class User extends JpaBaseEntity {
 
     public UserResponse toUserResponse() {
         return new UserResponse(
-            this.id,
-            this.role,
-            this.firstName,
-            this.lastName,
-            this.email,
-            this.profile,
-            this.phoneNumber,
-            this.companyName,
-            this.jobTitle,
-            this.businessNumber,
-            this.status,
-            this.totalPrice
+            new UserDTO(
+                this.id,
+                this.role,
+                this.firstName,
+                this.lastName,
+                this.email,
+                this.password,
+                this.profile,
+                this.phoneNumber,
+                this.companyName,
+                this.jobTitle,
+                this.businessNumber,
+                this.status,
+                this.totalPrice
+            )
         );
     }
 
@@ -138,7 +142,7 @@ public class User extends JpaBaseEntity {
         this.profile = "https://play-lh.googleusercontent.com/38AGKCqmbjZ9OuWx4YjssAz3Y0DTWbiM5HB0ove1pNBq_o9mtWfGszjZNxZdwt_vgHo=w240-h480-rw";
     }
 
-    public void updateProfile(String s3ProfileImage) {
-        this.profile = s3ProfileImage;
+    public void updateProfile(String s3ImageUrl) {
+        this.profile = s3ImageUrl;
     }
 }

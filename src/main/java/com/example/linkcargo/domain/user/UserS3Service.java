@@ -34,13 +34,18 @@ public class UserS3Service {
 
     @Transactional
     public void deleteExistingImage(Long userId) {
-        String key = getImageKey(userId, "jpg"); // 기본적으로 JPG 확장자로 이미지 키 설정
-        if (amazonS3.doesObjectExist(bucketName, key)) {
-            amazonS3.deleteObject(new DeleteObjectRequest(bucketName, key));
+        // 유저 ID를 파일명으로 갖는 모든 확장자의 파일을 삭제
+        String[] extensions = {"jpg", "jpeg", "png"};  // 삭제할 확장자 목록
+        for (String extension : extensions) {
+            String key = getImageKey(userId, extension);
+            if (amazonS3.doesObjectExist(bucketName, key)) {
+                amazonS3.deleteObject(new DeleteObjectRequest(bucketName, key));
+            }
         }
+
         // 유저 엔티티에서도 프로필 이미지 초기화
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsersHandler(ErrorStatus.USER_NOT_FOUND));
+            .orElseThrow(() -> new UsersHandler(ErrorStatus.USER_NOT_FOUND));
         user.resetProfile();
     }
 

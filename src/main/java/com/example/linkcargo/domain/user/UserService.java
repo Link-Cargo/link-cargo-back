@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.user;
 
+import com.example.linkcargo.domain.user.dto.response.UserResponse;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.UsersHandler;
 import lombok.RequiredArgsConstructor;
@@ -18,5 +19,10 @@ public class UserService {
     public User getUser(Long userId) {
         return userRepository.findById(userId)
             .orElseThrow(() -> new UsersHandler(ErrorStatus.USER_NOT_FOUND));
+    }
+
+    public UserResponse getUserProfile(Long userId) {
+        User user = getUser(userId);
+        return user.toUserResponse();
     }
 }

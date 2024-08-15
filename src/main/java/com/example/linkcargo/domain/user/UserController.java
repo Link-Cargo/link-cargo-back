@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.user;
 
+import com.example.linkcargo.domain.user.dto.response.UserResponse;
 import com.example.linkcargo.global.response.ApiResponse;
 import com.example.linkcargo.global.response.code.resultCode.SuccessStatus;
 import com.example.linkcargo.global.security.CustomUserDetail;
@@ -17,12 +18,13 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "7. User", description = "유저 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users/profile")
+@RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserS3Service userS3Service;
+    private final UserService userService;
 
-    @PostMapping
+    @PostMapping("/profile/image")
     @Operation(summary = "내 프로필 이미지 업로드/수정(기존 프로필 존재 시 제거)", description = "프로필을 업로드 합니다(기존 프로필 존재 시 제거)")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
@@ -38,7 +40,7 @@ public class UserController {
         return ApiResponse.onSuccess(SuccessStatus._OK);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/profile/image")
     @Operation(summary = "내 프로필 이미지 초기화", description = "프로필 이미지를 기본 이미지로 초기화")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
@@ -52,4 +54,16 @@ public class UserController {
         return ApiResponse.onSuccess(SuccessStatus._OK);
     }
 
+    @GetMapping("/profile")
+    @Operation(summary = "내 프로필 조회", description = "내 프로필을 조회합니다.")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER403", description = "해당 정보의 유저를 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<UserResponse> getProfile(
+        @AuthenticationPrincipal CustomUserDetail userDetail
+    ) {
+        UserResponse userResponse = userService.getUserProfile(userDetail.getId());
+        return ApiResponse.onSuccess(userResponse);
+    }
 }
