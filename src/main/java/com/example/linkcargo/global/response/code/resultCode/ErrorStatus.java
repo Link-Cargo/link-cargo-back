@@ -61,7 +61,10 @@ public enum ErrorStatus implements BaseErrorCode {
     IMAGE_UPLOAD_FAIL(HttpStatus.BAD_REQUEST, "IMAGE402", "이미지 업로드에 실패하였습니다."),
 
     // Quotation
-    QUOTATION_DUPLICATE(HttpStatus.BAD_REQUEST, "QUOTATION401","이미 동일한 견적서가 존재합니다.");
+    QUOTATION_DUPLICATE(HttpStatus.BAD_REQUEST, "QUOTATION401","이미 동일한 견적서가 존재합니다."),
+
+    // CHAT
+    CHAT_FILE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "CHAT401","파일 업로드에 살패했습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
