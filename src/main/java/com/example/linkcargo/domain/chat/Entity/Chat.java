@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.chat.Entity;
 
+import com.example.linkcargo.domain.chat.dto.request.ChatRequest.MessageType;
 import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.Column;
@@ -11,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,7 +40,14 @@ public class Chat extends JpaBaseEntity {
     @JoinColumn(name = "sender_id", nullable = false) // 작성자
     private User sender;
 
+    @NotBlank
+    private MessageType messageType;
+
     @Column(nullable = false)
     private String content;
+
+    private String fileName;
+
+    private String fileUrl;
 
 }
