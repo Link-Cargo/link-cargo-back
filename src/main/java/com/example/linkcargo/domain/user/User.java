@@ -63,7 +63,7 @@ public class User extends JpaBaseEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT") // Profile 컬럼을 TEXT로 변경하여 긴 URL을 저장할 수 있게 함
     private String profile;
 
     @Column(name = "phone_number", unique = true)
