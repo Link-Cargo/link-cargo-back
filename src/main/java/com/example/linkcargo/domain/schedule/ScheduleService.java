@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.schedule;
 
+import com.example.linkcargo.domain.image.ImageService;
 import com.example.linkcargo.domain.port.Port;
 import com.example.linkcargo.domain.port.PortRepository;
 import com.example.linkcargo.domain.schedule.dto.request.ScheduleCreateUpdateRequest;
@@ -9,6 +10,7 @@ import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.PortHandler;
 import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,6 +28,7 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final PortRepository portRepository;
+    private final ImageService imageService;
 
     @Transactional
     public Long createSchedule(ScheduleCreateUpdateRequest request) {
@@ -56,14 +59,14 @@ public class ScheduleService {
     }
 
     public ScheduleInfoResponse findSchedule(Long scheduleId) {
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-            .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
-        return ScheduleInfoResponse.fromEntity(schedule);
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
+        return ScheduleInfoResponse.fromEntity(schedule,"");
     }
 
     public ScheduleListResponse findSchedules(int page, int size) {
-        Page<Schedule> schedulePage = scheduleRepository.findAll(PageRequest.of(page, size));
-        return ScheduleListResponse.fromEntity(schedulePage);
+        Page<Schedule> schedulePage = scheduleRepository.findAll(PageRequest.of(page,size));
+        List<String> imageUrls = imageService.selectRandomImages("vessel",schedulePage.getSize());
+        return ScheduleListResponse.fromEntity(schedulePage,imageUrls);
     }
 
     @Transactional
@@ -76,19 +79,10 @@ public class ScheduleService {
         Port importPort = portRepository.findById(request.importPortId())
             .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
 
-        schedule.setExportPort(exportPort);
-        schedule.setImportPort(importPort);
-        schedule.setCarrier(request.carrier());
-        schedule.setVessel(request.vessel());
-        schedule.setETD(request.ETD());
-        schedule.setETA(request.ETA());
-        schedule.setTransportType(request.transportType());
-        schedule.setTransitTime(request.transitTime());
-        schedule.setDocumentCutOff(request.documentCutOff());
-        schedule.setCargoCutOff(request.cargoCutOff());
+        Schedule updatedSchedule = request.updateEntity(schedule,exportPort,importPort);
 
         try {
-            scheduleRepository.save(schedule);
+            scheduleRepository.save(updatedSchedule);
         } catch (Exception e) {
             throw new ScheduleHandler(ErrorStatus.SCHEDULE_UPDATED_FAIL);
         }
@@ -106,11 +100,24 @@ public class ScheduleService {
         }
     }
 
-    public ScheduleListResponse searchSchedules(int page, int size) {
+    public ScheduleListResponse searchSchedules(Long exportPortId, Long importPortId, Double inputCBM, int page, int size) {
         LocalDateTime now = LocalDateTime.now();
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("ETD").ascending());
 
-        Page<Schedule> schedulesPage = scheduleRepository.findByETDAfter(now, pageable);
-        return ScheduleListResponse.fromEntity(schedulesPage);
+        Integer limitCBM = null;
+
+        if (inputCBM <= 28) {
+            limitCBM = 28;
+        } else if (inputCBM > 28 && inputCBM <= 48) {
+            limitCBM = 48;
+        }
+
+        Page<Schedule> schedulesPage = scheduleRepository.findByExportPortIdAndImportPortIdAndETDAfterAndLimitCBM(
+            exportPortId, importPortId, now, limitCBM, pageable
+        );
+        List<String> imageUrls = imageService.selectRandomImages("vessel",schedulesPage.getSize());
+
+        return ScheduleListResponse.fromEntity(schedulesPage, imageUrls);
     }
 }

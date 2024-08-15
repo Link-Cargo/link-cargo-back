@@ -41,5 +41,4 @@ public class Chat extends JpaBaseEntity {
     @Column(nullable = false)
     private String content;
 
-
 }

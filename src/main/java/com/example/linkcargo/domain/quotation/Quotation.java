@@ -1,14 +1,15 @@
 package com.example.linkcargo.domain.quotation;
 
-
-import com.example.linkcargo.global.entity.JpaBaseEntity;
+import com.example.linkcargo.global.entity.MongoBaseEntity;
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "quotations")
@@ -17,16 +18,24 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Quotation extends JpaBaseEntity {
+public class Quotation extends MongoBaseEntity {
 
     @Id
-    private Long id;
+    private String id;
 
-    private String userId;
+    @Indexed
+    private String forwarderId;
+
+    @Indexed
+    private String consignorId;
+
+    private QuotationStatus quotationStatus;
 
     private Freight freight;
 
     private Cost cost;
+
+    private String particulars;
 
     @Getter
     @Setter
@@ -35,7 +44,8 @@ public class Quotation extends JpaBaseEntity {
     @Builder
     public static class Freight {
 
-        private Long scheduleId;
+        @Indexed
+        private String scheduleId;
 
         private String remark;
     }
@@ -47,7 +57,8 @@ public class Quotation extends JpaBaseEntity {
     @Builder
     public static class Cost {
 
-        private Long cargoId;
+        @Indexed
+        private List<String> cargoIds;
 
         private ChargeExport chargeExport;
 
@@ -62,6 +73,8 @@ public class Quotation extends JpaBaseEntity {
     @AllArgsConstructor
     @Builder
     public static class ChargeExport {
+
+        private TEU THC;
 
         private TEU CIC;
 
@@ -78,6 +91,8 @@ public class Quotation extends JpaBaseEntity {
         private TEU WARFAGE_FEE;
 
         private TEU TRUCKING;
+
+        private BigDecimal SUM;
     }
 
     @Getter

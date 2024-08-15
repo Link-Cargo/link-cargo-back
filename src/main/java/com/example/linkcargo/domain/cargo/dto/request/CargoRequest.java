@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,83 +21,32 @@ import lombok.Setter;
 @Builder
 public class CargoRequest {
 
-    @NotNull(message = "export port id is mandatory")
-    private Long exportPortId;
+    @NotBlank(message = "Product name is required")
+    @Size(max = 255, message = "Product name must be less than 255 characters")
+    private String productName; // 화물명
 
-    @NotNull(message = "export port id is mandatory")
-    private Long importPortId;
+    @NotBlank(message = "HS Code is required")
+    @Size(max = 12, message = "HS Code must be less than 12 characters")
+    private String hsCode; // HS 코드
 
-    @Size(max = 255, message = "Additional instructions must be less than 255 characters")
-    private String additionalInstructions;
+    @NotNull(message = "Total quantity is required")
+    @Min(value = 1, message = "Total quantity must be at least 1")
+    private Integer totalQuantity; // 총 수출 물품 수량
 
-    @NotBlank(message = "Friendly description is required")
-    @Size(max = 255, message = "Friendly description must be less than 255 characters")
-    private String friendlyDescription;
+    @NotNull(message = "Quantity per box is required")
+    @Min(value = 1, message = "Quantity per box must be at least 1")
+    private Integer quantityPerBox; // 박스 당 물품 수량
 
-    @NotNull(message = "Insurance requirement must be specified")
-    private Boolean insuranceRequired;
+    @NotNull(message = "Box size is required")
+    private BoxSizeDto boxSize; // 박스 가로/세로/높이
 
-    @NotNull(message = "Cargo info is required")
-    private CargoInfoDto cargoInfo;
+    @NotNull(message = "Weight is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Weight must be greater than zero")
+    private BigDecimal weight; // 박스 중량
 
-    public Cargo toEntity(Long userId) {
-        return Cargo.builder()
-            .userId(userId)
-            .exportPortId(this.exportPortId)
-            .importPortId(this.importPortId)
-            .additionalInstructions(this.additionalInstructions)
-            .friendlyDescription(this.friendlyDescription)
-            .insuranceRequired(this.insuranceRequired)
-            .cargoInfo(this.cargoInfo.toEntity())
-            .build();
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class CargoInfoDto {
-
-        @NotBlank(message = "Product name is required")
-        @Size(max = 255, message = "Product name must be less than 255 characters")
-        private String productName;
-
-        @NotBlank(message = "HS Code is required")
-        @Size(max = 12, message = "HS Code must be less than 12 characters")
-        private String hsCode;
-
-        @NotBlank(message = "Incoterms is required")
-        @Size(max = 20, message = "Incoterms must be less than 20 characters")
-        private String incoterms;
-
-        @NotNull(message = "Weight is required")
-        @DecimalMin(value = "0.0", inclusive = false, message = "Weight must be greater than zero")
-        private BigDecimal weight;
-
-        @NotNull(message = "Value is required")
-        @DecimalMin(value = "0.0", inclusive = false, message = "Value must be greater than zero")
-        private BigDecimal value;
-
-        @NotNull(message = "Quantity is required")
-        @Min(value = 1, message = "Quantity must be at least 1")
-        private Integer quantity;
-
-        @NotNull(message = "Box size is required")
-        private BoxSizeDto boxSize;
-
-        public Cargo.CargoInfo toEntity() {
-            return Cargo.CargoInfo.builder()
-                .productName(this.productName)
-                .hsCode(this.hsCode)
-                .incoterms(this.incoterms)
-                .weight(this.weight)
-                .value(this.value)
-                .quantity(this.quantity)
-                .boxSize(this.boxSize.toEntity())
-                .build();
-        }
-    }
+    @NotNull(message = "Value is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Value must be greater than zero")
+    private BigDecimal value; // 물품 가액
 
     @Getter
     @Setter
@@ -124,5 +74,25 @@ public class CargoRequest {
                 .depth(this.depth)
                 .build();
         }
+    }
+
+    // Cargo 엔티티로 변환하는 메서드
+    public Cargo toEntity(Long userId, Long exportPortId, Long importPortId, LocalDateTime wishExportDate, String incoterms) {
+        return Cargo.builder()
+            .userId(userId)
+            .exportPortId(exportPortId)
+            .importPortId(importPortId)
+            .wishExportDate(wishExportDate)
+            .incoterms(incoterms)
+            .cargoInfo(Cargo.CargoInfo.builder()
+                .productName(this.productName)
+                .hsCode(this.hsCode)
+                .totalQuantity(this.totalQuantity)
+                .quantityPerBox(this.quantityPerBox)
+                .boxSize(this.boxSize.toEntity())
+                .weight(this.weight)
+                .value(this.value)
+                .build())
+            .build();
     }
 }

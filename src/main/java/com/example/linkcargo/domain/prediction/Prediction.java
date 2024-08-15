@@ -29,9 +29,11 @@ public class Prediction extends JpaBaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private String scfi;
+    private String freightCostIndex;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PeriodType type;
+    private Integer year;
+
+    @Column(nullable = false)
+    private Integer month;
 }
