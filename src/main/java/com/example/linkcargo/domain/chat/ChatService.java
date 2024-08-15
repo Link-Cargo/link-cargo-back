@@ -68,7 +68,10 @@ public class ChatService {
             chat -> new ChatContentResponse(
                 chat.getChatRoom().getId(),
                 chat.getSender().getId(),
+                chat.getMessageType(),
                 chat.getContent(),
+                chat.getFileName(),
+                chat.getFileUrl(),
                 chat.getCreatedAt()
             )
         ).toList();
