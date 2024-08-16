@@ -1,6 +1,7 @@
 package com.example.linkcargo.domain.dashboard;
 
 import com.example.linkcargo.domain.cargo.CargoRepository;
+import com.example.linkcargo.domain.dashboard.dto.response.DashboardPortCongestionResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionReasonResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionReasonResponse.PredictionReason;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionResponse;
@@ -62,7 +63,8 @@ public class DashboardService {
     // todo
     // 견적서 조회 시 여러 개의 scheduleId가 있는데 어떤 기준으로 판별할 것 인지
     public DashboardQuotationResponse getTheCheapestQuotation(Long consignorId) {
-        List<Quotation> quotations = quotationRepository.findQuotationsByConsignorId(String.valueOf(consignorId));
+        List<Quotation> quotations
+            = quotationRepository.findQuotationsByConsignorIdAndQuotationStatus(String.valueOf(consignorId), QuotationStatus.DETAIL_INFO);
 
         Quotation lowestCostQuotation = quotations.stream()
             .min(Comparator.comparing(quotation -> quotation.getCost().getTotalCost()))
@@ -152,7 +154,6 @@ public class DashboardService {
         );
 
         return DashboardQuotationCompareResponse.fromEntity(dashboardQuotationResponses, compareCostMap);
-
     }
 
     public DashboardPredictionResponse getPredictionInfo(Long exportPortId, Long importPortId) {
@@ -236,9 +237,32 @@ public class DashboardService {
             .collect(Collectors.toList());
 
         return DashboardPredictionReasonResponse.fromEntity(predictionReasons);
-
-
-
-
     }
+
+    public DashboardPortCongestionResponse getImportPortCongestion(Long importPortId) {
+        Port importPort = portRepository.findById(importPortId)
+            .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
+
+        // todo
+        // 입국항 이름을 사용하여 혼잡도 조회 API 사용
+
+        // 임시
+        Integer congestionPercent = 33;
+
+        String status = null;
+
+        if (congestionPercent >= 0 && congestionPercent <= 20) {
+            status = "원활";
+        } else if (congestionPercent > 20 && congestionPercent <= 60) {
+            status = "보통";
+        } else if (congestionPercent > 60 && congestionPercent <= 100) {
+            status = "혼잡";
+        }
+
+        // 임시
+        String description = "항구에 머물고 있는 컨테이너선의 비율이 큽니다. 선박이 대기하는 시간이 길어지고 하역 및 적재 작업이 지연될 수 있습니다.";
+
+        return DashboardPortCongestionResponse.fromEntity(congestionPercent, status, description);
+    }
+
 }

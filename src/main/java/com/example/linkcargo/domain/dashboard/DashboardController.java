@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.dashboard;
 
+import com.example.linkcargo.domain.dashboard.dto.response.DashboardPortCongestionResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionReasonResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationCompareResponse;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -84,6 +86,31 @@ public class DashboardController {
     {
         return ApiResponse.onSuccess(dashboardService.getPredictionReasonInfo());
     }
+
+    @Operation(summary = "입국항 혼잡도 정보 조회", description = "입국항의 혼잡도 정보를 조회합니다. DashboardPortCongestionResponse 사용")
+    @GetMapping("/port/congestion")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+    })
+    public ApiResponse<DashboardPortCongestionResponse> getImportPortCongestion(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @Parameter(description = "수입항 ID") @RequestParam Long importPortId)
+    {
+        return ApiResponse.onSuccess(dashboardService.getImportPortCongestion(importPortId));
+    }
+
+    @Operation(summary = "뉴스 요약 정보 조회", description = "사용자의 관심사에 따른 뉴스 정보의 요약 정보를 조회합니다.. DashboardPortCongestionResponse 사용")
+    @GetMapping("/port/congestion")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+    })
+    public ApiResponse<DashboardPortCongestionResponse> getInterestingNews(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @Parameter(description = "사용자가 선택한 관심사") @RequestParam List<String> interests)
+    {
+        return ApiResponse.onSuccess(dashboardService.getInterestingNews(interests));
+    }
+
 
 
 }
