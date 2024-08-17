@@ -15,7 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Tag(name = "6. Image", description = "이미지 업로드 API")
+@Tag(name = "8. Image", description = "이미지 업로드 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/images")

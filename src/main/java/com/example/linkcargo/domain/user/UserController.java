@@ -16,7 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Tag(name = "7. User", description = "유저 관련 API")
+@Tag(name = "1. User", description = "유저 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
