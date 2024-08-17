@@ -257,7 +257,7 @@ public class QuotationCalculationService {
         return "1320";
     }
 
-    public BigDecimal calculateTotalCost(Quotation inputQuotation) {
+    public BigDecimal calculateTotalCost(Quotation inputQuotation, Integer freightCost) {
         Quotation quotation = quotationRepository.findById(inputQuotation.getId())
             .orElseThrow(() -> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
 
@@ -305,18 +305,17 @@ public class QuotationCalculationService {
             .add(cargosTotalAmountInForeignCurrency)
             .divide(BigDecimal.valueOf(cargosTotalExportQuantity), 2, RoundingMode.HALF_UP);
 
-        // todo
-        // 임시 운임 비용 -> 운임 비용 예측 AI API를 사용해 반환 예정
-        Integer freight = 10;
 
         // 국외 발생 경비
         QuotationOverseaExpense overseaExpense
-            = calculateOverseaExpense(cargosTotalCBM, domesticExpense.getAMForAFS(), cargosTotalExportQuantity, incotermsFOB, firstCargo.getIncoterms(), freight);
+            = calculateOverseaExpense(cargosTotalCBM, domesticExpense.getAMForAFS(), cargosTotalExportQuantity, incotermsFOB, firstCargo.getIncoterms(),
+            freightCost);
 
         BigDecimal domesticExpenseTotalCost = domesticExpense.getTotalDomesticExpenses();
         BigDecimal overseaExpenseTotalCost = overseaExpense.getTotalOverseaExpenses();
 
-        return domesticExpenseTotalCost.add(overseaExpenseTotalCost);
+        return domesticExpenseTotalCost.add(overseaExpenseTotalCost).multiply(
+            BigDecimal.valueOf(applied_exchange_rate));
     }
     @Transactional
     public void updateQuotationByAlgorithm(Quotation quotation) {
@@ -324,8 +323,11 @@ public class QuotationCalculationService {
 
         Schedule schedule = scheduleRepository.findById(Long.valueOf(quotation.getFreight().getScheduleId()))
             .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
+        // todo
+        // 임시 운임 비용 -> 운임 비용 예측 AI API를 사용해 반환 예정
+        Integer freightCost = 10;
 
-        BigDecimal totalCost = calculateTotalCost(quotation);
+        BigDecimal totalCost = calculateTotalCost(quotation, freightCost);
 
         int applied_exchange_rate = Integer.parseInt(getExchange());
 

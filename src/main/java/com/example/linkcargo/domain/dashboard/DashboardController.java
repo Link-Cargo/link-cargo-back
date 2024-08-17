@@ -6,6 +6,7 @@ import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionRe
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationCompareResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationResponse;
+import com.example.linkcargo.domain.dashboard.dto.response.DashboardRecommendationResponse;
 import com.example.linkcargo.global.response.ApiResponse;
 import com.example.linkcargo.global.security.CustomUserDetail;
 import io.swagger.v3.oas.annotations.Operation;
@@ -110,6 +111,19 @@ public class DashboardController {
         @Parameter(description = "사용자가 선택한 관심사") @RequestParam List<String> interests)
     {
         return ApiResponse.onSuccess(dashboardService.getInterestingNews(interests));
+    }
+
+    @Operation(summary = "더 저렴한 가격 추천 정보 조회", description = "현재 달을 기준으로 6개월 동안의 운임비용이 가장 적을때의 선박 스케줄과 예상 비용 정보를 조회 합니다."
+        + " DashboardRecommendationResponse 사용")
+    @GetMapping("/recommendation")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+    })
+    public ApiResponse<DashboardRecommendationResponse> getRecommendationInfoByCost(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @Parameter(description = "선박 스케줄 아이디") @RequestParam Long scheduleId)
+    {
+        return ApiResponse.onSuccess(dashboardService.getRecommendationInfoByCost(userDetail.getId(), scheduleId));
     }
 
 

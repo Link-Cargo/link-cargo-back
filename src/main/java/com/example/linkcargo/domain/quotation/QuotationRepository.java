@@ -13,4 +13,6 @@ public interface QuotationRepository extends MongoRepository<Quotation, String> 
     List<Quotation> findQuotationsByConsignorIdAndFreight_ScheduleIdAndQuotationStatus(String consignorId, String scheduleId, QuotationStatus quotationStatus);
 
     List<Quotation> findQuotationsByConsignorIdAndQuotationStatus(String consignorId, QuotationStatus quotationStatus);
+
+    Optional<Quotation> findQuotationByQuotationStatusAndFreight_scheduleIdAndConsignorId(QuotationStatus quotationStatusString, String consignorId, String scheduleId);
 }

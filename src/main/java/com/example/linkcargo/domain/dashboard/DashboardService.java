@@ -8,6 +8,7 @@ import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionRe
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationCompareResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationResponse;
+import com.example.linkcargo.domain.dashboard.dto.response.DashboardRecommendationResponse;
 import com.example.linkcargo.domain.forwarding.Forwarding;
 import com.example.linkcargo.domain.forwarding.ForwardingRepository;
 import com.example.linkcargo.domain.news.News;
@@ -17,6 +18,7 @@ import com.example.linkcargo.domain.port.PortRepository;
 import com.example.linkcargo.domain.prediction.Prediction;
 import com.example.linkcargo.domain.prediction.PredictionRepository;
 import com.example.linkcargo.domain.quotation.Quotation;
+import com.example.linkcargo.domain.quotation.QuotationCalculationService;
 import com.example.linkcargo.domain.quotation.QuotationRepository;
 import com.example.linkcargo.domain.quotation.QuotationStatus;
 import com.example.linkcargo.domain.quotation.dto.response.QuotationInfoResponse;
@@ -32,6 +34,9 @@ import com.example.linkcargo.global.response.exception.handler.UsersHandler;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.Period;
+import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -59,6 +64,7 @@ public class DashboardService {
     private final PredictionRepository predictionRepository;
     private final PortRepository portRepository;
     private final NewsRepository newsRepository;
+    private final QuotationCalculationService quotationCalculationService;
 
     public Integer convertToInteger(BigDecimal value) {
         return value.setScale(0, RoundingMode.HALF_UP).intValue();
@@ -288,5 +294,61 @@ public class DashboardService {
 
         return DashboardNewsResponse.fromEntity(interests, summary);
 
+    }
+
+    public DashboardRecommendationResponse getRecommendationInfoByCost(Long consignorId, Long scheduleId) {
+        LocalDate today = LocalDate.now();
+
+        int currentYear = today.getYear();
+        int currentMonth = today.getMonthValue();
+
+        LocalDate sixMonthsLater = today.plusMonths(6);
+        int endYear = sixMonthsLater.getYear();
+        int endMonth = sixMonthsLater.getMonthValue();
+
+        List<Prediction> predictions = predictionRepository.findPredictionsWithinPeriod(
+            currentYear, currentMonth, endYear, endMonth);
+
+        Prediction todayMonthPrediction = predictionRepository.findByMonthAndYear(currentMonth, currentYear);
+
+        Prediction minFreightCostPrediction = predictions.stream()
+            .min(Comparator.comparingInt(p -> Integer.parseInt(p.getFreightCostIndex())))
+            .get();
+
+        // Prediction의 년도와 월을 이용해 YearMonth 객체 생성
+        YearMonth predictionYearMonth = YearMonth.of(
+            minFreightCostPrediction.getYear(),
+            minFreightCostPrediction.getMonth()
+        );
+
+        YearMonth currentYearMonth = YearMonth.from(today);
+
+        // 현재 날짜와 Prediction 날짜 사이의 기간 계산
+        long monthsDifference = ChronoUnit.MONTHS.between(currentYearMonth, predictionYearMonth);
+        System.out.println(minFreightCostPrediction.getFreightCostIndex());
+
+        // 총 개월 수 계산
+        Integer dateDifference = (int) monthsDifference;
+
+        // 운임 비용 차이
+        Integer indexDifference =
+            Integer.parseInt(todayMonthPrediction.getFreightCostIndex()) - Integer.parseInt(
+                minFreightCostPrediction.getFreightCostIndex());
+
+        // 해당 화주가 선택한 선박 스케줄에 해당하는 알고리즘에 의해 계산된 견적서
+        Quotation quotation
+            = quotationRepository.findQuotationByQuotationStatusAndFreight_scheduleIdAndConsignorId(
+            QuotationStatus.PREDICTION_SHEET, String.valueOf(scheduleId),
+            String.valueOf(consignorId)
+        ).orElseThrow(() -> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
+
+        // 알고리즘에 의한 견적서를 기반으로 비용 계산
+        BigDecimal estimatedCost = quotationCalculationService.calculateTotalCost(quotation,
+            Integer.valueOf(minFreightCostPrediction.getFreightCostIndex()));
+
+        List<Schedule> schedules = scheduleRepository.findSchedulesByYearMonth(
+            predictionYearMonth.getYear(), predictionYearMonth.getMonthValue());
+        return DashboardRecommendationResponse.fromEntity(dateDifference, indexDifference,
+            estimatedCost, schedules);
     }
 }
