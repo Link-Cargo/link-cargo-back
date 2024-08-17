@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.dashboard;
 
+import com.example.linkcargo.domain.dashboard.dto.response.DashboardNewsResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPortCongestionResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionReasonResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionResponse;
@@ -99,12 +100,12 @@ public class DashboardController {
         return ApiResponse.onSuccess(dashboardService.getImportPortCongestion(importPortId));
     }
 
-    @Operation(summary = "뉴스 요약 정보 조회", description = "사용자의 관심사에 따른 뉴스 정보의 요약 정보를 조회합니다.. DashboardPortCongestionResponse 사용")
-    @GetMapping("/port/congestion")
+    @Operation(summary = "뉴스 요약 정보 조회", description = "사용자의 관심사에 따른 뉴스 정보의 요약 정보를 조회합니다. DashboardNewsResponse 사용")
+    @GetMapping("/news/summary")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
     })
-    public ApiResponse<DashboardPortCongestionResponse> getInterestingNews(
+    public ApiResponse<DashboardNewsResponse> getInterestingNews(
         @AuthenticationPrincipal CustomUserDetail userDetail,
         @Parameter(description = "사용자가 선택한 관심사") @RequestParam List<String> interests)
     {

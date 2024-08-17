@@ -1,6 +1,7 @@
 package com.example.linkcargo.domain.dashboard;
 
 import com.example.linkcargo.domain.cargo.CargoRepository;
+import com.example.linkcargo.domain.dashboard.dto.response.DashboardNewsResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPortCongestionResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionReasonResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionReasonResponse.PredictionReason;
@@ -9,6 +10,8 @@ import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationCom
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationResponse;
 import com.example.linkcargo.domain.forwarding.Forwarding;
 import com.example.linkcargo.domain.forwarding.ForwardingRepository;
+import com.example.linkcargo.domain.news.News;
+import com.example.linkcargo.domain.news.NewsRepository;
 import com.example.linkcargo.domain.port.Port;
 import com.example.linkcargo.domain.port.PortRepository;
 import com.example.linkcargo.domain.prediction.Prediction;
@@ -55,6 +58,7 @@ public class DashboardService {
     private final UserRepository userRepository;
     private final PredictionRepository predictionRepository;
     private final PortRepository portRepository;
+    private final NewsRepository newsRepository;
 
     public Integer convertToInteger(BigDecimal value) {
         return value.setScale(0, RoundingMode.HALF_UP).intValue();
@@ -265,4 +269,24 @@ public class DashboardService {
         return DashboardPortCongestionResponse.fromEntity(congestionPercent, status, description);
     }
 
+    public DashboardNewsResponse getInterestingNews(List<String> interests) {
+        LocalDate today = LocalDate.now();
+        List<List<News>> newsList = interests.stream()
+            .map(query ->  newsRepository.findByCategoryAndCreatedDate(query, today))
+            .toList();
+
+        String newsContents = newsList.stream()
+            .flatMap(List::stream)
+            .map(News::getContent)
+            .collect(Collectors.joining(" "));
+
+        // todo
+        // 요약 API를 통한 요약
+
+        // 임시
+        String summary = "뉴스 요약 정보";
+
+        return DashboardNewsResponse.fromEntity(interests, summary);
+
+    }
 }
