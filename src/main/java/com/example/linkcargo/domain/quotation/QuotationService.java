@@ -3,6 +3,7 @@ package com.example.linkcargo.domain.quotation;
 import com.example.linkcargo.domain.cargo.CargoRepository;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationConsignorRequest;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationForwarderRequest;
+import com.example.linkcargo.domain.quotation.dto.response.QuotationInfoResponse;
 import com.example.linkcargo.domain.schedule.ScheduleRepository;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.GeneralException;
@@ -107,16 +108,37 @@ public class QuotationService {
             .orElseThrow(() -> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
 
         try {
-            Quotation updatedQuotation = request.updateQuotation(quotation, String.valueOf(userId));
-            updatedQuotation.setQuotationStatus(QuotationStatus.DETAIL_INFO);
-            quotationRepository.save(updatedQuotation);
+            Quotation newQuotation = request.updateQuotation(quotation, String.valueOf(userId));
+            newQuotation.setQuotationStatus(QuotationStatus.DETAIL_INFO);
+            newQuotation.setId(null);
+            Quotation savedQuotation = quotationRepository.save(newQuotation);
+            return savedQuotation.getId();
         } catch (Exception e) {
             throw new QuotationHandler(ErrorStatus.QUOTATION_UPDATED_FAIL);
         }
 
-        return quotation.getId();
-
     }
 
+
+    public List<QuotationInfoResponse> findQuotationsByQuotationId(String quotationId) {
+        List<Quotation> quotations = quotationRepository.findQuotationsByIdOrOriginalQuotationId(quotationId, quotationId);
+
+        return quotations.stream()
+            .map(quotation -> QuotationInfoResponse.fromEntity(quotation, scheduleRepository.findById(
+                Long.valueOf(quotation.getFreight().getScheduleId()))
+                .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND))))
+            .toList();
+    }
+
+    public List<QuotationInfoResponse> findQuotationsByConsignorId(Long id) {
+        List<Quotation> quotations = quotationRepository.findQuotationsByConsignorId(
+            String.valueOf(id));
+
+        return quotations.stream()
+            .map(quotation -> QuotationInfoResponse.fromEntity(quotation, scheduleRepository.findById(
+                    Long.valueOf(quotation.getFreight().getScheduleId()))
+                .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND))))
+            .toList();
+    }
 
 }

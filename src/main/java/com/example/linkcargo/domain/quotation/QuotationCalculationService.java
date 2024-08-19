@@ -176,7 +176,13 @@ public class QuotationCalculationService {
         Integer freight
     ) {
         BigDecimal freightCost = totalCBM.multiply(BigDecimal.valueOf(freight));
-        BigDecimal cargoInsurance = incotermsPOB
+
+        BigDecimal incotermsCFR = freightCost
+            .add(AMForAFS)
+            .divide(BigDecimal.valueOf(totalExportQuantity), 2, RoundingMode.HALF_UP)
+            .add(incotermsPOB);
+
+        BigDecimal cargoInsurance = incotermsCFR
             .multiply(BigDecimal.valueOf(1.1))
             .multiply(BigDecimal.valueOf(0.0004))
             .multiply(BigDecimal.valueOf(totalExportQuantity));
@@ -187,10 +193,6 @@ public class QuotationCalculationService {
 
         BigDecimal incoterms = null;
 
-        BigDecimal incotermsCFR = freightCost
-            .add(AMForAFS)
-            .divide(BigDecimal.valueOf(totalExportQuantity), 2, RoundingMode.HALF_UP)
-            .add(incotermsPOB);
 
         BigDecimal incotermsCIF = cargoInsurance
             .divide(BigDecimal.valueOf(totalExportQuantity), 2, RoundingMode.HALF_UP)
@@ -204,18 +206,22 @@ public class QuotationCalculationService {
             .divide(BigDecimal.valueOf(totalExportQuantity), 2, RoundingMode.HALF_UP)
             .add(incotermsDAP);
 
-        // todo
         // 인코텀즈 비용에 따른 국외 발생 경비의 차이
+        // CIF 선택 했을 시에만 적하 보험료 발생, 그 외에는 적하 보험료 0원 처리
         if (Objects.equals(incotermsType, "CFR")) {
             incoterms = incotermsCFR;
+            cargoInsurance = BigDecimal.valueOf(0);
 
         } else if (Objects.equals(incotermsType, "CIF")) {
             incoterms = incotermsCIF;
 
         } else if (Objects.equals(incotermsType, "DAP")) {
             incoterms = incotermsDAP;
+            cargoInsurance = BigDecimal.valueOf(0);
+
         } else {
             incoterms = incotermsDDP;
+            cargoInsurance = BigDecimal.valueOf(0);
         }
 
         BigDecimal totalOverseaExpenses = freightCost
@@ -251,7 +257,7 @@ public class QuotationCalculationService {
         return "1320";
     }
 
-    public BigDecimal calculateTotalCost(Quotation inputQuotation) {
+    public BigDecimal calculateTotalCost(Quotation inputQuotation, Integer freightCost) {
         Quotation quotation = quotationRepository.findById(inputQuotation.getId())
             .orElseThrow(() -> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
 
@@ -299,18 +305,17 @@ public class QuotationCalculationService {
             .add(cargosTotalAmountInForeignCurrency)
             .divide(BigDecimal.valueOf(cargosTotalExportQuantity), 2, RoundingMode.HALF_UP);
 
-        // todo
-        // 임시 운임 비용
-        Integer freight = 10;
 
         // 국외 발생 경비
         QuotationOverseaExpense overseaExpense
-            = calculateOverseaExpense(cargosTotalCBM, domesticExpense.getAMForAFS(), cargosTotalExportQuantity, incotermsFOB, firstCargo.getIncoterms(), freight);
+            = calculateOverseaExpense(cargosTotalCBM, domesticExpense.getAMForAFS(), cargosTotalExportQuantity, incotermsFOB, firstCargo.getIncoterms(),
+            freightCost);
 
         BigDecimal domesticExpenseTotalCost = domesticExpense.getTotalDomesticExpenses();
         BigDecimal overseaExpenseTotalCost = overseaExpense.getTotalOverseaExpenses();
 
-        return domesticExpenseTotalCost.add(overseaExpenseTotalCost);
+        return domesticExpenseTotalCost.add(overseaExpenseTotalCost).multiply(
+            BigDecimal.valueOf(applied_exchange_rate));
     }
     @Transactional
     public void updateQuotationByAlgorithm(Quotation quotation) {
@@ -318,14 +323,18 @@ public class QuotationCalculationService {
 
         Schedule schedule = scheduleRepository.findById(Long.valueOf(quotation.getFreight().getScheduleId()))
             .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
+        // todo
+        // 임시 운임 비용 -> 운임 비용 예측 AI API를 사용해 반환 예정
+        Integer freightCost = 10;
 
-        BigDecimal totalCost = calculateTotalCost(quotation);
+        BigDecimal totalCost = calculateTotalCost(quotation, freightCost);
 
         int applied_exchange_rate = Integer.parseInt(getExchange());
 
         Quotation createdQuotation = Quotation.builder()
             .quotationStatus(QuotationStatus.PREDICTION_SHEET)
             .consignorId(quotation.getConsignorId())
+            .originalQuotationId(quotation.getId())
             .freight(Quotation.Freight.builder()
                 .scheduleId(String.valueOf(schedule.getId()))
                 .build())
