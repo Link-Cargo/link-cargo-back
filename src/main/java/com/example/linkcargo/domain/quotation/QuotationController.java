@@ -103,4 +103,18 @@ public class QuotationController {
         return ApiResponse.onSuccess(quotationInfoResponses);
 
     }
+
+    @Operation(summary = "화주의 견적서 조회", description = "화주가 작성한 견적서만 조회합니다. QuotationInfoResponse 사용")
+    @GetMapping("/me")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE403",description = "선박 스케줄이 존재 하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<List<QuotationInfoResponse>> findQuotationsByConsignorId(
+        @AuthenticationPrincipal CustomUserDetail userDetail) {
+
+        List<QuotationInfoResponse> quotationInfoResponses  = quotationService.findQuotationsByConsignorId(userDetail.getId());
+        return ApiResponse.onSuccess(quotationInfoResponses);
+
+    }
 }

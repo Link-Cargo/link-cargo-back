@@ -129,4 +129,16 @@ public class QuotationService {
                 .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND))))
             .toList();
     }
+
+    public List<QuotationInfoResponse> findQuotationsByConsignorId(Long id) {
+        List<Quotation> quotations = quotationRepository.findQuotationsByConsignorId(
+            String.valueOf(id));
+
+        return quotations.stream()
+            .map(quotation -> QuotationInfoResponse.fromEntity(quotation, scheduleRepository.findById(
+                    Long.valueOf(quotation.getFreight().getScheduleId()))
+                .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND))))
+            .toList();
+    }
+
 }
