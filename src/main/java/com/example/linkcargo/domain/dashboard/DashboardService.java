@@ -70,11 +70,9 @@ public class DashboardService {
         return value.setScale(0, RoundingMode.HALF_UP).intValue();
     }
 
-    // todo
-    // 견적서 조회 시 여러 개의 scheduleId가 있는데 어떤 기준으로 판별할 것 인지
-    public DashboardQuotationResponse getTheCheapestQuotation(Long consignorId) {
+    public DashboardQuotationResponse getTheCheapestQuotation(String quotationId) {
         List<Quotation> quotations
-            = quotationRepository.findQuotationsByConsignorIdAndQuotationStatus(String.valueOf(consignorId), QuotationStatus.DETAIL_INFO);
+            = quotationRepository.findQuotationsByOriginalQuotationIdAndQuotationStatus(quotationId, QuotationStatus.DETAIL_INFO);
 
         Quotation lowestCostQuotation = quotations.stream()
             .min(Comparator.comparing(quotation -> quotation.getCost().getTotalCost()))
@@ -96,10 +94,10 @@ public class DashboardService {
         return DashboardQuotationResponse.fromEntity(user, quotationInfoResponse, totalCost);
     }
 
-    public DashboardQuotationCompareResponse getQuotationsForComparing(Long consignorId, String scheduleId) {
+    public DashboardQuotationCompareResponse getQuotationsForComparing(String quotationId) {
         List<Quotation> quotations
-            = quotationRepository.findQuotationsByConsignorIdAndFreight_ScheduleIdAndQuotationStatus(
-                String.valueOf(consignorId), scheduleId,QuotationStatus.DETAIL_INFO);
+            = quotationRepository.findQuotationsByOriginalQuotationIdAndQuotationStatus(
+               quotationId,QuotationStatus.DETAIL_INFO);
 
         List<DashboardQuotationResponse> dashboardQuotationResponses = quotations.stream()
             .map(quotation -> {
@@ -296,7 +294,7 @@ public class DashboardService {
 
     }
 
-    public DashboardRecommendationResponse getRecommendationInfoByCost(Long consignorId, Long scheduleId) {
+    public DashboardRecommendationResponse getRecommendationInfoByCost(String quotationId) {
         LocalDate today = LocalDate.now();
 
         int currentYear = today.getYear();
@@ -337,9 +335,9 @@ public class DashboardService {
 
         // 해당 화주가 선택한 선박 스케줄에 해당하는 알고리즘에 의해 계산된 견적서
         Quotation quotation
-            = quotationRepository.findQuotationByQuotationStatusAndFreight_scheduleIdAndConsignorId(
-            QuotationStatus.PREDICTION_SHEET, String.valueOf(scheduleId),
-            String.valueOf(consignorId)
+            = quotationRepository.findQuotationByOriginalQuotationIdAndQuotationStatus(
+                quotationId,
+                QuotationStatus.PREDICTION_SHEET
         ).orElseThrow(() -> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
 
         // 알고리즘에 의한 견적서를 기반으로 비용 계산

@@ -31,6 +31,7 @@ public record QuotationConsignorRequest(
                 .consignorId(userId)
                 .forwarderId(null)
                 .particulars(null)
+                .originalQuotationId(null)
                 .quotationStatus(QuotationStatus.BASIC_INFO)
                 .freight(freight)
                 .cost(cost)

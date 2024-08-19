@@ -42,13 +42,14 @@ public class DashboardController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "QUOTATION402", description = "해당 견적서가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     public ApiResponse<DashboardQuotationResponse> getTheCheapestQuotation(
-        @AuthenticationPrincipal CustomUserDetail userDetail
-    ) {
-        return ApiResponse.onSuccess(dashboardService.getTheCheapestQuotation(userDetail.getId()));
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @Parameter(description = "화주가 요청한 견적서의 아이디") @RequestParam String quotationId)
+     {
+        return ApiResponse.onSuccess(dashboardService.getTheCheapestQuotation(quotationId));
     }
 
     @Operation(summary = "견적서 비교 ", description = "요청한 견적서를 포워더가 업데이트 한 후 견적서 끼리 비교합니다. DashboardQuotationCompareResponse 사용")
-    @GetMapping("/compare/{scheduleId}")
+    @GetMapping("/compare")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE403",description = "선박 스케줄이 존재 하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
@@ -56,11 +57,10 @@ public class DashboardController {
     })
     public ApiResponse<DashboardQuotationCompareResponse> getQuotationsForComparing(
         @AuthenticationPrincipal CustomUserDetail userDetail,
-        @Parameter(description = "선박 스케줄 아이디") @PathVariable("scheduleId") Long scheduleId) {
+        @Parameter(description = "화주가 요청한 견적서의 아이디") @RequestParam String quotationId) {
         {
             return ApiResponse.onSuccess(
-                dashboardService.getQuotationsForComparing(userDetail.getId(),
-                    String.valueOf(scheduleId)));
+                dashboardService.getQuotationsForComparing(quotationId));
         }
     }
 
@@ -121,9 +121,9 @@ public class DashboardController {
     })
     public ApiResponse<DashboardRecommendationResponse> getRecommendationInfoByCost(
         @AuthenticationPrincipal CustomUserDetail userDetail,
-        @Parameter(description = "선박 스케줄 아이디") @RequestParam Long scheduleId)
+        @Parameter(description = "화주가 요청한 견적서의 아이디") @RequestParam String quotationId)
     {
-        return ApiResponse.onSuccess(dashboardService.getRecommendationInfoByCost(userDetail.getId(), scheduleId));
+        return ApiResponse.onSuccess(dashboardService.getRecommendationInfoByCost(quotationId));
     }
 
 
