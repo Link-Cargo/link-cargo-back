@@ -107,14 +107,14 @@ public class QuotationService {
             .orElseThrow(() -> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
 
         try {
-            Quotation updatedQuotation = request.updateQuotation(quotation, String.valueOf(userId));
-            updatedQuotation.setQuotationStatus(QuotationStatus.DETAIL_INFO);
-            quotationRepository.save(updatedQuotation);
+            Quotation newQuotation = request.updateQuotation(quotation, String.valueOf(userId));
+            newQuotation.setQuotationStatus(QuotationStatus.DETAIL_INFO);
+            newQuotation.setId(null);
+            Quotation savedQuotation = quotationRepository.save(newQuotation);
+            return savedQuotation.getId();
         } catch (Exception e) {
             throw new QuotationHandler(ErrorStatus.QUOTATION_UPDATED_FAIL);
         }
-
-        return quotation.getId();
 
     }
 

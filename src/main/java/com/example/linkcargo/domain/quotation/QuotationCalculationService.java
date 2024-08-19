@@ -334,6 +334,7 @@ public class QuotationCalculationService {
         Quotation createdQuotation = Quotation.builder()
             .quotationStatus(QuotationStatus.PREDICTION_SHEET)
             .consignorId(quotation.getConsignorId())
+            .originalQuotationId(quotation.getId())
             .freight(Quotation.Freight.builder()
                 .scheduleId(String.valueOf(schedule.getId()))
                 .build())
