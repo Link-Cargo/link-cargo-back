@@ -3,6 +3,7 @@ package com.example.linkcargo.domain.quotation;
 import com.example.linkcargo.domain.cargo.CargoRepository;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationConsignorRequest;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationForwarderRequest;
+import com.example.linkcargo.domain.quotation.dto.response.QuotationInfoResponse;
 import com.example.linkcargo.domain.schedule.ScheduleRepository;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.GeneralException;
@@ -119,4 +120,13 @@ public class QuotationService {
     }
 
 
+    public List<QuotationInfoResponse> findQuotationsByQuotationId(String quotationId) {
+        List<Quotation> quotations = quotationRepository.findQuotationsByIdOrOriginalQuotationId(quotationId, quotationId);
+
+        return quotations.stream()
+            .map(quotation -> QuotationInfoResponse.fromEntity(quotation, scheduleRepository.findById(
+                Long.valueOf(quotation.getFreight().getScheduleId()))
+                .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND))))
+            .toList();
+    }
 }

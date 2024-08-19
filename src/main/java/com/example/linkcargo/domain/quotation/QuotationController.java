@@ -2,12 +2,14 @@ package com.example.linkcargo.domain.quotation;
 
 import com.example.linkcargo.domain.quotation.dto.request.QuotationConsignorRequest;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationForwarderRequest;
+import com.example.linkcargo.domain.quotation.dto.response.QuotationInfoResponse;
 import com.example.linkcargo.domain.schedule.dto.request.ScheduleCreateUpdateRequest;
 import com.example.linkcargo.global.resolver.Login;
 import com.example.linkcargo.global.resolver.LoginInfo;
 import com.example.linkcargo.global.response.ApiResponse;
 import com.example.linkcargo.global.security.CustomUserDetail;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -16,10 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -82,6 +86,21 @@ public class QuotationController {
 
         String updatedQuotationId = quotationService.updateQuotationByForwarder(request, userDetail.getId());
         return ApiResponse.onSuccess(updatedQuotationId);
+
+    }
+
+    @Operation(summary = "견적서 검색", description = "화주가 작성한 견적서와 알고리즘에 의해 만들어진 견적서, 포워더가 업데이트한 견적서를 조회합니다. QuotationInfoResponse 사용")
+    @GetMapping("/search")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE403",description = "선박 스케줄이 존재 하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<List<QuotationInfoResponse>> findQuotationsByQuotationId(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @Parameter(description = "화주가 요청한 견적서의 아이디") @RequestParam String quotationId) {
+
+        List<QuotationInfoResponse> quotationInfoResponses  = quotationService.findQuotationsByQuotationId(quotationId);
+        return ApiResponse.onSuccess(quotationInfoResponses);
 
     }
 }
