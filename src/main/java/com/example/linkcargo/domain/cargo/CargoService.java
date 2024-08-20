@@ -3,6 +3,7 @@ package com.example.linkcargo.domain.cargo;
 import com.example.linkcargo.domain.cargo.dto.CargoDTO;
 import com.example.linkcargo.domain.cargo.dto.request.CargoRequest;
 import com.example.linkcargo.domain.cargo.dto.request.CargosRequest;
+import com.example.linkcargo.domain.cargo.dto.response.CargoIdsResponse;
 import com.example.linkcargo.domain.cargo.dto.response.CargoPageResponse;
 import com.example.linkcargo.domain.cargo.dto.response.CargoResponse;
 import com.example.linkcargo.domain.port.Port;
@@ -30,7 +31,8 @@ public class CargoService {
      * 화물 여러 개 추가
      */
     @Transactional
-    public void createCargos(Long userId, CargosRequest cargosRequest) {
+    public CargoIdsResponse createCargos(Long userId, CargosRequest cargosRequest) {
+        List<String> savedCargoIds = new ArrayList<>();
         for (CargoRequest cargoRequest : cargosRequest.cargos()) {
             Cargo cargo = cargoRequest.toEntity(
                 userId,
@@ -41,8 +43,10 @@ public class CargoService {
             );
             cargo.prePersist();
 
-            cargoRepository.save(cargo);
+            Cargo savedCargo = cargoRepository.save(cargo);
+            savedCargoIds.add(savedCargo.getId());
         }
+        return new CargoIdsResponse(savedCargoIds);
     }
 
     /**
