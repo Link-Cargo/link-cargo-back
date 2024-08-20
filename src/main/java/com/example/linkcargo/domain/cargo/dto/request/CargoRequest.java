@@ -29,6 +29,9 @@ public class CargoRequest {
     @Size(max = 12, message = "HS Code must be less than 12 characters")
     private String hsCode; // HS 코드
 
+    @Size(max = 100, message = "AdditionalNotes must be less than 100 characters")
+    private String additionalNotes; // AdditionalNotes 코드
+
     @NotNull(message = "Total quantity is required")
     @Min(value = 1, message = "Total quantity must be at least 1")
     private Integer totalQuantity; // 총 수출 물품 수량
@@ -87,6 +90,7 @@ public class CargoRequest {
             .cargoInfo(Cargo.CargoInfo.builder()
                 .productName(this.productName)
                 .hsCode(this.hsCode)
+                .additionalNotes(this.additionalNotes)
                 .totalQuantity(this.totalQuantity)
                 .quantityPerBox(this.quantityPerBox)
                 .boxSize(this.boxSize.toEntity())

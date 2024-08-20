@@ -2,6 +2,7 @@ package com.example.linkcargo.domain.cargo;
 
 import com.example.linkcargo.domain.cargo.dto.request.CargoRequest;
 import com.example.linkcargo.domain.cargo.dto.request.CargosRequest;
+import com.example.linkcargo.domain.cargo.dto.response.CargoIdsResponse;
 import com.example.linkcargo.domain.cargo.dto.response.CargoPageResponse;
 import com.example.linkcargo.domain.cargo.dto.response.CargoResponse;
 import com.example.linkcargo.global.response.ApiResponse;
@@ -42,12 +43,12 @@ public class CargoController {
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공")
     })
-    public ApiResponse<SuccessStatus> createCargos(
+    public ApiResponse<CargoIdsResponse> createCargos(
         @Valid @RequestBody CargosRequest cargosRequest,
         @AuthenticationPrincipal CustomUserDetail userDetail
     ) {
-        cargoService.createCargos(userDetail.getId(), cargosRequest);
-        return ApiResponse.onSuccess(SuccessStatus._OK);
+        CargoIdsResponse cargoIdsResponse = cargoService.createCargos(userDetail.getId(), cargosRequest);
+        return ApiResponse.onSuccess(cargoIdsResponse);
     }
 
     @Operation(summary = "화물 조회", description = "특정 화물을 조회합니다.")
