@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface FCMTokenRepository extends JpaRepository<FCMToken, Long> {
 
     Optional<FCMToken> findByUser(User user);
+
+    Optional<FCMToken> findByUserId(Long userId);
 }

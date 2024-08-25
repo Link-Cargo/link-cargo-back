@@ -18,11 +18,10 @@ public class FCMTokenController {
     private final FCMTokenService fcmTokenService;
 
     @PostMapping
-    @Operation(summary = "FCM 토큰 전송", description = "FCM 토큰을 전송, 중복을 검사하여 저장")
+    @Operation(summary = "FCM 토큰 수신", description = "FCM 토큰을 수신, 중복을 검사하여 저장")
     public void saveFCMToken(
         @Valid @RequestBody FCMTokenRequest fcmTokenRequest,
         @AuthenticationPrincipal CustomUserDetail userDetail
-
     ) {
         fcmTokenService.save(userDetail.getId(), fcmTokenRequest.token());
     }

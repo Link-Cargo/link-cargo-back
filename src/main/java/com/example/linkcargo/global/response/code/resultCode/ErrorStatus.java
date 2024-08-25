@@ -62,7 +62,11 @@ public enum ErrorStatus implements BaseErrorCode {
     FORWARDING_DELETED_FAIL(HttpStatus.NOT_FOUND, "FORWARDING405","포워딩 업체 삭제에 실패하였습니다"),
     NOT_FORWARDER(HttpStatus.BAD_REQUEST, "FORWARDING406","포워더 역활이 아닙니다."),
 
+    // FCMToken
+    FCM_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "FCMTOKEN401", "FCM 토큰이 존재하지 않습니다."),
 
+    // Notification
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION401", "알림이 존재 하지 않습니다."),
 
 
     // S3
@@ -82,7 +86,6 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // ETC
     EXTERNAL_API_ERROR(HttpStatus.BAD_REQUEST, "ETC401", "외부 API 호출 오류");
-
 
     private final HttpStatus httpStatus;
     private final String code;
