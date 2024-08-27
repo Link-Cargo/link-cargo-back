@@ -63,7 +63,7 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FORWARDER(HttpStatus.BAD_REQUEST, "FORWARDING406","포워더 역활이 아닙니다."),
 
     // FCMToken
-    FCM_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "FCMTOKEN401", "FCM 토큰이 존재하지 않습니다."),
+    FCM_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "FCM_TOKEN401", "FCM 토큰이 존재하지 않습니다."),
 
     // Notification
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION401", "알림이 존재 하지 않습니다."),

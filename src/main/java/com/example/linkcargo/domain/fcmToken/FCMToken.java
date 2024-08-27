@@ -20,7 +20,6 @@ public class FCMToken {
     private Long id;
 
     @OneToOne
-    @Column(unique = true)
     private User user;
 
     private String token;
