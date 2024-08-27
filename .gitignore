@@ -38,3 +38,6 @@ out/
 
 application.yml
 application.properties
+
+### FCM
+firebase-service-account.json
