@@ -31,7 +31,7 @@ jobs:
         run: |
           mkdir -p src/main/resources
           echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > src/main/resources/firebase-service-account
-          cat src/main/resources/firebase-service-account.json
+          cat src/main/resources/firebase-service-account
         shell: bash
 
       - name: Run chmod to make gradlew executable
