@@ -42,7 +42,7 @@ public class Notification extends JpaBaseEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Column // 클릭 시 이동할 주소(필수 X)
+    @Column // 클릭 시 이동할 주소(현재는 필수 X)
     private String url;
 
     @Column(name = "is_read") // 읽음 여부
