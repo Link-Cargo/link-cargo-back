@@ -40,4 +40,4 @@ application.yml
 application.properties
 
 ### FCM
-firebase-service-account
+firebase-service-account.json
