@@ -31,8 +31,8 @@ jobs:
       - name: Create Firebase service account file
         run: |
           mkdir -p src/main/resources
-          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > src/main/resources/firebase-service-account
-          cat src/main/resources/firebase-service-account
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > src/main/resources/firebase-service-account.json
+          cat src/main/resources/firebase-service-account.json
         shell: bash
 
       - name: Run chmod to make gradlew executable
