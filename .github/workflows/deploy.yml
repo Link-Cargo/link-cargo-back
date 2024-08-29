@@ -31,7 +31,7 @@ jobs:
       - name: Create Firebase service account file
         run: |
           mkdir -p src/main/resources
-          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > src/main/resources/firebase-service-account.json
+          printf "%s" "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > src/main/resources/firebase-service-account.json
           cat src/main/resources/firebase-service-account.json
         shell: bash
 
