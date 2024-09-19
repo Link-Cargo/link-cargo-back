@@ -23,4 +23,8 @@ public interface QuotationRepository extends MongoRepository<Quotation, String> 
     Optional<Quotation> findQuotationByOriginalQuotationIdAndQuotationStatus(String originalQuotationId, QuotationStatus quotationStatus);
 
     Optional<Quotation> findQuotationById(String id);
+
+    List<Quotation> findByConsignorId(String consignorId);
+
+    List<Quotation> findByConsignorIdAndQuotationStatus(String string, QuotationStatus quotationStatus);
 }

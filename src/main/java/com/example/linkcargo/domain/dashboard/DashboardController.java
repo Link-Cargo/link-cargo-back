@@ -6,6 +6,7 @@ import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionRe
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationCompareResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationResponse;
+import com.example.linkcargo.domain.dashboard.dto.response.DashboardRawQuotationResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardRecommendationResponse;
 import com.example.linkcargo.global.response.ApiResponse;
 import com.example.linkcargo.global.security.CustomUserDetail;
@@ -32,6 +33,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class DashboardController {
 
     private final DashboardService dashboardService;
+
+
+    @Operation(summary = "유저 원시 견적서 조회", description = "유저의 원시 견적서를 조회합니다. DashboardRawQuotationResponse 사용")
+    @GetMapping("/list")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE403",description = "선박 스케줄이 존재 하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER403", description = "해당 ID 의 유저가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "QUOTATION402", description = "해당 견적서가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<DashboardRawQuotationResponse> getRawQuotations(
+        @AuthenticationPrincipal CustomUserDetail userDetail)
+    {
+        return ApiResponse.onSuccess(dashboardService.getRawQuotations(userDetail.getId()));
+    }
 
     @Operation(summary = "가장 싼 견적서 조회", description = "요청한 견적서를 포워더가 업데이트 한 후 운임비용이 가장 적은 견적서를 조회합니다. DashboardQuotationResponse 사용")
     @GetMapping("/cheapest")

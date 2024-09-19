@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.dashboard;
 
+import com.example.linkcargo.domain.cargo.Cargo;
 import com.example.linkcargo.domain.cargo.CargoRepository;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardNewsResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPortCongestionResponse;
@@ -8,6 +9,7 @@ import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionRe
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationCompareResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationResponse;
+import com.example.linkcargo.domain.dashboard.dto.response.DashboardRawQuotationResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardRecommendationResponse;
 import com.example.linkcargo.domain.forwarding.Forwarding;
 import com.example.linkcargo.domain.forwarding.ForwardingRepository;
@@ -27,6 +29,7 @@ import com.example.linkcargo.domain.schedule.ScheduleRepository;
 import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.domain.user.UserRepository;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
+import com.example.linkcargo.global.response.exception.handler.CargoHandler;
 import com.example.linkcargo.global.response.exception.handler.PortHandler;
 import com.example.linkcargo.global.response.exception.handler.QuotationHandler;
 import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
@@ -68,6 +71,26 @@ public class DashboardService {
 
     public Integer convertToInteger(BigDecimal value) {
         return value.setScale(0, RoundingMode.HALF_UP).intValue();
+    }
+
+    public DashboardRawQuotationResponse getRawQuotations(Long userId) {
+        List<Quotation> quotations = quotationRepository.findByConsignorIdAndQuotationStatus(userId.toString(), QuotationStatus.RAW_SHEET);
+
+        List<DashboardRawQuotationResponse.RawQuotationInfo> rawQuotationInfoList = quotations.stream()
+            .filter(quotation -> !quotation.getCost().getCargoIds().isEmpty())
+            .map(quotation -> {
+                String firstCargoId = quotation.getCost().getCargoIds().get(0);
+                Cargo cargo = cargoRepository.findById(firstCargoId).orElseThrow(() ->
+                    new CargoHandler(ErrorStatus.CARGO_NOT_FOUND));
+                Port exportPort = portRepository.findById(cargo.getExportPortId())
+                    .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
+                Port importPort = portRepository.findById(cargo.getImportPortId())
+                    .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
+                return DashboardRawQuotationResponse.RawQuotationInfo.fromEntity(quotation, cargo, exportPort, importPort);
+            })
+            .collect(Collectors.toList());
+
+        return DashboardRawQuotationResponse.fromEntity(rawQuotationInfoList);
     }
 
     public DashboardQuotationResponse getTheCheapestQuotation(String quotationId) {
@@ -349,4 +372,5 @@ public class DashboardService {
         return DashboardRecommendationResponse.fromEntity(dateDifference, indexDifference,
             estimatedCost, schedules);
     }
+
 }
