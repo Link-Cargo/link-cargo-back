@@ -6,7 +6,11 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface QuotationRepository extends MongoRepository<Quotation, String> {
 
-    boolean existsByConsignorIdAndFreight_ScheduleId(String consignorId, String scheduleId);
+    boolean existsByConsignorIdAndFreight_ScheduleIdAndQuotationStatus(
+        String consignorId,
+        String scheduleId,
+        QuotationStatus quotationStatus
+    );
 
     List<Quotation> findQuotationsByConsignorId(String s);
 
@@ -17,4 +21,6 @@ public interface QuotationRepository extends MongoRepository<Quotation, String> 
     List<Quotation> findQuotationsByOriginalQuotationIdAndQuotationStatus(String originalQuotationId, QuotationStatus quotationStatus);
 
     Optional<Quotation> findQuotationByOriginalQuotationIdAndQuotationStatus(String originalQuotationId, QuotationStatus quotationStatus);
+
+    Optional<Quotation> findQuotationById(String id);
 }
