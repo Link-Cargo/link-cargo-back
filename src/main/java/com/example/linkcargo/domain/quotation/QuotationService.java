@@ -1,11 +1,18 @@
 package com.example.linkcargo.domain.quotation;
 
 import com.example.linkcargo.domain.cargo.CargoRepository;
+import com.example.linkcargo.domain.forwarding.Forwarding;
+import com.example.linkcargo.domain.forwarding.ForwardingRepository;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationConsignorRequest;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationForwarderRequest;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationRawRequest;
+import com.example.linkcargo.domain.quotation.dto.response.EstimatedQuotationResponse;
+import com.example.linkcargo.domain.quotation.dto.response.EstimatedQuotationResponse.EstimatedQuotation;
 import com.example.linkcargo.domain.quotation.dto.response.QuotationInfoResponse;
+import com.example.linkcargo.domain.schedule.Schedule;
 import com.example.linkcargo.domain.schedule.ScheduleRepository;
+import com.example.linkcargo.domain.user.User;
+import com.example.linkcargo.domain.user.UserRepository;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.GeneralException;
 import com.example.linkcargo.global.response.exception.handler.CargoHandler;
@@ -28,7 +35,7 @@ public class QuotationService {
     private final QuotationRepository quotationRepository;
     private final CargoRepository cargoRepository;
     private final ScheduleRepository scheduleRepository;
-
+    private final ForwardingRepository forwardingRepository;
 
     public Quotation createRawQuotation(QuotationRawRequest request, Long userId) {
         List<String> cargoIds = request.cargoIds();
@@ -161,4 +168,26 @@ public class QuotationService {
             .toList();
     }
 
+    public EstimatedQuotationResponse getEstimatedQuotations(List<String> quotationIds) {
+        List<Quotation> quotations = quotationIds.stream()
+            .map(id -> quotationRepository.findQuotationById(id).orElseThrow(()-> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND)))
+            .toList();
+
+        List<EstimatedQuotation> estimatedQuotations = quotations.stream()
+            .map(quotation -> {
+                Schedule schedule = scheduleRepository.findById(
+                        Long.valueOf(quotation.getFreight().getScheduleId()))
+                    .orElseThrow(()->new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
+
+                User forwarder = schedule.getForwarder();
+                Forwarding forwarding = forwarder.getForwarding();
+
+                return EstimatedQuotation.fromEntity(schedule, forwarding.getFirmName());
+
+            })
+            .collect(Collectors.toList());
+
+        // EstimatedQuotationResponse 반환
+        return EstimatedQuotationResponse.fromEntity(estimatedQuotations, estimatedQuotations.size());
+    }
 }
