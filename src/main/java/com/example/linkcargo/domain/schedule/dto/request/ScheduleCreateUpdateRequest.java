@@ -4,6 +4,7 @@ package com.example.linkcargo.domain.schedule.dto.request;
 import com.example.linkcargo.domain.port.Port;
 import com.example.linkcargo.domain.schedule.Schedule;
 import com.example.linkcargo.domain.schedule.TransportType;
+import com.example.linkcargo.domain.user.User;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -11,6 +12,9 @@ import jakarta.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 
 public record ScheduleCreateUpdateRequest(
+
+    @NotNull(message = "Forwarder is mandatory")
+    Long forwarderId,
     @NotNull(message = "Export port is mandatory")
     Long exportPortId,
 
@@ -50,7 +54,7 @@ public record ScheduleCreateUpdateRequest(
     LocalDateTime cargoCutOff
 ) {
 
-    public Schedule toEntity(Port exportPort, Port importPort) {
+    public Schedule toEntity(Port exportPort, Port importPort, User forwarder) {
         Integer CBM = null;
 
         if (this.limitSize == 20) {
@@ -60,6 +64,7 @@ public record ScheduleCreateUpdateRequest(
         }
 
         return Schedule.builder()
+            .forwarder(forwarder)
             .exportPort(exportPort)
             .importPort(importPort)
             .carrier(this.carrier)
@@ -76,7 +81,8 @@ public record ScheduleCreateUpdateRequest(
             .build();
     }
 
-    public Schedule updateEntity(Schedule existingSchedule, Port exportPort, Port importPort) {
+    public Schedule updateEntity(Schedule existingSchedule, Port exportPort, Port importPort, User forwarder) {
+        existingSchedule.setForwarder(forwarder);
         existingSchedule.setExportPort(exportPort);
         existingSchedule.setImportPort(importPort);
         existingSchedule.setCarrier(this.carrier());
