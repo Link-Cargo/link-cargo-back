@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.dashboard;
 
+import com.example.linkcargo.domain.cargo.Cargo;
 import com.example.linkcargo.domain.cargo.CargoRepository;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardNewsResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPortCongestionResponse;
@@ -8,6 +9,7 @@ import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionRe
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardPredictionResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationCompareResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardQuotationResponse;
+import com.example.linkcargo.domain.dashboard.dto.response.DashboardRawQuotationResponse;
 import com.example.linkcargo.domain.dashboard.dto.response.DashboardRecommendationResponse;
 import com.example.linkcargo.domain.forwarding.Forwarding;
 import com.example.linkcargo.domain.forwarding.ForwardingRepository;
@@ -27,14 +29,18 @@ import com.example.linkcargo.domain.schedule.ScheduleRepository;
 import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.domain.user.UserRepository;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
+import com.example.linkcargo.global.response.exception.handler.CargoHandler;
 import com.example.linkcargo.global.response.exception.handler.PortHandler;
 import com.example.linkcargo.global.response.exception.handler.QuotationHandler;
 import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
 import com.example.linkcargo.global.response.exception.handler.UsersHandler;
+import com.theokanning.openai.completion.CompletionRequest;
+import com.theokanning.openai.completion.chat.ChatCompletionRequest;
+import com.theokanning.openai.completion.chat.ChatMessage;
+import com.theokanning.openai.service.OpenAiService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -47,6 +53,7 @@ import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,14 +72,40 @@ public class DashboardService {
     private final PortRepository portRepository;
     private final NewsRepository newsRepository;
     private final QuotationCalculationService quotationCalculationService;
+    private final OpenAiService openAiService;
+
+
 
     public Integer convertToInteger(BigDecimal value) {
         return value.setScale(0, RoundingMode.HALF_UP).intValue();
     }
 
-    public DashboardQuotationResponse getTheCheapestQuotation(String quotationId) {
+    public DashboardRawQuotationResponse getRawQuotations(Long userId) {
+        List<Quotation> quotations = quotationRepository.findByConsignorIdAndQuotationStatus(userId.toString(), QuotationStatus.RAW_SHEET);
+
+        LocalDate currentDate = LocalDate.now();
+
+        List<DashboardRawQuotationResponse.RawQuotationInfo> rawQuotationInfoList = quotations.stream()
+            .filter(quotation -> !quotation.getCost().getCargoIds().isEmpty())
+            .map(quotation -> {
+                String firstCargoId = quotation.getCost().getCargoIds().get(0);
+                Cargo cargo = cargoRepository.findById(firstCargoId).orElseThrow(() ->
+                    new CargoHandler(ErrorStatus.CARGO_NOT_FOUND));
+                Port exportPort = portRepository.findById(cargo.getExportPortId())
+                    .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
+                Port importPort = portRepository.findById(cargo.getImportPortId())
+                    .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
+                return DashboardRawQuotationResponse.RawQuotationInfo.fromEntity(quotation, cargo, exportPort, importPort);
+            })
+            .filter(info -> info.ETD().isAfter(currentDate))
+            .collect(Collectors.toList());
+
+        return DashboardRawQuotationResponse.fromEntity(rawQuotationInfoList);
+    }
+
+    public DashboardQuotationResponse getTheCheapestQuotation(String rawQuotationId) {
         List<Quotation> quotations
-            = quotationRepository.findQuotationsByOriginalQuotationIdAndQuotationStatus(quotationId, QuotationStatus.DETAIL_INFO);
+            = quotationRepository.findQuotationsByRawQuotationIdAndQuotationStatus(rawQuotationId, QuotationStatus.DETAIL_INFO);
 
         Quotation lowestCostQuotation = quotations.stream()
             .min(Comparator.comparing(quotation -> quotation.getCost().getTotalCost()))
@@ -94,10 +127,9 @@ public class DashboardService {
         return DashboardQuotationResponse.fromEntity(user, quotationInfoResponse, totalCost);
     }
 
-    public DashboardQuotationCompareResponse getQuotationsForComparing(String quotationId) {
+    public DashboardQuotationCompareResponse getQuotationsForComparing(String rawQuotationId) {
         List<Quotation> quotations
-            = quotationRepository.findQuotationsByOriginalQuotationIdAndQuotationStatus(
-               quotationId,QuotationStatus.DETAIL_INFO);
+            = quotationRepository.findQuotationsByRawQuotationIdAndQuotationStatus(rawQuotationId, QuotationStatus.DETAIL_INFO);
 
         List<DashboardQuotationResponse> dashboardQuotationResponses = quotations.stream()
             .map(quotation -> {
@@ -195,9 +227,8 @@ public class DashboardService {
     }
 
     // todo
-    // openai API 사용을 API 호출 시가 아닌 AI 서버에서 가져올 때 진행하는 것이 어떤지
+    // API 호출 시간 문제
     public DashboardPredictionReasonResponse getPredictionReasonInfo() {
-
         LocalDate today = LocalDate.now();
 
         int currentYear = today.getYear();
@@ -210,8 +241,6 @@ public class DashboardService {
         List<Prediction> predictions = predictionRepository.findPredictionsWithinPeriod(
             currentYear, currentMonth, endYear, endMonth);
 
-        // 임시
-        String reason = "openai answer";
 
         predictions.sort((p1, p2) -> {
             if (!Objects.equals(p1.getYear(), p2.getYear())) {
@@ -235,6 +264,31 @@ public class DashboardService {
                     "year", String.valueOf(next.getYear()),
                     "month", String.valueOf(next.getMonth())
                 );
+
+                String prompt = String.format(
+                    "해운 운임 지수가 %s년 %s월부터 %s년 %s월 사이에 %s하고 있습니다. " +
+                        "이전 월의 지수는 %s이고, 다음 월의 지수는 %s입니다. " +
+                        "이러한 변화의 가능한 이유를 50단어 이내로 설명해주세요. " +
+                        "국제 무역, 경제 상황, 연료 가격, 선박 공급량 등의 요인을 고려해 주세요.",
+                    current.getYear(), current.getMonth(),
+                    next.getYear(), next.getMonth(),
+                    status.equals("rising") ? "상승" : "하락",
+                    current.getFreightCostIndex(),
+                    next.getFreightCostIndex()
+                );
+
+                ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
+                    .model("gpt-4")  // gpt-4 모델 사용
+                    .messages(List.of(
+                        new ChatMessage("system", "You are a helpful assistant."),
+                        new ChatMessage("user", prompt)
+                    ))
+                    .maxTokens(100)
+                    .temperature(0.7)
+                    .build();
+
+                String reason = openAiService.createChatCompletion(chatCompletionRequest)
+                    .getChoices().get(0).getMessage().getContent().trim();
 
                 return PredictionReason.fromEntity(
                     List.of(currentDate, nextDate),
@@ -275,26 +329,33 @@ public class DashboardService {
 
     public DashboardNewsResponse getInterestingNews(List<String> interests) {
         LocalDate today = LocalDate.now();
-        List<List<News>> newsList = interests.stream()
-            .map(query ->  newsRepository.findByCategoryAndCreatedDate(query, today))
+        List<String> summaries = interests.stream()
+            .flatMap(query -> newsRepository.findByCategoryAndCreatedDate(query, today).stream())
+            .map(News::getContent)
             .toList();
 
-        String newsContents = newsList.stream()
-            .flatMap(List::stream)
-            .map(News::getContent)
-            .collect(Collectors.joining(" "));
+        String content = String.join(" ", summaries);
 
-        // todo
-        // 요약 API를 통한 요약
+        String prompt = "다음 내용을 요약하는데 50자 이내로 내용이 끊기지 않게 요약해주세요.: " + content;
 
-        // 임시
-        String summary = "뉴스 요약 정보";
+        ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
+            .model("gpt-3.5-turbo")  // gpt-4 모델 사용
+            .messages(List.of(
+                new ChatMessage("system", "You are a helpful assistant."),
+                new ChatMessage("user", prompt)
+            ))
+            .maxTokens(200)
+            .temperature(0.7)
+            .build();
+
+        String summary = openAiService.createChatCompletion(chatCompletionRequest)
+            .getChoices().get(0).getMessage().getContent().trim();
 
         return DashboardNewsResponse.fromEntity(interests, summary);
 
     }
 
-    public DashboardRecommendationResponse getRecommendationInfoByCost(String quotationId) {
+    public DashboardRecommendationResponse getRecommendationInfoByCost(String rawQuotationId) {
         LocalDate today = LocalDate.now();
 
         int currentYear = today.getYear();
@@ -333,12 +394,12 @@ public class DashboardService {
             Integer.parseInt(todayMonthPrediction.getFreightCostIndex()) - Integer.parseInt(
                 minFreightCostPrediction.getFreightCostIndex());
 
-        // 해당 화주가 선택한 선박 스케줄에 해당하는 알고리즘에 의해 계산된 견적서
+        // 해당 화주가 요청한 견적서에 해당하는 알고리즘에 의해 계산된 견적서
         Quotation quotation
-            = quotationRepository.findQuotationByOriginalQuotationIdAndQuotationStatus(
-                quotationId,
+            = quotationRepository.findQuotationsByRawQuotationIdAndQuotationStatus(
+                rawQuotationId,
                 QuotationStatus.PREDICTION_SHEET
-        ).orElseThrow(() -> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
+        ).get(0);
 
         // 알고리즘에 의한 견적서를 기반으로 비용 계산
         BigDecimal estimatedCost = quotationCalculationService.calculateTotalCost(quotation,
@@ -349,4 +410,5 @@ public class DashboardService {
         return DashboardRecommendationResponse.fromEntity(dateDifference, indexDifference,
             estimatedCost, schedules);
     }
+
 }
