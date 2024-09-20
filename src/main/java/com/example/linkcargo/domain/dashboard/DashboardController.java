@@ -59,9 +59,9 @@ public class DashboardController {
     })
     public ApiResponse<DashboardQuotationResponse> getTheCheapestQuotation(
         @AuthenticationPrincipal CustomUserDetail userDetail,
-        @Parameter(description = "화주가 요청한 견적서의 아이디") @RequestParam String quotationId)
+        @Parameter(description = "화주가 작성한 원시 견적서 아이디") @RequestParam String rawQuotationId)
      {
-        return ApiResponse.onSuccess(dashboardService.getTheCheapestQuotation(quotationId));
+        return ApiResponse.onSuccess(dashboardService.getTheCheapestQuotation(rawQuotationId));
     }
 
     @Operation(summary = "견적서 비교 ", description = "요청한 견적서를 포워더가 업데이트 한 후 견적서 끼리 비교합니다. DashboardQuotationCompareResponse 사용")
@@ -73,10 +73,11 @@ public class DashboardController {
     })
     public ApiResponse<DashboardQuotationCompareResponse> getQuotationsForComparing(
         @AuthenticationPrincipal CustomUserDetail userDetail,
-        @Parameter(description = "화주가 요청한 견적서의 아이디") @RequestParam String quotationId) {
+        @Parameter(description = "화주가 작성한 원시 견적서 아이디") @RequestParam String rawQuotationId)
+    {
         {
             return ApiResponse.onSuccess(
-                dashboardService.getQuotationsForComparing(quotationId));
+                dashboardService.getQuotationsForComparing(rawQuotationId));
         }
     }
 
@@ -137,9 +138,9 @@ public class DashboardController {
     })
     public ApiResponse<DashboardRecommendationResponse> getRecommendationInfoByCost(
         @AuthenticationPrincipal CustomUserDetail userDetail,
-        @Parameter(description = "화주가 요청한 견적서의 아이디") @RequestParam String quotationId)
+        @Parameter(description = "화주가 작성한 원시 견적서 아이디") @RequestParam String rawQuotationId)
     {
-        return ApiResponse.onSuccess(dashboardService.getRecommendationInfoByCost(quotationId));
+        return ApiResponse.onSuccess(dashboardService.getRecommendationInfoByCost(rawQuotationId));
     }
 
 

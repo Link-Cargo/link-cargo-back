@@ -76,6 +76,8 @@ public class DashboardService {
     public DashboardRawQuotationResponse getRawQuotations(Long userId) {
         List<Quotation> quotations = quotationRepository.findByConsignorIdAndQuotationStatus(userId.toString(), QuotationStatus.RAW_SHEET);
 
+        LocalDate currentDate = LocalDate.now();
+
         List<DashboardRawQuotationResponse.RawQuotationInfo> rawQuotationInfoList = quotations.stream()
             .filter(quotation -> !quotation.getCost().getCargoIds().isEmpty())
             .map(quotation -> {
@@ -88,14 +90,15 @@ public class DashboardService {
                     .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
                 return DashboardRawQuotationResponse.RawQuotationInfo.fromEntity(quotation, cargo, exportPort, importPort);
             })
+            .filter(info -> info.ETD().isAfter(currentDate))
             .collect(Collectors.toList());
 
         return DashboardRawQuotationResponse.fromEntity(rawQuotationInfoList);
     }
 
-    public DashboardQuotationResponse getTheCheapestQuotation(String quotationId) {
+    public DashboardQuotationResponse getTheCheapestQuotation(String rawQuotationId) {
         List<Quotation> quotations
-            = quotationRepository.findQuotationsByOriginalQuotationIdAndQuotationStatus(quotationId, QuotationStatus.DETAIL_INFO);
+            = quotationRepository.findQuotationsByRawQuotationIdAndQuotationStatus(rawQuotationId, QuotationStatus.DETAIL_INFO);
 
         Quotation lowestCostQuotation = quotations.stream()
             .min(Comparator.comparing(quotation -> quotation.getCost().getTotalCost()))
@@ -117,10 +120,9 @@ public class DashboardService {
         return DashboardQuotationResponse.fromEntity(user, quotationInfoResponse, totalCost);
     }
 
-    public DashboardQuotationCompareResponse getQuotationsForComparing(String quotationId) {
+    public DashboardQuotationCompareResponse getQuotationsForComparing(String rawQuotationId) {
         List<Quotation> quotations
-            = quotationRepository.findQuotationsByOriginalQuotationIdAndQuotationStatus(
-               quotationId,QuotationStatus.DETAIL_INFO);
+            = quotationRepository.findQuotationsByRawQuotationIdAndQuotationStatus(rawQuotationId, QuotationStatus.DETAIL_INFO);
 
         List<DashboardQuotationResponse> dashboardQuotationResponses = quotations.stream()
             .map(quotation -> {
@@ -317,7 +319,7 @@ public class DashboardService {
 
     }
 
-    public DashboardRecommendationResponse getRecommendationInfoByCost(String quotationId) {
+    public DashboardRecommendationResponse getRecommendationInfoByCost(String rawQuotationId) {
         LocalDate today = LocalDate.now();
 
         int currentYear = today.getYear();
@@ -356,12 +358,12 @@ public class DashboardService {
             Integer.parseInt(todayMonthPrediction.getFreightCostIndex()) - Integer.parseInt(
                 minFreightCostPrediction.getFreightCostIndex());
 
-        // 해당 화주가 선택한 선박 스케줄에 해당하는 알고리즘에 의해 계산된 견적서
+        // 해당 화주가 요청한 견적서에 해당하는 알고리즘에 의해 계산된 견적서
         Quotation quotation
-            = quotationRepository.findQuotationByOriginalQuotationIdAndQuotationStatus(
-                quotationId,
+            = quotationRepository.findQuotationsByRawQuotationIdAndQuotationStatus(
+                rawQuotationId,
                 QuotationStatus.PREDICTION_SHEET
-        ).orElseThrow(() -> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
+        ).get(0);
 
         // 알고리즘에 의한 견적서를 기반으로 비용 계산
         BigDecimal estimatedCost = quotationCalculationService.calculateTotalCost(quotation,
