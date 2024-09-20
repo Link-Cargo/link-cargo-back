@@ -34,10 +34,13 @@ import com.example.linkcargo.global.response.exception.handler.PortHandler;
 import com.example.linkcargo.global.response.exception.handler.QuotationHandler;
 import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
 import com.example.linkcargo.global.response.exception.handler.UsersHandler;
+import com.theokanning.openai.completion.CompletionRequest;
+import com.theokanning.openai.completion.chat.ChatCompletionRequest;
+import com.theokanning.openai.completion.chat.ChatMessage;
+import com.theokanning.openai.service.OpenAiService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -50,6 +53,7 @@ import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,6 +72,9 @@ public class DashboardService {
     private final PortRepository portRepository;
     private final NewsRepository newsRepository;
     private final QuotationCalculationService quotationCalculationService;
+    private final OpenAiService openAiService;
+
+
 
     public Integer convertToInteger(BigDecimal value) {
         return value.setScale(0, RoundingMode.HALF_UP).intValue();
@@ -220,9 +227,8 @@ public class DashboardService {
     }
 
     // todo
-    // openai API 사용을 API 호출 시가 아닌 AI 서버에서 가져올 때 진행하는 것이 어떤지
+    // API 호출 시간 문제
     public DashboardPredictionReasonResponse getPredictionReasonInfo() {
-
         LocalDate today = LocalDate.now();
 
         int currentYear = today.getYear();
@@ -235,8 +241,6 @@ public class DashboardService {
         List<Prediction> predictions = predictionRepository.findPredictionsWithinPeriod(
             currentYear, currentMonth, endYear, endMonth);
 
-        // 임시
-        String reason = "openai answer";
 
         predictions.sort((p1, p2) -> {
             if (!Objects.equals(p1.getYear(), p2.getYear())) {
@@ -260,6 +264,31 @@ public class DashboardService {
                     "year", String.valueOf(next.getYear()),
                     "month", String.valueOf(next.getMonth())
                 );
+
+                String prompt = String.format(
+                    "해운 운임 지수가 %s년 %s월부터 %s년 %s월 사이에 %s하고 있습니다. " +
+                        "이전 월의 지수는 %s이고, 다음 월의 지수는 %s입니다. " +
+                        "이러한 변화의 가능한 이유를 50단어 이내로 설명해주세요. " +
+                        "국제 무역, 경제 상황, 연료 가격, 선박 공급량 등의 요인을 고려해 주세요.",
+                    current.getYear(), current.getMonth(),
+                    next.getYear(), next.getMonth(),
+                    status.equals("rising") ? "상승" : "하락",
+                    current.getFreightCostIndex(),
+                    next.getFreightCostIndex()
+                );
+
+                ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
+                    .model("gpt-4")  // gpt-4 모델 사용
+                    .messages(List.of(
+                        new ChatMessage("system", "You are a helpful assistant."),
+                        new ChatMessage("user", prompt)
+                    ))
+                    .maxTokens(100)
+                    .temperature(0.7)
+                    .build();
+
+                String reason = openAiService.createChatCompletion(chatCompletionRequest)
+                    .getChoices().get(0).getMessage().getContent().trim();
 
                 return PredictionReason.fromEntity(
                     List.of(currentDate, nextDate),
