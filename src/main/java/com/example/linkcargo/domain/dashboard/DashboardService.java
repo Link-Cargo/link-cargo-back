@@ -329,20 +329,27 @@ public class DashboardService {
 
     public DashboardNewsResponse getInterestingNews(List<String> interests) {
         LocalDate today = LocalDate.now();
-        List<List<News>> newsList = interests.stream()
-            .map(query ->  newsRepository.findByCategoryAndCreatedDate(query, today))
+        List<String> summaries = interests.stream()
+            .flatMap(query -> newsRepository.findByCategoryAndCreatedDate(query, today).stream())
+            .map(News::getContent)
             .toList();
 
-        String newsContents = newsList.stream()
-            .flatMap(List::stream)
-            .map(News::getContent)
-            .collect(Collectors.joining(" "));
+        String content = String.join(" ", summaries);
 
-        // todo
-        // 요약 API를 통한 요약
+        String prompt = "다음 내용을 요약하는데 50자 이내로 내용이 끊기지 않게 요약해주세요.: " + content;
 
-        // 임시
-        String summary = "뉴스 요약 정보";
+        ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
+            .model("gpt-3.5-turbo")  // gpt-4 모델 사용
+            .messages(List.of(
+                new ChatMessage("system", "You are a helpful assistant."),
+                new ChatMessage("user", prompt)
+            ))
+            .maxTokens(200)
+            .temperature(0.7)
+            .build();
+
+        String summary = openAiService.createChatCompletion(chatCompletionRequest)
+            .getChoices().get(0).getMessage().getContent().trim();
 
         return DashboardNewsResponse.fromEntity(interests, summary);
 
