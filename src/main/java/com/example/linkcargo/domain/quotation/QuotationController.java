@@ -2,6 +2,7 @@ package com.example.linkcargo.domain.quotation;
 
 import com.example.linkcargo.domain.quotation.dto.request.QuotationConsignorRequest;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationForwarderRequest;
+import com.example.linkcargo.domain.quotation.dto.request.QuotationRawRequest;
 import com.example.linkcargo.domain.quotation.dto.response.QuotationInfoResponse;
 import com.example.linkcargo.domain.schedule.dto.request.ScheduleCreateUpdateRequest;
 import com.example.linkcargo.global.resolver.Login;
@@ -48,6 +49,20 @@ public class QuotationController {
         @RequestBody QuotationConsignorRequest request) {
         Quotation quotation = quotationService.createQuotationByConsignor(request, userDetail.getId());
         quotationCalculationService.updateQuotationByAlgorithm(quotation);
+        return ApiResponse.onSuccess(quotation.getId());
+    }
+
+    @Operation(summary = "원시 견적서 생성", description = "원시 견적서를 생성합니다.. QuotationRawRequest 사용")
+    @PostMapping("/raw")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402", description = "해당 ID 의 CARGO 가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "QUOTATION401", description = "이미 동일한 견적서가 존재합니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<String> createRawQuotation(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @RequestBody QuotationRawRequest request) {
+        Quotation quotation = quotationService.createRawQuotation(request, userDetail.getId());
         return ApiResponse.onSuccess(quotation.getId());
     }
 
