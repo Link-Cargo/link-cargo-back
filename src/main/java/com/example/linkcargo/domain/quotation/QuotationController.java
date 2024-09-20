@@ -3,6 +3,7 @@ package com.example.linkcargo.domain.quotation;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationConsignorRequest;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationForwarderRequest;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationRawRequest;
+import com.example.linkcargo.domain.quotation.dto.response.EstimatedQuotationResponse;
 import com.example.linkcargo.domain.quotation.dto.response.QuotationInfoResponse;
 import com.example.linkcargo.domain.schedule.dto.request.ScheduleCreateUpdateRequest;
 import com.example.linkcargo.global.resolver.Login;
@@ -149,4 +150,23 @@ public class QuotationController {
         return ApiResponse.onSuccess(quotationInfoResponses);
 
     }
+
+    @Operation(summary = "예상 견적서 조회", description = "화주가 작성한 견적서를 토대로 예상 도착되는 견적서를 조회합니다. EstimatedQuotationResponse 사용")
+    @GetMapping("/estimated")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE403",description = "선박 스케줄이 존재 하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402", description = "해당 ID 의 CARGO 가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "QUOTATION401", description = "이미 동일한 견적서가 존재합니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<EstimatedQuotationResponse> getEstimatedQuotations(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @RequestParam List<String> quotationIds) {
+
+        EstimatedQuotationResponse estimatedQuotationResponse = quotationService.getEstimatedQuotations(quotationIds);
+
+        return ApiResponse.onSuccess(estimatedQuotationResponse);
+
+    }
+
 }
