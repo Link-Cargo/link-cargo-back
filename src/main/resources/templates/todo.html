@@ -1,11 +1,59 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
+<head>
+  <meta charset="UTF-8">
+  <title>Today's Overview</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 100px;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 600px;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #333;
+    }
+    p {
+      font-size: 16px;
+      color: #555;
+    }
+    .content {
+      margin-top: 20px;
+    }
+    .button {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+
 <body>
-<div style="margin:100px;">
-  <h1>Today's Overview on NESS</h1>
-  <br>
-  <p th:text="|${date}의 할일 목록입니다.|">오늘의 할일 목록입니다.</p>
+<div class="container">
+  <!-- Title -->
+  <div class="content">
+    <h2 th:text="${title}">Title</h2>
+    <p th:text="${content}">This is the content.</p>
+  </div>
+
+  <!-- Button to the URL -->
+  <a th:href="${url}" class="button">홈페이지 이동</a>
 </div>
 </body>
+
 </html>

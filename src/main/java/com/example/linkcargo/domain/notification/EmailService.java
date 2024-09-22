@@ -7,13 +7,12 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.annotation.Aspect;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.freemarker.SpringTemplateLoader;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
@@ -27,32 +26,35 @@ public class EmailService {
     private final SpringTemplateEngine templateEngine;
 
     @Async
-    public void sendMailNotice(String email) {
+    public void sendMailNotice(String email, String title, String content, String url) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false,
-                "UTF-8");
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             mimeMessageHelper.setTo(email); // 메일 수신자
-            mimeMessageHelper.setSubject("Today's Overview on LinkCargo"); // 메일 제목
-            mimeMessageHelper.setText(setContext(todayDate()), true); // 메일 본문 내용
+            mimeMessageHelper.setSubject(title); // 메일 제목에 title을 사용
+            mimeMessageHelper.setText(setContext(todayDate(), title, content, url), true); // 메일 본문 내용
             javaMailSender.send(mimeMessage);
 
+            log.info("SUCCEEDED TO SEND EMAIL to {}", email);
         } catch (Exception e) {
-            log.info("이메일 전송 실패");
+            log.error("FAILED TO SEND EMAIL to {}", email, e);
             throw new RuntimeException(e);
         }
     }
 
-    public String todayDate(){
+    public String todayDate() {
         ZonedDateTime todayDate = LocalDateTime.now(ZoneId.of("Asia/Seoul")).atZone(ZoneId.of("Asia/Seoul"));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M월 d일");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M d");
         return todayDate.format(formatter);
     }
 
-    // Thymeleaf 를 통한 HTML 적용
-    public String setContext(String date) {
+    // Thymeleaf를 통한 HTML 적용 (date, title, content, url 변수를 템플릿에 전달)
+    public String setContext(String date, String title, String content, String url) {
         Context context = new Context();
         context.setVariable("date", date);
+        context.setVariable("title", title);
+        context.setVariable("content", content);
+        context.setVariable("url", url);
         return templateEngine.process("todo", context);
     }
 }

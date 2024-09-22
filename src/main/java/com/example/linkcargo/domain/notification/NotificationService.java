@@ -22,17 +22,11 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
 
     /**
-     * 알림 저장 - URL 지정하지 않은 경우
+     * 알림 저장
+     * fcm 알림 전송 후 바로 알림 생성해서 저장함
      */
-    public void save(User user, String title, String content, boolean isRead) {
-        notificationRepository.save(new Notification(user, title, content, isRead));
-    }
-
-    /**
-     * 알림 저장 - URL 지정한 경우
-     */
-    public void save(User user, String title, String content, String url, boolean isRead) {
-        notificationRepository.save(new Notification(user, title, content, url, isRead));
+    public void save(Notification notification){
+        notificationRepository.save(notification);
     }
 
     /**
