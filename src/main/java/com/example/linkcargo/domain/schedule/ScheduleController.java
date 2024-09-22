@@ -41,7 +41,7 @@ public class ScheduleController {
     })
     public ApiResponse<Long> createSchedule(@AuthenticationPrincipal CustomUserDetail userDetail,
         @RequestBody ScheduleCreateUpdateRequest request) {
-        Long resultId = scheduleService.createSchedule(request);
+        Long resultId = scheduleService.createSchedule(request, userDetail.getId());
         return ApiResponse.onSuccess(resultId);
     }
 
@@ -84,7 +84,7 @@ public class ScheduleController {
         @Parameter(description = "선박 스케줄 아이디") @PathVariable Long scheduleId,
         @RequestBody ScheduleCreateUpdateRequest request
     ) {
-        scheduleService.modifySchedule(scheduleId, request);
+        scheduleService.modifySchedule(scheduleId, request, userDetail.getId());
         return ApiResponse.onSuccess(SuccessStatus._OK);
     }
 

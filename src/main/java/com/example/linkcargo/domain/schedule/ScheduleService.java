@@ -6,9 +6,12 @@ import com.example.linkcargo.domain.port.PortRepository;
 import com.example.linkcargo.domain.schedule.dto.request.ScheduleCreateUpdateRequest;
 import com.example.linkcargo.domain.schedule.dto.response.ScheduleInfoResponse;
 import com.example.linkcargo.domain.schedule.dto.response.ScheduleListResponse;
+import com.example.linkcargo.domain.user.User;
+import com.example.linkcargo.domain.user.UserRepository;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.PortHandler;
 import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
+import com.example.linkcargo.global.response.exception.handler.UsersHandler;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +32,10 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final PortRepository portRepository;
     private final ImageService imageService;
+    private final UserRepository userRepository;
 
     @Transactional
-    public Long createSchedule(ScheduleCreateUpdateRequest request) {
+    public Long createSchedule(ScheduleCreateUpdateRequest request, Long userId) {
 
         // 이미 존재하는 스케줄인지 확인
         if (scheduleRepository.existsByCarrierAndETDAndETAAndTransportType(
@@ -42,12 +46,14 @@ public class ScheduleService {
             throw new ScheduleHandler(ErrorStatus.SCHEDULE_ALREADY_EXISTS);
         }
 
+        User forwarder = userRepository.findById(userId).orElseThrow(() -> new UsersHandler(ErrorStatus.USER_NOT_FOUND));
+
         Port exportPort = portRepository.findById(request.exportPortId())
             .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
         Port importPort = portRepository.findById(request.importPortId())
             .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
 
-        Schedule schedule = request.toEntity(exportPort, importPort);
+        Schedule schedule = request.toEntity(exportPort, importPort, forwarder);
 
         // 생성 중 예외 발생 시 처리
         try {
@@ -70,16 +76,19 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void modifySchedule(Long scheduleId, ScheduleCreateUpdateRequest request) {
+    public void modifySchedule(Long scheduleId, ScheduleCreateUpdateRequest request, Long userId) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
             .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
+
+        User forwarder = userRepository.findById(userId).orElseThrow(() -> new UsersHandler(ErrorStatus.USER_NOT_FOUND));
+
 
         Port exportPort = portRepository.findById(request.exportPortId())
             .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
         Port importPort = portRepository.findById(request.importPortId())
             .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
 
-        Schedule updatedSchedule = request.updateEntity(schedule,exportPort,importPort);
+        Schedule updatedSchedule = request.updateEntity(schedule,exportPort,importPort,forwarder);
 
         try {
             scheduleRepository.save(updatedSchedule);

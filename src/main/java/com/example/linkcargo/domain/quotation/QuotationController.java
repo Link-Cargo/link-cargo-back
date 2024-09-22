@@ -2,6 +2,8 @@ package com.example.linkcargo.domain.quotation;
 
 import com.example.linkcargo.domain.quotation.dto.request.QuotationConsignorRequest;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationForwarderRequest;
+import com.example.linkcargo.domain.quotation.dto.request.QuotationRawRequest;
+import com.example.linkcargo.domain.quotation.dto.response.EstimatedQuotationResponse;
 import com.example.linkcargo.domain.quotation.dto.response.QuotationInfoResponse;
 import com.example.linkcargo.domain.schedule.dto.request.ScheduleCreateUpdateRequest;
 import com.example.linkcargo.global.resolver.Login;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +38,22 @@ public class QuotationController {
     private final QuotationService quotationService;
     private final QuotationCalculationService quotationCalculationService;
 
+    @Operation(summary = "원시 견적서의 예상 가격 조회", description = "화주가 화물만 입력했을 때 예상 비용을 계산하고 반환합니다.")
+    @GetMapping("/calculate")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402",description = "해당 ID의 화물이 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<BigDecimal> calculateRawQuotation(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @Parameter(description = "화주가 작성한 원시 견적서 아이디") @RequestParam String rawQuotationId)
+ {
+
+        BigDecimal estimatedCost = quotationCalculationService.calculateRawQuotation(rawQuotationId);
+        return ApiResponse.onSuccess(estimatedCost);
+
+    }
+
     @Operation(summary = "화주 견적서 요청 ", description = "화주 측에서 견적서 초안을 작성합니다. QuotationConsignorRequest 사용")
     @PostMapping("")
     @ApiResponses({
@@ -48,6 +67,20 @@ public class QuotationController {
         @RequestBody QuotationConsignorRequest request) {
         Quotation quotation = quotationService.createQuotationByConsignor(request, userDetail.getId());
         quotationCalculationService.updateQuotationByAlgorithm(quotation);
+        return ApiResponse.onSuccess(quotation.getId());
+    }
+
+    @Operation(summary = "원시 견적서 생성", description = "원시 견적서를 생성합니다.. QuotationRawRequest 사용")
+    @PostMapping("/raw")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402", description = "해당 ID 의 CARGO 가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "QUOTATION401", description = "이미 동일한 견적서가 존재합니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<String> createRawQuotation(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @RequestBody QuotationRawRequest request) {
+        Quotation quotation = quotationService.createRawQuotation(request, userDetail.getId());
         return ApiResponse.onSuccess(quotation.getId());
     }
 
@@ -117,4 +150,23 @@ public class QuotationController {
         return ApiResponse.onSuccess(quotationInfoResponses);
 
     }
+
+    @Operation(summary = "예상 견적서 조회", description = "화주가 작성한 견적서를 토대로 예상 도착되는 견적서를 조회합니다. EstimatedQuotationResponse 사용")
+    @GetMapping("/estimated")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SCHEDULE403",description = "선박 스케줄이 존재 하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402", description = "해당 ID 의 CARGO 가 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "QUOTATION401", description = "이미 동일한 견적서가 존재합니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<EstimatedQuotationResponse> getEstimatedQuotations(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @RequestParam List<String> quotationIds) {
+
+        EstimatedQuotationResponse estimatedQuotationResponse = quotationService.getEstimatedQuotations(quotationIds);
+
+        return ApiResponse.onSuccess(estimatedQuotationResponse);
+
+    }
+
 }
