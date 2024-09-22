@@ -55,6 +55,6 @@ public class EmailService {
         context.setVariable("title", title);
         context.setVariable("content", content);
         context.setVariable("url", url);
-        return templateEngine.process("todo", context);
+        return templateEngine.process("email", context);
     }
 }

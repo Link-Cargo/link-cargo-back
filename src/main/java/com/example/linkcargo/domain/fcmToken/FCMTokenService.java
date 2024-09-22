@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.fcmToken;
 
+import com.example.linkcargo.domain.notification.EmailService;
 import com.example.linkcargo.domain.notification.Notification;
 import com.example.linkcargo.domain.notification.NotificationService;
 import com.example.linkcargo.domain.notification.NotificationType;
@@ -13,41 +14,47 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.SendResponse;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@EnableAsync
 public class FCMTokenService {
 
     private final FCMTokenRepository fcmTokenRepository;
     private final UserService userService;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     @Transactional
     public void save(Long userId, String token) {
         User user = userService.getUser(userId);
         fcmTokenRepository.findByUser(user)
-            .ifPresentOrElse(
-                existingToken -> existingToken.update(token),
-                () -> fcmTokenRepository.save(new FCMToken(user, token))
-            );
+                .ifPresentOrElse(
+                        existingToken -> existingToken.update(token),
+                        () -> fcmTokenRepository.save(new FCMToken(user, token))
+                );
     }
 
     public void sendNormalNotificationToConsignor(
-        Long userId,
-        String title,
-        String content,
-        String url
+            Long userId,
+            String title,
+            String content,
+            String url
     ) {
         Map<String, String> data = new HashMap<>();
         data.put("date", LocalDateTime.now().toString());
@@ -57,12 +64,22 @@ public class FCMTokenService {
         data.put("url", url);
 
         sendNotificationToConsignor(userId, data);
+        sendEmailToConsignor(userId, data);
+    }
+
+    @Async
+    public void sendEmailToConsignor(Long userId, Map<String, String> data) {
+        try {
+            emailService.sendMailNotice(userService.getEmailByUserId(userId), data.get("title"), data.get("content"), data.get("url"));
+        } catch (Exception e) {
+            log.error("이메일 발송 실패", e);
+        }
     }
 
     public void sendNormalNotificationToAllConsignor(
-        String title,
-        String content,
-        String url
+            String title,
+            String content,
+            String url
     ) {
         Map<String, String> data = new HashMap<>();
         data.put("date", LocalDateTime.now().toString());
@@ -72,13 +89,22 @@ public class FCMTokenService {
         data.put("url", url);
 
         sendNotificationToAllConsignor(data);
+        sendEmailToAllConsignor(data);
+    }
+
+    @Async
+    public void sendEmailToAllConsignor(Map<String, String> data) {
+        List<String> emails = userService.getAllEmailByUserRole(Role.CONSIGNOR);
+        for (String email : emails) {
+            emailService.sendMailNotice(email, data.get("title"), data.get("content"), data.get("url"));
+        }
     }
 
     public void sendADNotificationToAllConsignor(
-        String title,
-        String content,
-        String buttonTitle,
-        String buttonUrl
+            String title,
+            String content,
+            String buttonTitle,
+            String buttonUrl
     ) {
         Map<String, String> data = new HashMap<>();
         data.put("date", LocalDateTime.now().toString());
@@ -89,13 +115,14 @@ public class FCMTokenService {
         data.put("buttonUrl", buttonUrl);
 
         sendNotificationToAllConsignor(data);
+        sendEmailToAllConsignor(data);
     }
 
     private void sendNotificationToConsignor(Long userId, Map<String, String> data) {
         Message fcmMessage = Message.builder()
-            .setToken(getTokenByUserId(userId))
-            .putAllData(data)
-            .build();
+                .setToken(getTokenByUserId(userId))
+                .putAllData(data)
+                .build();
         log.info("fcmMessage: {}", fcmMessage);
 
         try {
@@ -104,11 +131,11 @@ public class FCMTokenService {
 
             NotificationType notificationType = NotificationType.valueOf(data.get("type"));
             Notification notification = new Notification(
-                userService.getUser(userId),
-                notificationType,
-                data.get("title"),
-                data.get("content"),
-                data.get("url")
+                    userService.getUser(userId),
+                    notificationType,
+                    data.get("title"),
+                    data.get("content"),
+                    data.get("url")
             );
             notificationService.save(notification);
         } catch (Exception e) {
@@ -124,9 +151,9 @@ public class FCMTokenService {
         }
 
         MulticastMessage fcmMessage = MulticastMessage.builder()
-            .addAllTokens(tokens)
-            .putAllData(data)
-            .build();
+                .addAllTokens(tokens)
+                .putAllData(data)
+                .build();
         log.info("fcmMessage: {}", fcmMessage);
 
         try {
@@ -165,34 +192,34 @@ public class FCMTokenService {
             String buttonTitle = data.getOrDefault("buttonTitle", "확인");
             String buttonUrl = data.getOrDefault("buttonUrl", "");
             return new Notification(
-                consignor,
-                NotificationType.AD,
-                title,
-                content,
-                buttonTitle,
-                buttonUrl
+                    consignor,
+                    NotificationType.AD,
+                    title,
+                    content,
+                    buttonTitle,
+                    buttonUrl
             );
         } else {
             return new Notification(
-                consignor,
-                NotificationType.MESSAGE,
-                title,
-                content,
-                url
+                    consignor,
+                    NotificationType.MESSAGE,
+                    title,
+                    content,
+                    url
             );
         }
     }
 
     public String getTokenByUserId(Long userId) {
         return fcmTokenRepository.findByUserId(userId)
-            .orElseThrow(() -> new FCMTokenHandler(ErrorStatus.FCM_TOKEN_NOT_FOUND))
-            .getToken();
+                .orElseThrow(() -> new FCMTokenHandler(ErrorStatus.FCM_TOKEN_NOT_FOUND))
+                .getToken();
     }
 
     public List<String> getTokensOfAllConsignor() {
         return fcmTokenRepository.findAllByUserRole(Role.CONSIGNOR).stream()
-            .map(FCMToken::getToken)
-            .toList();
+                .map(FCMToken::getToken)
+                .toList();
     }
 
     private List<User> getAllConsignors() {

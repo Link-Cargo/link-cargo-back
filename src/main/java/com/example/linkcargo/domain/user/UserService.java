@@ -46,4 +46,14 @@ public class UserService {
         List<User> users = userRepository.findAllByRole(role);
         return users;
     }
+
+    public String getEmailByUserId(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsersHandler(ErrorStatus.USER_NOT_FOUND));
+        return user.getEmail();
+    }
+
+    public List<String> getAllEmailByUserRole(Role role) {
+        List<String> emails = userRepository.findAllByRole(role).stream().map(user -> user.getEmail()).toList();
+        return emails;
+    }
 }
