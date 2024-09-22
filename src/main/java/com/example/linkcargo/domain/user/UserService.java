@@ -4,6 +4,7 @@ import com.example.linkcargo.domain.user.dto.request.UserPasswordUpdateRequest;
 import com.example.linkcargo.domain.user.dto.response.UserResponse;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.UsersHandler;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,5 +40,10 @@ public class UserService {
         // 일치하면 새 비밀번호로 변경
         String encodedNewPassword = passwordEncoder.encode(userPasswordUpdateRequest.newPassword());
         user.updatePassword(encodedNewPassword);
+    }
+
+    public List<User> findAllUsersByRole(Role role) {
+        List<User> users = userRepository.findAllByRole(role);
+        return users;
     }
 }
