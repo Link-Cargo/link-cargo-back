@@ -318,15 +318,6 @@ public class QuotationCalculationService {
             BigDecimal.valueOf(applied_exchange_rate));
     }
 
-    public BigDecimal calculateRawQuotation(String rawQuotationId) {
-        Quotation rawQuotation = quotationRepository.findQuotationById(rawQuotationId)
-            .orElseThrow(()->new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
-        // todo
-        // 임시 운임 비용 -> 운임 비용 예측 AI API를 사용해 반환 예정
-        Integer freightCost = 10;
-
-        return calculateTotalCost(rawQuotation,freightCost);
-    }
 
     @Transactional
     public void updateQuotationByAlgorithm(Quotation quotation) {
