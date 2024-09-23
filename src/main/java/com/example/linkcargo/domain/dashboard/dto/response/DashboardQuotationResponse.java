@@ -9,6 +9,7 @@ import lombok.Builder;
 public record DashboardQuotationResponse(
     String firmName,
     BigDecimal totalCost,
+    Integer forwarderId,
     String forwarderName,
     String forwarderEmail,
     String forwarderTel,
@@ -22,6 +23,7 @@ public record DashboardQuotationResponse(
         String fullName = user.getFirstName() + " " + user.getLastName();
         return DashboardQuotationResponse.builder()
             .firmName(user.getCompanyName())
+            .forwarderId(Math.toIntExact(user.getId()))
             .totalCost(totalCost)
             .forwarderName(fullName)
             .forwarderEmail(user.getEmail())
