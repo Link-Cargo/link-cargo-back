@@ -1,5 +1,6 @@
 package com.example.linkcargo.domain.schedule;
 
+import com.example.linkcargo.domain.dashboard.dto.response.DashboardRecommendationResponse.ScheduleInfo;
 import com.example.linkcargo.domain.image.ImageService;
 import com.example.linkcargo.domain.port.Port;
 import com.example.linkcargo.domain.port.PortRepository;
@@ -14,6 +15,7 @@ import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
 import com.example.linkcargo.global.response.exception.handler.UsersHandler;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -128,5 +130,14 @@ public class ScheduleService {
         List<String> imageUrls = imageService.selectRandomImages("vessel",schedulesPage.getSize());
 
         return ScheduleListResponse.fromEntity(schedulesPage, imageUrls);
+    }
+
+    public List<ScheduleInfoResponse> findSchedulesByForwarderId(Long forwarderId) {
+        User forwarder = userRepository.findById(forwarderId).orElseThrow(() -> new UsersHandler(ErrorStatus.USER_NOT_FOUND));
+        List<Schedule> schedules = scheduleRepository.findSchedulesByForwarder(forwarder);
+
+        return schedules.stream()
+            .map(schedule -> ScheduleInfoResponse.fromEntity(schedule, ""))
+            .collect(Collectors.toList());
     }
 }
