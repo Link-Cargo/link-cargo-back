@@ -197,7 +197,7 @@ public class UserS3Service {
 
         } while (result.isTruncated()); // 객체가 더 있는 경우
 
-        return new FilesResponse(fileDTOS);
+        return new FilesResponse(fileDTOS.size(), fileDTOS);
     }
 
     private String getFileExtension(String fileName) {
