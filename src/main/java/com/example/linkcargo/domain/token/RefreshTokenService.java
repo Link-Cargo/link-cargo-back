@@ -66,7 +66,7 @@ public class RefreshTokenService {
                 tokenResponse.refreshToken());
             // 기존 리프레시 토큰 제거 
             refreshTokenRepository.deleteByUserId(customUserDetail.getId());
-            // 리프레시 토큰 저장
+            // 새 리프레시 토큰 저장
             refreshTokenRepository.save(refreshToken);
             return tokenResponse;
         } catch (AuthenticationException e) {
@@ -103,7 +103,9 @@ public class RefreshTokenService {
 
         String accessToken = jwtProvider.generateAccessToken(userId, email);
         deleteByUserId(userId); // 기존 리프레시 토큰 삭제
+        // 새 리프레시 토큰 생성 및 저장
         String newRefreshToken = jwtProvider.generateRefreshToken(userId, email);
+        refreshTokenRepository.save(new RefreshToken(userId, newRefreshToken));
         return new TokenResponse(accessToken, newRefreshToken);
     }
 
