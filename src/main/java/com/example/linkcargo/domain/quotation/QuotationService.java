@@ -1,9 +1,18 @@
 package com.example.linkcargo.domain.quotation;
 
 import com.example.linkcargo.domain.cargo.CargoRepository;
+import com.example.linkcargo.domain.forwarding.Forwarding;
+import com.example.linkcargo.domain.forwarding.ForwardingRepository;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationConsignorRequest;
 import com.example.linkcargo.domain.quotation.dto.request.QuotationForwarderRequest;
+import com.example.linkcargo.domain.quotation.dto.request.QuotationRawRequest;
+import com.example.linkcargo.domain.quotation.dto.response.EstimatedQuotationResponse;
+import com.example.linkcargo.domain.quotation.dto.response.EstimatedQuotationResponse.EstimatedQuotation;
+import com.example.linkcargo.domain.quotation.dto.response.QuotationInfoResponse;
+import com.example.linkcargo.domain.schedule.Schedule;
 import com.example.linkcargo.domain.schedule.ScheduleRepository;
+import com.example.linkcargo.domain.user.User;
+import com.example.linkcargo.domain.user.UserRepository;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.GeneralException;
 import com.example.linkcargo.global.response.exception.handler.CargoHandler;
@@ -26,17 +35,33 @@ public class QuotationService {
     private final QuotationRepository quotationRepository;
     private final CargoRepository cargoRepository;
     private final ScheduleRepository scheduleRepository;
+    private final ForwardingRepository forwardingRepository;
 
+    public Quotation createRawQuotation(QuotationRawRequest request, Long userId) {
+        List<String> cargoIds = request.cargoIds();
 
+        // 모든 cargoId의 존재 여부 확인
+        for (String cargoId : cargoIds) {
+            cargoRepository.findById(cargoId)
+                .orElseThrow(() -> new CargoHandler(ErrorStatus.CARGO_NOT_FOUND));
+        }
 
+        Quotation quotation = request.toEntity(String.valueOf(userId));
+        quotation.prePersist();
+        return quotationRepository.save(quotation);
+    }
 
     @Transactional
     public Quotation createQuotationByConsignor(QuotationConsignorRequest request, Long userId) {
-        List<String> cargoIds = request.cargoIds();
+        Quotation rawQuotation = quotationRepository.findQuotationById(request.rawQuotationId())
+            .orElseThrow(() -> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
+        List<String> cargoIds = rawQuotation.getCost().getCargoIds();
 
-        boolean isDuplicate = quotationRepository.existsByConsignorIdAndFreight_ScheduleId(
+        boolean isDuplicate = quotationRepository.existsByConsignorIdAndFreight_ScheduleIdAndQuotationStatus(
             String.valueOf(userId),
-            String.valueOf(request.scheduleId()));
+            String.valueOf(request.scheduleId()),
+            QuotationStatus.BASIC_INFO
+        );
 
 
         if (isDuplicate) {
@@ -55,7 +80,7 @@ public class QuotationService {
             .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
 
         // Quotation 생성 (여러 cargoIds 포함)
-        Quotation quotation = request.toEntity(String.valueOf(userId));
+        Quotation quotation = request.toEntity(String.valueOf(userId), cargoIds);
         quotation.prePersist();
         quotation.setQuotationStatus(QuotationStatus.BASIC_INFO);
         return quotationRepository.save(quotation);
@@ -68,13 +93,16 @@ public class QuotationService {
 
         return requests.stream()
             .map(request -> {
-                List<String> cargoIds = request.cargoIds();
+                Quotation rawQuotation = quotationRepository.findQuotationById(request.rawQuotationId())
+                    .orElseThrow(() -> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
+                List<String> cargoIds = rawQuotation.getCost().getCargoIds();
 
                 // 모든 cargoId에 대해 중복 검사
                 cargoIds.forEach(cargoId -> {
-                    boolean isDuplicate = quotationRepository.existsByConsignorIdAndFreight_ScheduleId(
+                    boolean isDuplicate = quotationRepository.existsByConsignorIdAndFreight_ScheduleIdAndQuotationStatus(
                         String.valueOf(userId),
-                        String.valueOf(request.scheduleId())
+                        String.valueOf(request.scheduleId()),
+                        QuotationStatus.BASIC_INFO
                     );
 
                     if (isDuplicate) {
@@ -93,7 +121,7 @@ public class QuotationService {
                     .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
 
                 // 하나의 Quotation 생성 (여러 cargoIds 포함)
-                Quotation quotation = request.toEntity(String.valueOf(userId));
+                Quotation quotation = request.toEntity(String.valueOf(userId), cargoIds);
                 quotation.prePersist();
                 quotation.setQuotationStatus(QuotationStatus.BASIC_INFO);
                 return quotationRepository.save(quotation);
@@ -107,16 +135,59 @@ public class QuotationService {
             .orElseThrow(() -> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
 
         try {
-            Quotation updatedQuotation = request.updateQuotation(quotation, String.valueOf(userId));
-            updatedQuotation.setQuotationStatus(QuotationStatus.DETAIL_INFO);
-            quotationRepository.save(updatedQuotation);
+            Quotation newQuotation = request.updateQuotation(quotation, String.valueOf(userId));
+            newQuotation.setQuotationStatus(QuotationStatus.DETAIL_INFO);
+            newQuotation.setId(null);
+            Quotation savedQuotation = quotationRepository.save(newQuotation);
+            return savedQuotation.getId();
         } catch (Exception e) {
             throw new QuotationHandler(ErrorStatus.QUOTATION_UPDATED_FAIL);
         }
 
-        return quotation.getId();
-
     }
 
 
+    public List<QuotationInfoResponse> findQuotationsByQuotationId(String quotationId) {
+        List<Quotation> quotations = quotationRepository.findQuotationsByIdOrOriginalQuotationId(quotationId, quotationId);
+
+        return quotations.stream()
+            .map(quotation -> QuotationInfoResponse.fromEntity(quotation, scheduleRepository.findById(
+                Long.valueOf(quotation.getFreight().getScheduleId()))
+                .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND))))
+            .toList();
+    }
+
+    public List<QuotationInfoResponse> findQuotationsByConsignorId(Long id) {
+        List<Quotation> quotations = quotationRepository.findQuotationsByConsignorId(
+            String.valueOf(id));
+
+        return quotations.stream()
+            .map(quotation -> QuotationInfoResponse.fromEntity(quotation, scheduleRepository.findById(
+                    Long.valueOf(quotation.getFreight().getScheduleId()))
+                .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND))))
+            .toList();
+    }
+
+    public EstimatedQuotationResponse getEstimatedQuotations(List<String> quotationIds) {
+        List<Quotation> quotations = quotationIds.stream()
+            .map(id -> quotationRepository.findQuotationById(id).orElseThrow(()-> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND)))
+            .toList();
+
+        List<EstimatedQuotation> estimatedQuotations = quotations.stream()
+            .map(quotation -> {
+                Schedule schedule = scheduleRepository.findById(
+                        Long.valueOf(quotation.getFreight().getScheduleId()))
+                    .orElseThrow(()->new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
+
+                User forwarder = schedule.getForwarder();
+                Forwarding forwarding = forwarder.getForwarding();
+
+                return EstimatedQuotation.fromEntity(schedule, forwarding.getFirmName());
+
+            })
+            .collect(Collectors.toList());
+
+        // EstimatedQuotationResponse 반환
+        return EstimatedQuotationResponse.fromEntity(estimatedQuotations, estimatedQuotations.size());
+    }
 }

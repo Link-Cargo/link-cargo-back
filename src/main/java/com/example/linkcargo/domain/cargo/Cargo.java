@@ -43,6 +43,7 @@ public class Cargo extends MongoBaseEntity {
 
         private String productName;
         private String hsCode;
+        private String additionalNotes;
         private Integer totalQuantity;
         private Integer quantityPerBox;
         private BoxSize boxSize;
@@ -66,6 +67,7 @@ public class Cargo extends MongoBaseEntity {
         CargoDTO.CargoInfoDto cargoInfoDto = new CargoDTO.CargoInfoDto(
             this.cargoInfo.getProductName(),
             this.cargoInfo.getHsCode(),
+            this.cargoInfo.getAdditionalNotes(),
             this.cargoInfo.getTotalQuantity(),
             this.cargoInfo.getQuantityPerBox(),
             new CargoDTO.BoxSizeDto(
@@ -91,6 +93,7 @@ public class Cargo extends MongoBaseEntity {
         this.cargoInfo = CargoInfo.builder()
             .productName(cargoRequest.getProductName())
             .hsCode(cargoRequest.getHsCode())
+            .additionalNotes(cargoRequest.getAdditionalNotes())
             .totalQuantity(cargoRequest.getTotalQuantity())
             .quantityPerBox(cargoRequest.getQuantityPerBox())
             .boxSize(cargoRequest.getBoxSize().toEntity())
