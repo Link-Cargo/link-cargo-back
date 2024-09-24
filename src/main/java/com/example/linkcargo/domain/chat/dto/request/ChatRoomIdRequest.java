@@ -1,6 +1,6 @@
 package com.example.linkcargo.domain.chat.dto.request;
 
-public record ChatRoomRequest(
+public record ChatRoomIdRequest(
     Long targetUserId
 ) {
 
