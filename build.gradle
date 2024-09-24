@@ -58,7 +58,7 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
 	// Firebase Cloud Messaging (FCM)
-	implementation 'com.google.firebase:firebase-admin:9.2.0'
+	implementation 'com.google.firebase:firebase-admin:8.1.0'
 
 	// Mail
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
