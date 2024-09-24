@@ -317,6 +317,8 @@ public class QuotationCalculationService {
         return domesticExpenseTotalCost.add(overseaExpenseTotalCost).multiply(
             BigDecimal.valueOf(applied_exchange_rate));
     }
+
+
     @Transactional
     public void updateQuotationByAlgorithm(Quotation quotation) {
         List<String> cargoIds = quotation.getCost().getCargoIds();
@@ -335,6 +337,7 @@ public class QuotationCalculationService {
             .quotationStatus(QuotationStatus.PREDICTION_SHEET)
             .consignorId(quotation.getConsignorId())
             .originalQuotationId(quotation.getId())
+            .rawQuotationId(quotation.getRawQuotationId())
             .freight(Quotation.Freight.builder()
                 .scheduleId(String.valueOf(schedule.getId()))
                 .build())
