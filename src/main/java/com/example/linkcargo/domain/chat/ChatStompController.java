@@ -1,9 +1,7 @@
 package com.example.linkcargo.domain.chat;
 
 import com.example.linkcargo.domain.chat.Entity.Chat;
-import com.example.linkcargo.domain.chat.Entity.ChatRoom;
 import com.example.linkcargo.domain.chat.dto.request.ChatRequest.MessageType;
-import com.example.linkcargo.domain.chat.dto.response.ChatEnterResponse;
 import com.example.linkcargo.domain.chat.dto.request.ChatRequest;
 import com.example.linkcargo.domain.chat.dto.response.ChatContentResponse;
 import com.example.linkcargo.domain.user.UserService;
@@ -39,14 +37,6 @@ public class ChatStompController {
         Long userId = (Long) accessor.getSessionAttributes().get("userId");
         String sessionId = accessor.getSessionId();
 
-        // 채팅방 "입장" 메시지를 보낸 경우 (프론트엔드가 먼저 "/user/queue/reply" 를 구독한 상태)
-        if (chatRequest.messageType().equals(ChatRequest.MessageType.ENTER)) {
-            log.info("ENTER message, chatRequest: {}", chatRequest);
-            ChatEnterResponse chatEnterResponse = handleEnterMessage(chatRequest, userId);
-            messagingTemplate.convertAndSendToUser(sessionId, "/queue/reply", chatEnterResponse, createHeaders(sessionId));
-            log.info("Message sent to /user/queue/reply for session: {}", sessionId);
-        }
-
         // 채팅 "일반" 전송 메시지를 보낸 경우 (프론트엔드가 먼저 "/sub/chatroom/{id}" 를 구독한 상태)
         if (chatRequest.messageType().equals(ChatRequest.MessageType.CHAT)) {
             log.info("CHAT message, chatRequest: {}", chatRequest);
@@ -63,17 +53,6 @@ public class ChatStompController {
                 chatContentResponse);
         }
 
-
-    }
-
-    /**
-     * ENTER 타입 메시지 전송 시
-     */
-    private ChatEnterResponse handleEnterMessage(ChatRequest chatRequest, Long userId) {
-        Long targetUserId = chatRequest.targetUserId();
-        ChatRoom chatRoom = chatService.createOrGetChatRoom(userId, targetUserId);
-
-        return new ChatEnterResponse(MessageType.ENTER, chatRoom.getId());
     }
 
     /**
