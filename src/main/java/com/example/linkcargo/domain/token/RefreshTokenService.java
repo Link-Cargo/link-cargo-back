@@ -64,6 +64,9 @@ public class RefreshTokenService {
             TokenResponse tokenResponse = createTokens(customUserDetail);
             RefreshToken refreshToken = new RefreshToken(customUserDetail.getId(),
                 tokenResponse.refreshToken());
+            // 기존 리프레시 토큰 제거 
+            refreshTokenRepository.deleteByUserId(customUserDetail.getId());
+            // 리프레시 토큰 저장
             refreshTokenRepository.save(refreshToken);
             return tokenResponse;
         } catch (AuthenticationException e) {
