@@ -1,7 +1,7 @@
 package com.example.linkcargo.domain.chat;
 
 import com.example.linkcargo.domain.chat.Entity.ChatRoom;
-import com.example.linkcargo.domain.chat.dto.request.ChatRoomRequest;
+import com.example.linkcargo.domain.chat.dto.request.ChatRoomIdRequest;
 import com.example.linkcargo.domain.chat.dto.response.ChatRoomIdResponse;
 import com.example.linkcargo.domain.chat.dto.response.ChatContentResponse;
 import com.example.linkcargo.domain.chat.dto.response.ChatContentsResponse;
@@ -42,10 +42,10 @@ public class ChatRestController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공")
     })
     public ApiResponse<ChatRoomIdResponse> getChatRoomId(
-        @Valid @RequestBody ChatRoomRequest chatRoomRequest,
+        @Valid @RequestBody ChatRoomIdRequest chatRoomIdRequest,
         @AuthenticationPrincipal CustomUserDetail userDetail
     ) {
-        ChatRoom chatRoom = chatService.createOrGetChatRoom(userDetail.getId(), chatRoomRequest.targetUserId());
+        ChatRoom chatRoom = chatService.createOrGetChatRoom(userDetail.getId(), chatRoomIdRequest.targetUserId());
         return ApiResponse.onSuccess(new ChatRoomIdResponse(chatRoom.getId()));
     }
 
