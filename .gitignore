@@ -38,3 +38,5 @@ out/
 
 application.yml
 application.properties
+
+firebase-service-account.json
