@@ -38,6 +38,7 @@ public class ChatRestController {
     private final UserS3Service userS3Service;
 
     @Operation(summary = "특정 상대와의 채팅방 조회/생성", description = "기존 채팅방이 있으면 해당 채팅방 ID를, 없으면 생성 후 ID 반환합니다.")
+    @PostMapping("/rooms")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공")
     })
