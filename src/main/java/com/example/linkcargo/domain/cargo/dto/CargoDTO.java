@@ -21,6 +21,7 @@ public record CargoDTO(
     public record CargoInfoDto(
         String productName,
         String hsCode,
+        String additionalNotes,
         Integer totalQuantity,
         Integer quantityPerBox,
         BoxSizeDto boxSize,

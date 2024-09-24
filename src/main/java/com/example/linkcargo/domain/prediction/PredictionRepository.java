@@ -15,4 +15,5 @@ public interface PredictionRepository extends JpaRepository<Prediction, Long> {
         @Param("endYear") int endYear,
         @Param("endMonth") int endMonth);
 
+    Prediction findByMonthAndYear(int currentMonth, int currentYear);
 }

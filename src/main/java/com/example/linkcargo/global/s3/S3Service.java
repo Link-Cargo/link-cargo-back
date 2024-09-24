@@ -21,10 +21,10 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 @RequiredArgsConstructor
 public class S3Service {
-    @Value("${cloud.aws.s3.bucket}")
+    @Value("${cloud.aws.s3.global-bucket.name}")
     private String bucket;
 
-    @Value("${cloud.aws.s3.objectUrl}")
+    @Value("${cloud.aws.s3.global-bucket.objectUrl}")
     private String fileUrl;
 
     private final AmazonS3 amazonS3Client;

@@ -39,10 +39,10 @@ public class UserS3Service {
     private final AmazonS3 amazonS3;
     private final UserRepository userRepository;
 
-    @Value("${cloud.aws.s3.profile-bucket}")
+    @Value("${cloud.aws.s3.profile-bucket.name}")
     private String profileBucketName;
 
-    @Value("${cloud.aws.s3.chatroom-bucket}")
+    @Value("${cloud.aws.s3.chatroom-bucket.name}")
     private String chatroomBucketName;
 
     private String region = "ap-northeast-2";

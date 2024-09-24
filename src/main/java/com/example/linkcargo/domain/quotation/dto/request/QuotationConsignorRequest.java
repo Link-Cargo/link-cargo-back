@@ -9,19 +9,19 @@ public record QuotationConsignorRequest(
         @NotNull(message = "Schedule ID is mandatory")
         Long scheduleId,
 
-        @NotNull(message = "Cargo ID is mandatory")
-        List<String> cargoIds
+        @NotNull(message = "RawQuotation ID is mandatory")
+        String rawQuotationId
 
 ) {
 
-    public Quotation toEntity(String userId) {
+    public Quotation toEntity(String userId, List<String> cargoIds) {
         Quotation.Freight freight = Quotation.Freight.builder()
                 .scheduleId(String.valueOf(this.scheduleId))
                 .remark(null)
                 .build();
 
         Quotation.Cost cost = Quotation.Cost.builder()
-                .cargoIds(this.cargoIds)
+                .cargoIds(cargoIds)
                 .chargeExport(null)
                 .freightCost(null)
                 .totalCost(null)
@@ -31,6 +31,8 @@ public record QuotationConsignorRequest(
                 .consignorId(userId)
                 .forwarderId(null)
                 .particulars(null)
+                .originalQuotationId(null)
+                .rawQuotationId(this.rawQuotationId)
                 .quotationStatus(QuotationStatus.BASIC_INFO)
                 .freight(freight)
                 .cost(cost)

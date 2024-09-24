@@ -1,16 +1,22 @@
 package com.example.linkcargo.domain.cargo;
 
+import com.example.linkcargo.domain.cargo.CargoCostCalculator.CargoInfo;
 import com.example.linkcargo.domain.cargo.dto.CargoDTO;
 import com.example.linkcargo.domain.cargo.dto.request.CargoRequest;
 import com.example.linkcargo.domain.cargo.dto.request.CargosRequest;
+import com.example.linkcargo.domain.cargo.dto.response.CargoIdsResponse;
 import com.example.linkcargo.domain.cargo.dto.response.CargoPageResponse;
 import com.example.linkcargo.domain.cargo.dto.response.CargoResponse;
 import com.example.linkcargo.domain.port.Port;
 import com.example.linkcargo.domain.port.PortRepository;
+import com.example.linkcargo.domain.quotation.Quotation;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.CargoHandler;
+import com.example.linkcargo.global.response.exception.handler.QuotationHandler;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,7 +36,8 @@ public class CargoService {
      * 화물 여러 개 추가
      */
     @Transactional
-    public void createCargos(Long userId, CargosRequest cargosRequest) {
+    public CargoIdsResponse createCargos(Long userId, CargosRequest cargosRequest) {
+        List<String> savedCargoIds = new ArrayList<>();
         for (CargoRequest cargoRequest : cargosRequest.cargos()) {
             Cargo cargo = cargoRequest.toEntity(
                 userId,
@@ -41,8 +48,10 @@ public class CargoService {
             );
             cargo.prePersist();
 
-            cargoRepository.save(cargo);
+            Cargo savedCargo = cargoRepository.save(cargo);
+            savedCargoIds.add(savedCargo.getId());
         }
+        return new CargoIdsResponse(savedCargoIds);
     }
 
     /**
@@ -105,6 +114,18 @@ public class CargoService {
             throw new CargoHandler(ErrorStatus.CARGO_USER_NOT_MATCH);
         }
         cargoRepository.delete(cargo);
+    }
+
+    public BigDecimal calculateCostByCargos(CargosRequest request) {
+        List<CargoInfo> cargoInfos = request.cargos().stream()
+            .map(CargoCostCalculator::convertToCargoInfo)
+            .toList();
+
+        // todo
+        // 임시 운임 비용 -> 운임 비용 예측 AI API를 사용해 반환 예정
+        Integer freightCost = 10;
+
+        return CargoCostCalculator.calculateTotalCost(cargoInfos, request.incoterms(), freightCost);
     }
 
 

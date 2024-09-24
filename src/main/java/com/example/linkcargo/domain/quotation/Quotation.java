@@ -37,6 +37,10 @@ public class Quotation extends MongoBaseEntity {
 
     private String particulars;
 
+    private String originalQuotationId;
+
+    private String rawQuotationId;
+
     @Getter
     @Setter
     @NoArgsConstructor

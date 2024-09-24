@@ -4,6 +4,7 @@ package com.example.linkcargo.domain.image;
 import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.domain.user.UserRepository;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
+import com.example.linkcargo.global.response.exception.handler.GeneralHandler;
 import com.example.linkcargo.global.response.exception.handler.UsersHandler;
 import com.example.linkcargo.global.s3.S3Service;
 import com.example.linkcargo.global.s3.dto.S3Result;
@@ -46,7 +47,9 @@ public class ImageService {
 
     public List<String> selectRandomImages(String keyword, int count) {
         List<String> allUrls = imageRepository.findUrlsByNameContaining(keyword);
-
+        if (allUrls.isEmpty()){
+             throw new GeneralHandler(ErrorStatus.IMAGE_NOT_FOUND);
+        }
         List<String> result = new ArrayList<>(count);
         String lastUsedUrl = null;
 
