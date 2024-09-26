@@ -32,12 +32,12 @@ public class Notification extends JpaBaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private NotificationType type;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(nullable = false)
+    private NotificationType type;
 
     @Column(nullable = false)
     private String title;
@@ -45,47 +45,22 @@ public class Notification extends JpaBaseEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    /*
-    광고일때 ->  버튼을 클릭했을 때 이동할 주소
-    메시지일때 -> 알림(전체)을 클릭했을 때 이동할 주소
-     */
     @Column
-    private String url;
-
-    @Column // 광고일때만 사용
     private String buttonTitle;
+
+    @Column
+    private String buttonUrl;
 
     @Column(name = "is_read") // 읽음 여부
     private boolean isRead;
 
-
-    // (일반) - 링크 이동하지 않는 알림
-    public Notification(User user, NotificationType type, String title, String content) {
+    public Notification(User user, NotificationType type, String title, String content, String buttonTitle, String buttonUrl) {
         this.user = user;
         this.type = type;
         this.title = title;
         this.content = content;
-        this.isRead = false;
-    }
-
-    // (일반) - 링크 이동하는 알림
-    public Notification(User user, NotificationType type, String title, String content, String url) {
-        this.user = user;
-        this.type = type;
-        this.title = title;
-        this.content = content;
-        this.url = url;
-        this.isRead = false;
-    }
-
-    // (광고) - 버튼을 눌렀을 때 링크 이동하는 알림
-    public Notification(User user, NotificationType type, String title, String content, String url, String buttonTitle) {
-        this.user = user;
-        this.type = type;
-        this.title = title;
-        this.content = content;
-        this.url = url;
         this.buttonTitle = buttonTitle;
+        this.buttonUrl = buttonUrl;
         this.isRead = false;
     }
 
@@ -96,8 +71,8 @@ public class Notification extends JpaBaseEntity {
             this.type,
             this.title,
             this.content,
-            this.url,
             this.buttonTitle,
+            this.buttonUrl,
             this.isRead
         );
     }

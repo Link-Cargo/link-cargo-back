@@ -9,14 +9,14 @@ public record NotificationDTO(
     Long userId,
 
     NotificationType type,
+
     String title,
 
     String content,
 
-    String url,
-
     String buttonTitle,
 
+    String buttonUrl,
     boolean isRead
 ) {
 

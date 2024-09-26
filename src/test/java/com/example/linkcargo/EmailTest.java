@@ -16,6 +16,6 @@ public class EmailTest {
     @Test
     @Description("EMAIL SEND TEST")
     public void emailSendTest() {
-        emailService.sendMailNotice("hyunnn0524@naver.com", "이메일 제목", "이메일 본문", "http://www.link-cargo.com");
+        emailService.sendMailNotice("hyunnn0524@naver.com", "이메일 제목", "이메일 본문", "버튼 제목", "http://www.link-cargo.com");
     }
 }

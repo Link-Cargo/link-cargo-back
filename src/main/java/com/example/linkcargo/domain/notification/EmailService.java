@@ -25,14 +25,17 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
 
+    /**
+     * 이메일 전송
+     */
     @Async
-    public void sendMailNotice(String email, String title, String content, String url) {
+    public void sendMailNotice(String email, String title, String content, String buttonTitle, String buttonUrl) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-            mimeMessageHelper.setTo(email); // 메일 수신자
-            mimeMessageHelper.setSubject(title); // 메일 제목에 title을 사용
-            mimeMessageHelper.setText(setContext(todayDate(), title, content, url), true); // 메일 본문 내용
+            mimeMessageHelper.setTo(email); // 수신자 메일
+            mimeMessageHelper.setSubject(title); // 메일 제목
+            mimeMessageHelper.setText(setContext(todayDate(), title, content, buttonTitle, buttonUrl), true); // 메일 본문
             javaMailSender.send(mimeMessage);
 
             log.info("SUCCEEDED TO SEND EMAIL to {}", email);
@@ -48,13 +51,14 @@ public class EmailService {
         return todayDate.format(formatter);
     }
 
-    // Thymeleaf를 통한 HTML 적용 (date, title, content, url 변수를 템플릿에 전달)
-    public String setContext(String date, String title, String content, String url) {
+    // Thymeleaf 통한 HTML 적용 (date, title, content, url 변수를 템플릿에 전달)
+    public String setContext(String date, String title, String content, String buttonTitle, String buttonUrl) {
         Context context = new Context();
         context.setVariable("date", date);
         context.setVariable("title", title);
         context.setVariable("content", content);
-        context.setVariable("url", url);
+        context.setVariable("buttonTitle", buttonTitle);
+        context.setVariable("buttonUrl", buttonUrl);
         return templateEngine.process("email", context);
     }
 }

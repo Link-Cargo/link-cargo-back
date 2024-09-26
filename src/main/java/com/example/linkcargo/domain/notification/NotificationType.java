@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum NotificationType {
-    AD,// 광고 알림
-    MESSAGE, // 일반 알림
+    MESSAGE, // 메시지 도착 알림
+    QUOTATION, // 견적서 도착 알림
+    AD // 광고 알림
 }
