@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class JwtProvider {
 
     private final CustomUserDetailsService customUserDetailsService;
-    private long ACCESS_EXPIRATION_TIME = 1000 * 60 * 2; // 2 minutes
+    private long ACCESS_EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 1 day
     private long REFRESH_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7; //  1 week
     private Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
