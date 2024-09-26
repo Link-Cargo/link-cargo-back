@@ -29,11 +29,11 @@ jobs:
         shell: bash
 
       - name: Create Firebase service account file
-        run: |
-          mkdir -p src/main/resources
-          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > src/main/resources/firebase-service-account.json
-          cat src/main/resources/firebase-service-account.json
-        shell: bash
+        uses: jsdaniell/create-json@v1.2.3
+        with:
+          name: "firebase-service-account.json"
+          json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          dir: "src/main/resources"
 
       - name: Run chmod to make gradlew executable
         run: chmod +x gradlew

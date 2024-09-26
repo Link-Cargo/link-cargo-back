@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -108,6 +109,22 @@ public class CargoController {
     ) {
         cargoService.deleteMyCargo(userDetail.getId(), cargoId);
         return ApiResponse.onSuccess(SuccessStatus._OK);
+    }
+
+    @Operation(summary = "화물의 예상비용 조회", description = "화주가 화물만 입력했을 때 예상 비용을 계산하고 반환합니다.")
+    @PostMapping("/calculate")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CARGO402",description = "해당 ID의 화물이 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
+    public ApiResponse<BigDecimal> calculateRawQuotation(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @Valid @RequestBody CargosRequest cargosRequest)
+    {
+
+        BigDecimal estimatedCost = cargoService.calculateCostByCargos(cargosRequest);
+        return ApiResponse.onSuccess(estimatedCost);
+
     }
 
 

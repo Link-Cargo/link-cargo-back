@@ -15,11 +15,15 @@ import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.GeneralHandler;
 import com.example.linkcargo.global.response.exception.handler.UsersHandler;
 import com.example.linkcargo.global.s3.dto.FileDTO;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -27,11 +31,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -55,7 +54,7 @@ public class UserS3Service {
     @Transactional
     public void deleteExistingImage(Long userId) {
         // 유저 ID를 파일명으로 갖는 모든 확장자의 파일을 삭제
-        String[] extensions = {"jpg", "jpeg", "png" };  // 삭제할 확장자 목록
+        String[] extensions = {"jpg", "jpeg", "png"};  // 삭제할 확장자 목록
         for (String extension : extensions) {
             String key = getImageKey(userId, extension);
             if (amazonS3.doesObjectExist(profileBucketName, key)) {
@@ -189,7 +188,8 @@ public class UserS3Service {
                 // URL 생성
                 String url = String.format("https://%s.s3.%s.amazonaws.com/%s", chatroomBucketName,
                     region, objectKey);
-                fileDTOS.add(new FileDTO(fileName, url, lastModified.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
+                fileDTOS.add(new FileDTO(fileName, url,
+                    lastModified.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
             }
 
             // 다음 페이지가 있는 경우, 계속 나열
@@ -197,7 +197,7 @@ public class UserS3Service {
 
         } while (result.isTruncated()); // 객체가 더 있는 경우
 
-        return new FilesResponse(fileDTOS);
+        return new FilesResponse(fileDTOS.size(), fileDTOS);
     }
 
     private String getFileExtension(String fileName) {

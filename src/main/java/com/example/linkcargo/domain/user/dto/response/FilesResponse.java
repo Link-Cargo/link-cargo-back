@@ -5,6 +5,7 @@ import com.example.linkcargo.global.s3.dto.FileDTO;
 import java.util.List;
 
 public record FilesResponse (
+    int fileCount,
     List<FileDTO> files
 ){
 }
