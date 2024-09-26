@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -41,7 +42,7 @@ public class ScheduleController {
     })
     public ApiResponse<Long> createSchedule(@AuthenticationPrincipal CustomUserDetail userDetail,
         @RequestBody ScheduleCreateUpdateRequest request) {
-        Long resultId = scheduleService.createSchedule(request);
+        Long resultId = scheduleService.createSchedule(request, userDetail.getId());
         return ApiResponse.onSuccess(resultId);
     }
 
@@ -84,7 +85,7 @@ public class ScheduleController {
         @Parameter(description = "선박 스케줄 아이디") @PathVariable Long scheduleId,
         @RequestBody ScheduleCreateUpdateRequest request
     ) {
-        scheduleService.modifySchedule(scheduleId, request);
+        scheduleService.modifySchedule(scheduleId, request, userDetail.getId());
         return ApiResponse.onSuccess(SuccessStatus._OK);
     }
 
@@ -117,6 +118,19 @@ public class ScheduleController {
             @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size
     ) {
         ScheduleListResponse schedules = scheduleService.searchSchedules(exportPortId, importPortId, inputCBM, page, size);
+        return ApiResponse.onSuccess(schedules);
+    }
+
+    @Operation(summary = "포워더의 스케줄 검색", description = "포워더가 생성한 스케줄을 조회합니다.")
+    @GetMapping("/forwarder/{forwarderId}")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+    })
+    public ApiResponse<List<ScheduleInfoResponse>> findSchedulesByForwarderId(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @Parameter(description = "포워더 아이디") @PathVariable Long forwarderId
+    ) {
+        List<ScheduleInfoResponse> schedules = scheduleService.findSchedulesByForwarderId(forwarderId);
         return ApiResponse.onSuccess(schedules);
     }
 

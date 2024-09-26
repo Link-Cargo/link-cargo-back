@@ -112,6 +112,9 @@ public class ChatService {
                 chatRoom.getId(),
                 targetUser.getId(),
                 targetUser.getFirstName() + " " + targetUser.getLastName(),
+                "대리",
+                "HIM 포워딩 컴퍼니",
+                "인청항 -> 상하이항 | 24.06.24 ~ 24.07.01 | SUNNY LAUREL",
                 chatRoom.getTitle(),
                 latestChatContent,
                 chatRoom.getStatus()

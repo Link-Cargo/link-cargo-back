@@ -1,6 +1,7 @@
 name: Java CI with Gradle
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main" ]
 
@@ -26,6 +27,13 @@ jobs:
             echo "${{ secrets.APPLICATION_YML }}" > src/main/resources/application.yml
             cat src/main/resources/application.yml
         shell: bash
+
+      - name: Create Firebase service account file
+        uses: jsdaniell/create-json@v1.2.3
+        with:
+          name: "firebase-service-account.json"
+          json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          dir: "src/main/resources"
 
       - name: Run chmod to make gradlew executable
         run: chmod +x gradlew

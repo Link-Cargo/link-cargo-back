@@ -1,6 +1,7 @@
 package com.example.linkcargo.domain.schedule;
 
 import com.example.linkcargo.domain.port.Port;
+import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.global.entity.JpaBaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,6 +35,10 @@ public class Schedule extends JpaBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "forwarder_id")
+    private User forwarder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "export_port_id")

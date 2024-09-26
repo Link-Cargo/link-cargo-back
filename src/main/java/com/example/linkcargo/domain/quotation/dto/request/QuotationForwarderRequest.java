@@ -164,6 +164,7 @@ public record QuotationForwarderRequest(
             quotation.setForwarderId(userId);
             quotation.setParticulars(this.particulars);
             quotation.setOriginalQuotationId(quotationId);
+            quotation.setRawQuotationId(quotation.getRawQuotationId());
 
         }
         return quotation;

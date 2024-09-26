@@ -1,6 +1,8 @@
 package com.example.linkcargo.domain.chat;
 
-import com.example.linkcargo.global.s3.dto.FileDTO;
+import com.example.linkcargo.domain.chat.Entity.ChatRoom;
+import com.example.linkcargo.domain.chat.dto.request.ChatRoomIdRequest;
+import com.example.linkcargo.domain.chat.dto.response.ChatRoomIdResponse;
 import com.example.linkcargo.domain.chat.dto.response.ChatContentResponse;
 import com.example.linkcargo.domain.chat.dto.response.ChatContentsResponse;
 import com.example.linkcargo.domain.chat.dto.response.ChatRoomResponse;
@@ -20,6 +22,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,8 +37,21 @@ public class ChatRestController {
     private final ChatService chatService;
     private final UserS3Service userS3Service;
 
-    // TODO 이거 오래된 순으로 바꿔야 할 듯
-    @Operation(summary = "채팅방 메시지 목록 조회(최근순)", description = "특정 채팅방의 메시지 목록을 조회합니다.")
+    @Operation(summary = "특정 상대와의 채팅방 조회/생성", description = "기존 채팅방이 있으면 해당 채팅방 ID를, 없으면 생성 후 ID 반환합니다.")
+    @PostMapping("/rooms")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공")
+    })
+    public ApiResponse<ChatRoomIdResponse> getChatRoomId(
+        @Valid @RequestBody ChatRoomIdRequest chatRoomIdRequest,
+        @AuthenticationPrincipal CustomUserDetail userDetail
+    ) {
+        ChatRoom chatRoom = chatService.createOrGetChatRoom(userDetail.getId(), chatRoomIdRequest.targetUserId());
+        return ApiResponse.onSuccess(new ChatRoomIdResponse(chatRoom.getId()));
+    }
+
+
+    @Operation(summary = "채팅방 메시지 목록 조회", description = "특정 채팅방의 메시지 목록을 조회합니다.")
     @GetMapping("/{chatRoomId}/messages")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공")
