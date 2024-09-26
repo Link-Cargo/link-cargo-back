@@ -38,9 +38,6 @@ out/
 
 application.yml
 application.properties
-<<<<<<< HEAD
-=======
 
 ### FCM
->>>>>>> 6dd828fef2c8fcfd8fb9f551726ac0362a5d66c5
 firebase-service-account.json
