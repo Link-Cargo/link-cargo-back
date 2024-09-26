@@ -45,7 +45,7 @@ public class ChatStompController {
                 chatContentResponseResponse);
         }
 
-        // 채팅 "파일" 전송 메시지를 보낸 경우 (프론트엔드가 먼저 "/sub/chatroom/{id}" 를 구독한 상태)
+        // 채팅 "파일" 전송 메시지를 보낸 경우 (마찬가지로, 프론트엔드가 먼저 "/sub/chatroom/{id}" 를 구독한 상태)
         if (chatRequest.messageType().equals(ChatRequest.MessageType.FILE)) {
             log.info("FILE message, chatRequest: {}", chatRequest);
             ChatContentResponse chatContentResponse = handleFileMessage(chatRequest, chatRoomId, userId);
