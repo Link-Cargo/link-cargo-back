@@ -34,6 +34,9 @@ public class ChatRoom extends JpaBaseEntity {
 
     @Column(nullable = false)
     private String title;
+    
+    @Column(nullable = false)
+    private String schedule; // 포워더 회사에게 문의한 스케줄
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

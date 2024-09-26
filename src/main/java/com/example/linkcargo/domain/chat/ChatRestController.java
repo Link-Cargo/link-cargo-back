@@ -46,7 +46,7 @@ public class ChatRestController {
         @Valid @RequestBody ChatRoomIdRequest chatRoomIdRequest,
         @AuthenticationPrincipal CustomUserDetail userDetail
     ) {
-        ChatRoom chatRoom = chatService.createOrGetChatRoom(userDetail.getId(), chatRoomIdRequest.targetUserId());
+        ChatRoom chatRoom = chatService.createOrGetChatRoom(userDetail.getId(), chatRoomIdRequest);
         return ApiResponse.onSuccess(new ChatRoomIdResponse(chatRoom.getId()));
     }
 
