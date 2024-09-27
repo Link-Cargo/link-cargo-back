@@ -1,34 +1,32 @@
 package com.example.linkcargo.domain.notification;
 
 import jakarta.mail.internet.MimeMessage;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-@Slf4j
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional(readOnly = true)
 public class EmailService {
-
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
 
     /**
      * 이메일 전송
      */
-    @Async
     public void sendMailNotice(String email, String title, String content, String buttonTitle, String buttonUrl) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {

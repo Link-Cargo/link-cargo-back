@@ -53,7 +53,7 @@ public class FCMTokenService {
     /**
      * -------- 특정 유저에게 알림 전송 --------
      */
-    public void sendNotificationToConsignor(
+    public void notifyUser(
             Long userId,
             NotificationType notificationType,
             String title,
@@ -61,65 +61,37 @@ public class FCMTokenService {
             String buttonTitle,
             String buttonUrl
     ) {
-        Map<String, String> data = new HashMap<>();
-        data.put("date", LocalDateTime.now().toString());
-        data.put("type", notificationType.toString()); // 알림 타입(메시지, 견적서, 광고)
-        data.put("title", title);
-        data.put("content", content);
-        data.put("buttonTitle", buttonTitle);
-        data.put("buttonUrl", buttonUrl);
+        Map<String, String> data = prepareNotificationData(notificationType, title, content, buttonTitle, buttonUrl);
 
-        sendNotificationToConsignor(userId, data);
-        sendEmailToConsignor(userId, data);
-    }
-    private void sendNotificationToConsignor(Long userId, Map<String, String> data) {
-        Message fcmMessage = Message.builder()
-            .setToken(getTokenByUserId(userId))
-            .putAllData(data)
-            .build();
-        log.info("fcmMessage: {}", fcmMessage);
+        // 알림 저장 및 전송
+        User user = getConsignorByUserId(userId);
+        saveNotification(user, data);
 
-        try {
-            String response = FirebaseMessaging.getInstance().send(fcmMessage);
-            log.info("알림 전송 성공 with ID: " + response);
-
-            Notification notification = new Notification(
-                userService.getUser(userId),
-                NotificationType.valueOf(data.get("type")),
-                data.get("title"),
-                data.get("content"),
-                data.get("buttonTitle"),
-                data.get("buttonUrl")
-            );
-            notificationService.save(notification);
-        } catch (Exception e) {
-            log.error("알림 전송 실패", e);
-        }
-    }
-    @Async
-    public void sendEmailToConsignor(Long userId, Map<String, String> data) {
-        try {
-            emailService.sendMailNotice(
-                userService.getEmailByUserId(userId),
-                data.get("title"),
-                data.get("content"),
-                data.get("buttonTitle"),
-                data.get("buttonUrl"));
-        } catch (Exception e) {
-            log.error("이메일 발송 실패", e);
-        }
+        sendWebNotification(userId, data); // FCM 알림 전송
+        sendEmailNotification(userId, data); // 이메일 전송
     }
 
     /**
      * -------- 모든 유저에게 알림 전송 --------
      */
-    public void sendNotificationToAllConsignor(
-            NotificationType type,
+    public void notifyAllUsers(
+            NotificationType notificationType,
             String title,
             String content,
             String buttonTitle,
             String buttonUrl
     ) {
+        Map<String, String> data = prepareNotificationData(notificationType, title, content, buttonTitle, buttonUrl);
+
+        // 알림 저장 및 전송
+        List<User> consignors = getAllConsignors();
+        saveNotificationsForAll(consignors, data);
+
+        sendWebNotificationsToAll(consignors, data); // FCM 다중 알림 전송
+        sendEmailNotificationsToAll(consignors, data); // 이메일 전송
+    }
+
+    private Map<String, String> prepareNotificationData(NotificationType type, String title, String content, String buttonTitle, String buttonUrl) {
         Map<String, String> data = new HashMap<>();
         data.put("date", LocalDateTime.now().toString());
         data.put("type", type.toString());
@@ -127,37 +99,45 @@ public class FCMTokenService {
         data.put("content", content);
         data.put("buttonTitle", buttonTitle);
         data.put("buttonUrl", buttonUrl);
-
-        sendNotificationToAllConsignor(data);
-        sendEmailToAllConsignor(data);
+        return data;
     }
 
     /**
-     * -------- 모든 유저에게 알림 전송 --------
+     * -------- 알림 저장 --------
      */
-    public void sendADNotificationToAllConsignor(
-            NotificationType notificationType,
-            String title,
-            String content,
-            String buttonTitle,
-            String buttonUrl
-    ) {
-        Map<String, String> data = new HashMap<>();
-        data.put("date", LocalDateTime.now().toString());
-        data.put("type", NotificationType.AD.toString());
-        data.put("title", title);
-        data.put("content", content);
-        data.put("buttonTitle", buttonTitle);
-        data.put("buttonUrl", buttonUrl);
-
-        sendNotificationToAllConsignor(data);
-        sendEmailToAllConsignor(data);
+    private void saveNotification(User user, Map<String, String> data) {
+        Notification notification = createNotification(user, data);
+        notificationService.save(notification);
+        log.info("알림 저장 완료 for userId: {}", user.getId());
     }
 
-    private void sendNotificationToAllConsignor(Map<String, String> data) {
-        List<String> tokens = getTokensOfAllConsignor();
+    private void saveNotificationsForAll(List<User> users, Map<String, String> data) {
+        for (User user : users) {
+            saveNotification(user, data);
+        }
+    }
+
+    /**
+     * -------- FCM 전송 --------
+     */
+    private void sendWebNotification(Long userId, Map<String, String> data) {
+        Message fcmMessage = Message.builder()
+                .setToken(getTokenByUserId(userId))
+                .putAllData(data)
+                .build();
+
+        try {
+            String response = FirebaseMessaging.getInstance().send(fcmMessage);
+            log.info("FCM 알림 전송 성공 for userId: {} with ID: {}", userId, response);
+        } catch (Exception e) {
+            log.error("FCM 알림 전송 실패 for userId: {}", userId, e);
+        }
+    }
+
+    private void sendWebNotificationsToAll(List<User> users, Map<String, String> data) {
+        List<String> tokens = getTokensOfUsers(users);
         if (tokens.isEmpty()) {
-            log.warn("전송할 토큰이 없습니다.");
+            log.warn("전송할 FCM 토큰이 없습니다.");
             return;
         }
 
@@ -165,63 +145,81 @@ public class FCMTokenService {
                 .addAllTokens(tokens)
                 .putAllData(data)
                 .build();
-        log.info("fcmMessage: {}", fcmMessage);
 
         try {
             BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(fcmMessage);
-            List<String> successfulIds = new ArrayList<>();
-            List<String> failedIds = new ArrayList<>();
-
-            for (SendResponse sendResponse : response.getResponses()) {
-                if (sendResponse.isSuccessful()) {
-                    successfulIds.add(sendResponse.getMessageId());
-                } else {
-                    failedIds.add(sendResponse.getException().getMessage());
-                }
-            }
-
-            log.info("알림 전송 성공 with IDs: " + String.join(", ", successfulIds));
-            if (!failedIds.isEmpty()) {
-                log.error("알림 전송 실패: " + String.join(", ", failedIds));
-            }
-
-            for (User consignor : getAllConsignors()) {
-                Notification notification = createNotification(consignor, data);
-                notificationService.save(notification);
-            }
+            processBatchResponse(response);
         } catch (Exception e) {
-            log.error("알림 전송 중 오류 발생", e);
+            log.error("FCM 다중 알림 전송 실패", e);
+        }
+    }
+
+    private void processBatchResponse(BatchResponse response) {
+        List<String> successfulIds = new ArrayList<>();
+        List<String> failedIds = new ArrayList<>();
+
+        for (SendResponse sendResponse : response.getResponses()) {
+            if (sendResponse.isSuccessful()) {
+                successfulIds.add(sendResponse.getMessageId());
+            } else {
+                failedIds.add(sendResponse.getException().getMessage());
+            }
+        }
+
+        log.info("FCM 알림 전송 성공 with IDs: {}", String.join(", ", successfulIds));
+        if (!failedIds.isEmpty()) {
+            log.error("FCM 알림 전송 실패: {}", String.join(", ", failedIds));
+        }
+    }
+
+    /**
+     * -------- 이메일 전송 --------
+     */
+    @Async
+    protected void sendEmailNotification(Long userId, Map<String, String> data) {
+        try {
+            emailService.sendMailNotice(
+                    userService.getEmailByUserId(userId),
+                    data.get("title"),
+                    data.get("content"),
+                    data.get("buttonTitle"),
+                    data.get("buttonUrl")
+            );
+            log.info("이메일 전송 성공 for userId: {}", userId);
+        } catch (Exception e) {
+            log.error("이메일 전송 실패 for userId: {}", userId, e);
         }
     }
 
     @Async
-    public void sendEmailToAllConsignor(Map<String, String> data) {
-        List<String> emails = userService.getAllEmailByUserRole(Role.CONSIGNOR);
-        for (String email : emails) {
-            emailService.sendMailNotice(
-                email, data.get("title"), data.get("content"), data.get("buttonTitle"), data.get("buttonUrl"));
+    protected void sendEmailNotificationsToAll(List<User> users, Map<String, String> data) {
+        for (User user : users) {
+            sendEmailNotification(user.getId(), data);
         }
     }
 
-    private Notification createNotification(User consignor, Map<String, String> data) {
+    /**
+     * -------- 유틸리티 메서드 --------
+     */
+    private Notification createNotification(User user, Map<String, String> data) {
         return new Notification(
-            consignor,
-            NotificationType.valueOf(data.get("type")),
-            data.get("title"),
-            data.get("content"),
-            data.get("buttonTitle"),
-            data.get("buttonUrl")
+                user,
+                NotificationType.valueOf(data.get("type")),
+                data.get("title"),
+                data.get("content"),
+                data.get("buttonTitle"),
+                data.get("buttonUrl")
         );
     }
 
-    public String getTokenByUserId(Long userId) {
+    private String getTokenByUserId(Long userId) {
         return fcmTokenRepository.findByUserId(userId)
                 .orElseThrow(() -> new FCMTokenHandler(ErrorStatus.FCM_TOKEN_NOT_FOUND))
                 .getToken();
     }
 
-    public List<String> getTokensOfAllConsignor() {
-        return fcmTokenRepository.findAllByUserRole(Role.CONSIGNOR).stream()
+    private List<String> getTokensOfUsers(List<User> users) {
+        return fcmTokenRepository.findAllByUserIn(users).stream()
                 .map(FCMToken::getToken)
                 .toList();
     }
@@ -229,5 +227,8 @@ public class FCMTokenService {
     private List<User> getAllConsignors() {
         return userService.findAllUsersByRole(Role.CONSIGNOR);
     }
-}
 
+    private User getConsignorByUserId(Long userId) {
+        return userService.getUser(userId);
+    }
+}

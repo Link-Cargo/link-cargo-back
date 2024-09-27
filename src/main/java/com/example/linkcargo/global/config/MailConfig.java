@@ -41,7 +41,7 @@ public class MailConfig {
     @Value("${spring.mail.properties.mail.smtp.connectiontimeout}")
     private int connectionTimeout;
 
-    @Value("${spring.mail.properties.mail.starttls.enable}")
+    @Value("${spring.mail.properties.mail.smtp.starttls.enable}")
     private boolean startTlsEnable;
 
     @Bean

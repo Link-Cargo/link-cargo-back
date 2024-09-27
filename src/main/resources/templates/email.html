@@ -6,8 +6,8 @@
   <title>Today's Overview</title>
 </head>
 
-<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh;">
-<div style="max-width: 600px; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); text-align: center;">
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+<div style="max-width: 600px; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); text-align: left; margin: 20px auto;">
 
   <!-- Date -->
   <div>
@@ -17,7 +17,9 @@
   <!-- Title -->
   <div>
     <h2 th:text="${title}" style="color: #3a4893; margin-bottom: 20px;">Title</h2>
-    <p th:text="${content}" style="font-size: 16px; color: #555; margin-bottom: 30px;">This is the content.</p>
+
+    <!-- Content with line breaks -->
+    <p th:utext="${content}" style="font-size: 16px; color: #555; margin-bottom: 30px;">This is the content.</p>
   </div>
 
   <!-- Button to the URL -->
