@@ -4,6 +4,7 @@ import com.example.linkcargo.domain.chat.Entity.Chat;
 import com.example.linkcargo.domain.chat.Entity.ChatRoom;
 import com.example.linkcargo.domain.chat.Entity.Membership;
 import com.example.linkcargo.domain.chat.Entity.RoomStatus;
+import com.example.linkcargo.domain.chat.dto.request.ChatRoomIdRequest;
 import com.example.linkcargo.domain.chat.dto.response.ChatContentResponse;
 import com.example.linkcargo.domain.chat.dto.response.ChatRoomResponse;
 import com.example.linkcargo.domain.chat.repository.ChatRepository;
@@ -35,25 +36,28 @@ public class ChatService {
      * 채팅방 생성 또는 조회
      */
     @Transactional
-    public ChatRoom createOrGetChatRoom(Long userId, Long targetUserId) {
+    public ChatRoom createOrGetChatRoom(Long userId, ChatRoomIdRequest chatRoomIdRequest) {
         Optional<ChatRoom> chatRoom = chatRoomRepository.findByUserIdAndTargetUserId(userId,
-            targetUserId);
+            chatRoomIdRequest.targetUserId());
 
         // 채팅방이 존재하는 경우
         if (chatRoom.isPresent()) {
+            // 해당 채팅방의 스케줄 업데이트(동일할 수도 있고 다른 스케줄일 수도 있음)
+            chatRoom.get().setSchedule(chatRoomIdRequest.schedule());
             return chatRoom.get(); // 채팅방 반환
         }
 
         // 채팅방이 존재하지 않는 경우 -> 새로 생성
         ChatRoom newChatRoom = new ChatRoom();
-        newChatRoom.setTitle("Chat Room between " + userId + " and " + targetUserId); // 제목 설정
+        newChatRoom.setTitle("Chat Room between " + userId + " and " + chatRoomIdRequest.targetUserId()); // 제목 설정
+        newChatRoom.setSchedule(chatRoomIdRequest.schedule()); // 화주가 문의한 스케줄 정보 저장 -> 해당 채팅방 입장 시 보이게됨
         newChatRoom.setStatus(RoomStatus.ENABLED); // 기본 상태 설정
         ChatRoom savedChatRoom = chatRoomRepository.save(newChatRoom);
         if (!isUserInChatRoom(userId, savedChatRoom.getId())) {
             addUserToChatRoom(userId, savedChatRoom.getId());
         }
-        if (!isUserInChatRoom(targetUserId, savedChatRoom.getId())) {
-            addUserToChatRoom(targetUserId, savedChatRoom.getId());
+        if (!isUserInChatRoom(chatRoomIdRequest.targetUserId(), savedChatRoom.getId())) {
+            addUserToChatRoom(chatRoomIdRequest.targetUserId(), savedChatRoom.getId());
         }
         // 저장 후 반환
         return savedChatRoom;
@@ -112,9 +116,9 @@ public class ChatService {
                 chatRoom.getId(),
                 targetUser.getId(),
                 targetUser.getFirstName() + " " + targetUser.getLastName(),
-                "대리",
-                "HIM 포워딩 컴퍼니",
-                "인청항 -> 상하이항 | 24.06.24 ~ 24.07.01 | SUNNY LAUREL",
+                targetUser.getJobTitle(), // 포워더의 직책
+                targetUser.getCompanyName(), // 포워더의 회사명
+                chatRoom.getSchedule(), // 화주가 문의한 스케줄 정보
                 chatRoom.getTitle(),
                 latestChatContent,
                 chatRoom.getStatus()
