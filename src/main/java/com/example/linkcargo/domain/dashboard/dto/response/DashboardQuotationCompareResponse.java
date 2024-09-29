@@ -15,8 +15,10 @@ public record DashboardQuotationCompareResponse(
     List<Map<String,Integer>> cfsCostList,
     List<Map<String,Integer>> listStatusCostList,
     List<Map<String,Integer>> customsClearanceCostList,
-    List<Map<String,Integer>> truckingCostList
-
+    List<Map<String,Integer>> truckingCostList,
+    List<Map<String,Integer>> cicCostList,
+    List<Map<String,Integer>> dofeeCostList,
+    List<Map<String,Integer>> warfageCostList
 
 ) {
 
@@ -33,6 +35,9 @@ public record DashboardQuotationCompareResponse(
             .listStatusCostList(compareCostMap.getOrDefault("liftStatusCost", new ArrayList<>()))
             .customsClearanceCostList(compareCostMap.getOrDefault("customsClearanceCost", new ArrayList<>()))
             .truckingCostList(compareCostMap.getOrDefault("truckingCost", new ArrayList<>()))
+            .cicCostList(compareCostMap.getOrDefault("cicCost", new ArrayList<>()))
+            .dofeeCostList(compareCostMap.getOrDefault("doFeeCost", new ArrayList<>()))
+            .warfageCostList(compareCostMap.getOrDefault("warfageCost", new ArrayList<>()))
             .build();
 
     }
