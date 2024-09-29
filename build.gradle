@@ -63,10 +63,12 @@ dependencies {
 	// Mail
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
+	// Thymeleaf(for email service)
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+
 	// openai
 	implementation 'com.theokanning.openai-gpt3-java:service:0.12.0'
-
-
 }
 
 tasks.named('test') {
