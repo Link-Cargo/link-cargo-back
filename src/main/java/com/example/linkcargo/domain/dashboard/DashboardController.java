@@ -143,6 +143,18 @@ public class DashboardController {
         return ApiResponse.onSuccess(dashboardService.getRecommendationInfoByCost(rawQuotationId));
     }
 
+    @Operation(summary = "AI 요약 보고서", description = "주어진 정보를 바탕으로 AI 요약 보고서를 작성합니다.")
+    @GetMapping("/ai-report")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "OK, 성공"),
+    })
+    public ApiResponse<String> getAIReport(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @Parameter(description = "화주가 작성한 원시 견적서 아이디") @RequestParam String rawQuotationId)
+    {
+        return ApiResponse.onSuccess(dashboardService.getAIReport(rawQuotationId));
+    }
+
 
 
 }
