@@ -21,6 +21,7 @@ import com.example.linkcargo.domain.prediction.Prediction;
 import com.example.linkcargo.domain.prediction.PredictionRepository;
 import com.example.linkcargo.domain.quotation.Quotation;
 import com.example.linkcargo.domain.quotation.QuotationCalculationService;
+import com.example.linkcargo.domain.quotation.QuotationCalculationService.CargoBaseInfo;
 import com.example.linkcargo.domain.quotation.QuotationRepository;
 import com.example.linkcargo.domain.quotation.QuotationStatus;
 import com.example.linkcargo.domain.quotation.dto.response.QuotationInfoResponse;
@@ -34,7 +35,6 @@ import com.example.linkcargo.global.response.exception.handler.PortHandler;
 import com.example.linkcargo.global.response.exception.handler.QuotationHandler;
 import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
 import com.example.linkcargo.global.response.exception.handler.UsersHandler;
-import com.theokanning.openai.completion.CompletionRequest;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.service.OpenAiService;
@@ -66,7 +66,6 @@ public class DashboardService {
     private final QuotationRepository quotationRepository;
     private final CargoRepository cargoRepository;
     private final ScheduleRepository scheduleRepository;
-    private final ForwardingRepository forwardingRepository;
     private final UserRepository userRepository;
     private final PredictionRepository predictionRepository;
     private final PortRepository portRepository;
@@ -78,6 +77,14 @@ public class DashboardService {
 
     public Integer convertToInteger(BigDecimal value) {
         return value.setScale(0, RoundingMode.HALF_UP).intValue();
+    }
+
+    private String convertListToString(List<Map<String, Integer>> costList) {
+        return costList.stream()
+            .map(map -> map.entrySet().stream()
+                .map(entry -> entry.getKey() + ": " + entry.getValue())
+                .collect(Collectors.joining(", ")))
+            .collect(Collectors.joining(" | "));
     }
 
     public DashboardRawQuotationResponse getRawQuotations(Long userId) {
@@ -159,6 +166,9 @@ public class DashboardService {
         List<Map<String, Integer>> liftStatusCostList = new ArrayList<>();
         List<Map<String, Integer>> customsClearanceCostList = new ArrayList<>();
         List<Map<String, Integer>> truckingCostList = new ArrayList<>();
+        List<Map<String, Integer>> cicCostList = new ArrayList<>();
+        List<Map<String, Integer>> dofeeCostList = new ArrayList<>();
+        List<Map<String, Integer>> warfageCostList = new ArrayList<>();
 
         for (Quotation quotation : quotations) {
             Quotation.ChargeExport chargeExport = quotation.getCost().getChargeExport();
@@ -181,7 +191,12 @@ public class DashboardService {
                 convertToInteger(chargeExport.getCUSTOMS_CLEARANCE_FEE().getLCL())));
             truckingCostList.add(
                 Map.of(forwardingFirmName, convertToInteger(chargeExport.getTRUCKING().getLCL())));
-
+            cicCostList.add(
+                Map.of(forwardingFirmName, convertToInteger(chargeExport.getCIC().getLCL())));
+            dofeeCostList.add(
+                Map.of(forwardingFirmName, convertToInteger(chargeExport.getDO_FEE().getLCL())));
+            warfageCostList.add(
+                Map.of(forwardingFirmName, convertToInteger(chargeExport.getWARFAGE_FEE().getLCL())));
         }
 
         Map<String, List<Map<String, Integer>>> compareCostMap = Map.of(
@@ -190,7 +205,10 @@ public class DashboardService {
             "cfsCost", cfsCostList,
             "liftStatusCost", liftStatusCostList,
             "customsClearanceCost", customsClearanceCostList,
-            "truckingCost", truckingCostList
+            "truckingCost", truckingCostList,
+            "cicCost", cicCostList,
+            "doFeeCost", dofeeCostList,
+            "warfageCost", warfageCostList
         );
 
         return DashboardQuotationCompareResponse.fromEntity(dashboardQuotationResponses, compareCostMap);
@@ -278,7 +296,7 @@ public class DashboardService {
                 );
 
                 ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
-                    .model("gpt-4")  // gpt-4 모델 사용
+                    .model("gpt-3.5-turbo")
                     .messages(List.of(
                         new ChatMessage("system", "You are a helpful assistant."),
                         new ChatMessage("user", prompt)
@@ -336,7 +354,7 @@ public class DashboardService {
 
         String content = String.join(" ", summaries);
 
-        String prompt = "다음 내용을 요약하는데 50자 이내로 내용이 끊기지 않게 요약해주세요.: " + content;
+        String prompt = "다음 내용을 요약하는데 50자 이내로 해운물류 업계와 연관되게 내용이 끊기지 않게 요약해주세요.: " + content;
 
         ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
             .model("gpt-3.5-turbo")  // gpt-4 모델 사용
@@ -411,4 +429,97 @@ public class DashboardService {
             estimatedCost, schedules);
     }
 
+    public String getAIReport(String rawQuotationId) {
+        Quotation rawQuotation = quotationRepository.findQuotationById(rawQuotationId)
+            .orElseThrow(() -> new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
+
+        // ChargeExport 관련 정보
+        DashboardQuotationCompareResponse dashboardQuotationCompareResponse = getQuotationsForComparing(rawQuotationId);
+        List<Map<String,Integer>> thcCostList = dashboardQuotationCompareResponse.thcCostList();
+        List<Map<String,Integer>> cicCostList = dashboardQuotationCompareResponse.cicCostList();
+        List<Map<String,Integer>> handlingCostList = dashboardQuotationCompareResponse.handlingCostList();
+        List<Map<String,Integer>> cfsCostList = dashboardQuotationCompareResponse.cfsCostList();
+        List<Map<String,Integer>> dofeeCostList = dashboardQuotationCompareResponse.dofeeCostList();
+        List<Map<String,Integer>> warfeageCostList = dashboardQuotationCompareResponse.cfsCostList();
+
+        String thcCostString = convertListToString(thcCostList);
+        String cicCostString = convertListToString(cicCostList);
+        String handlingCostString = convertListToString(handlingCostList);
+        String cfsCostString = convertListToString(cfsCostList);
+        String dofeeCostString = convertListToString(dofeeCostList);
+        String warfeageCostString = convertListToString(warfeageCostList);
+
+        // 화물 관련 정보
+        List<String> cargoIdList = rawQuotation.getCost().getCargoIds();
+        List<Cargo> cargos = cargoIdList.stream()
+            .map(cargoId -> cargoRepository.findById(cargoId).orElseThrow(()-> new CargoHandler(ErrorStatus.CARGO_NOT_FOUND)))
+            .toList();
+
+        List<CargoBaseInfo> cargoBaseInfos = quotationCalculationService.processCargos(cargos, 1320);
+        List<String> promptCargoInfo = IntStream.range(0, cargos.size())
+            .mapToObj(i -> String.format("Product: %s, Total CBM: %s",
+                cargos.get(i).getCargoInfo().getProductName(),
+                cargoBaseInfos.get(i).getTotalCBM().toString()))
+            .toList();
+
+        Cargo cargo = cargos.get(0);
+        String incoterms = cargo.getIncoterms();
+
+        // 스케줄 관련
+        String today = String.valueOf(LocalDate.now());
+        String ETD = String.valueOf(cargo.getWishExportDate());
+        String exportPortName = portRepository.findById(cargo.getExportPortId()).orElseThrow(()->new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND)).getName();
+        String importPortName = portRepository.findById(cargo.getImportPortId()).orElseThrow(()-> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND)).getName();
+
+        // 임시
+        Integer freightCost = 900;
+
+        String prompt = "나는 LCL수출 화주야. \n"
+            + "\n"
+            + "현재 날짜는 "+ today +" 이고," + ETD + "에 " + exportPortName + "에서 "+ importPortName+"으로 LCL수출을 진행하려고 해. 내가 준 정보를 바탕으로 LCL수출("+ETD+" 출항일 기준)에 도움이 될 BI 를 제공해줘.\n"
+            + "\n"
+            + "조건: 출항일을 기준으로 한 입항지, 출항지의 혼잡도와 항로별 운임예측 값, 인코텀즈, 수출 품목 등 제시된 여러 정보를 고려해야 함, 레포트 형식으로 작성해야함\n"
+            + "\n"
+            + "\n"
+            + "정보1.\n"
+            + "여러 포워더로부터 요청한 견적서를 받음. \n"
+            + "(1) THC \n " + thcCostString
+            + "(2) CIC \n " + cicCostString
+            + "(3) DO FEE\n " + dofeeCostString
+            + "(4) CFS\n " + cfsCostString
+            + "(5) HANDLING FEE\n " + handlingCostString
+            + "(6) WARFAGE FEE\n" + warfeageCostString
+            + "정보2. 현재 운임: $"+freightCost+"\n"
+            + "정보3." + promptCargoInfo + "인코텀즈"+ incoterms+"\n"
+            + "\n"
+            + "\n"
+            + "초보화주의 입장에서 도움이 될만한 BI를 아래 양식에 맞춰서 보내줘. \n"
+            + "\n"
+            + "1. 추천하는 포워딩 업체\n"
+            + "(1) 낮은 가격 기준\n"
+            + "(2) 그 밖의 다른 요인\n"
+            + "\n"
+            + "2. 예측되는 더 저렴한 운임시기\n"
+            + "(1) 날짜\n"
+            + "(2) 운임\n"
+            + "(3) 이유\n"
+            + "\n"
+            + "3. 참고하면 좋은 뉴스\n"
+            + "\n"
+            + "4. AI의 제안";
+
+
+        ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
+            .model("gpt-3.5-turbo")  // gpt-4 모델 사용
+            .messages(List.of(
+                new ChatMessage("system", "You are a helpful assistant."),
+                new ChatMessage("user", prompt)
+            ))
+            .maxTokens(2000)
+            .temperature(0.7)
+            .build();
+
+        return openAiService.createChatCompletion(chatCompletionRequest)
+            .getChoices().get(0).getMessage().getContent().trim();
+    }
 }
