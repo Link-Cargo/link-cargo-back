@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Today's Overview</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+<div style="max-width: 600px; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); text-align: left; margin: 20px auto;">
+
+  <!-- Date -->
+  <div>
+    <p th:text="${date}" style="font-size: 14px; color: #888; margin-bottom: 10px;">Date</p>
+  </div>
+
+  <!-- Title -->
+  <div>
+    <h2 th:text="${title}" style="color: #3a4893; margin-bottom: 20px;">Title</h2>
+
+    <!-- Content with line breaks -->
+    <p th:utext="${content}" style="font-size: 16px; color: #555; margin-bottom: 30px;">This is the content.</p>
+  </div>
+
+  <!-- Button to the URL -->
+  <a th:href="@{${buttonUrl}}" th:text="${buttonTitle}" style="display: inline-block; padding: 10px 20px; background-color: #007aff; color: white; text-decoration: none; border-radius: 4px; font-size: 16px;">링카고 홈페이지</a>
+</div>
+</body>
+
+</html>
