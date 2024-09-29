@@ -2,6 +2,7 @@ package com.example.linkcargo.domain.notification.dto;
 
 
 import com.example.linkcargo.domain.notification.NotificationType;
+import java.time.LocalDateTime;
 
 public record NotificationDTO(
     Long id,
@@ -17,6 +18,8 @@ public record NotificationDTO(
     String buttonTitle,
 
     String buttonUrl,
+
+    LocalDateTime createdAt,
     boolean isRead
 ) {
 
