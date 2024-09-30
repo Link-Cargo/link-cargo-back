@@ -377,7 +377,13 @@ public class DashboardService {
     }
 
     public DashboardRecommendationResponse getRecommendationInfoByCost(String rawQuotationId) {
-        LocalDate today = LocalDate.now();
+        Quotation rawQuotation = quotationRepository.findQuotationById(rawQuotationId)
+            .orElseThrow(()->new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
+
+        Cargo cargo = cargoRepository.findById(rawQuotation.getCost().getCargoIds().get(0))
+            .orElseThrow(()-> new QuotationHandler(ErrorStatus.CARGO_NOT_FOUND));
+
+        LocalDate today = LocalDate.from(cargo.getWishExportDate());
 
         int currentYear = today.getYear();
         int currentMonth = today.getMonthValue();
