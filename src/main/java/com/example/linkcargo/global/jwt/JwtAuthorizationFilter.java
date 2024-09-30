@@ -31,7 +31,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             "/api/v1/users/refresh",
             "/api/v1/ports",
             "/api/v1/cargos/calculate",
-            "/api/v1/schedules",
+            "/api/v1/schedules/list",
             "/api/swagger-ui/",
             "/api/v3/api-docs",
             "/api/swagger-resources",
