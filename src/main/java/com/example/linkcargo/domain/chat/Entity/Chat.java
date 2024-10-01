@@ -45,11 +45,10 @@ public class Chat extends JpaBaseEntity {
     @Enumerated(EnumType.STRING)
     private MessageType messageType;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String content;
 
     private String fileName;
 
     private String fileUrl;
-
 }
