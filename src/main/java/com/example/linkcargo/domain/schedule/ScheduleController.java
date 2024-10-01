@@ -60,7 +60,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "선박 스케줄 리스트 조회 ", description = "모든 선박 스케줄을 조회 합니다. ScheduleListResponse 사용")
-    @GetMapping("")
+    @GetMapping("/list")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })

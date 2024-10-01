@@ -76,6 +76,7 @@ public class Notification extends JpaBaseEntity {
             this.content,
             this.buttonTitle,
             this.buttonUrl,
+            this.getCreatedAt(),
             this.isRead
         );
     }

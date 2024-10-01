@@ -129,9 +129,10 @@ public class DashboardService {
             .orElseThrow(()-> new UsersHandler(ErrorStatus.USER_NOT_FOUND));
 
         BigDecimal totalCost = (lowestCostQuotation.getCost().getTotalCost()
-            .setScale(1, RoundingMode.HALF_UP));
+            .setScale(1, RoundingMode.HALF_UP)).multiply(BigDecimal.valueOf(1320));
 
-        return DashboardQuotationResponse.fromEntity(user, quotationInfoResponse, totalCost);
+        String particulars = lowestCostQuotation.getParticulars();
+        return DashboardQuotationResponse.fromEntity(user, quotationInfoResponse, totalCost, particulars);
     }
 
     public DashboardQuotationCompareResponse getQuotationsForComparing(String rawQuotationId) {
@@ -152,10 +153,12 @@ public class DashboardService {
                     .orElseThrow(() -> new UsersHandler(ErrorStatus.USER_NOT_FOUND));
 
                 BigDecimal totalCost = quotation.getCost().getTotalCost()
-                    .setScale(1, RoundingMode.HALF_UP);
+                    .setScale(1, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(1320));
+
+                String particulars = quotation.getParticulars();
 
                 return DashboardQuotationResponse.fromEntity(user, quotationInfoResponse,
-                    totalCost);
+                    totalCost, particulars);
 
             })
             .toList();
@@ -374,7 +377,13 @@ public class DashboardService {
     }
 
     public DashboardRecommendationResponse getRecommendationInfoByCost(String rawQuotationId) {
-        LocalDate today = LocalDate.now();
+        Quotation rawQuotation = quotationRepository.findQuotationById(rawQuotationId)
+            .orElseThrow(()->new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
+
+        Cargo cargo = cargoRepository.findById(rawQuotation.getCost().getCargoIds().get(0))
+            .orElseThrow(()-> new QuotationHandler(ErrorStatus.CARGO_NOT_FOUND));
+
+        LocalDate today = LocalDate.from(cargo.getWishExportDate());
 
         int currentYear = today.getYear();
         int currentMonth = today.getMonthValue();
