@@ -13,12 +13,14 @@ public record DashboardQuotationResponse(
     String forwarderName,
     String forwarderEmail,
     String forwarderTel,
+    String particulars,
     QuotationInfoResponse quotationInfoResponse
 ) {
     public static DashboardQuotationResponse fromEntity(
         User user,
         QuotationInfoResponse quotationInfoResponse,
-        BigDecimal totalCost
+        BigDecimal totalCost,
+        String particulars
     ) {
         String fullName = user.getFirstName() + " " + user.getLastName();
         return DashboardQuotationResponse.builder()
@@ -27,7 +29,8 @@ public record DashboardQuotationResponse(
             .totalCost(totalCost)
             .forwarderName(fullName)
             .forwarderEmail(user.getEmail())
-            .forwarderEmail(user.getPhoneNumber())
+            .forwarderTel(user.getPhoneNumber())
+            .particulars(particulars)
             .quotationInfoResponse(quotationInfoResponse)
             .build();
     }
