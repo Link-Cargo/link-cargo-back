@@ -48,6 +48,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
@@ -301,7 +302,7 @@ public class DashboardService {
                         new ChatMessage("system", "You are a helpful assistant."),
                         new ChatMessage("user", prompt)
                     ))
-                    .maxTokens(100)
+                    .maxTokens(200)
                     .temperature(0.7)
                     .build();
 
@@ -323,24 +324,32 @@ public class DashboardService {
         Port importPort = portRepository.findById(importPortId)
             .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
 
-        // todo
-        // 입국항 이름을 사용하여 혼잡도 조회 API 사용
+        List<Integer> congestionPercentList = List.of(12, 33, 52, 74, 91);
 
-        // 임시
-        Integer congestionPercent = 33;
+        Random random = new Random();
 
-        String status = null;
+        int randomIndex = random.nextInt(5);
 
+        Integer congestionPercent = congestionPercentList.get(randomIndex);
+
+        String status;
         if (congestionPercent >= 0 && congestionPercent <= 20) {
             status = "원활";
         } else if (congestionPercent > 20 && congestionPercent <= 60) {
             status = "보통";
-        } else if (congestionPercent > 60 && congestionPercent <= 100) {
+        } else {
             status = "혼잡";
         }
 
-        // 임시
-        String description = "항구에 머물고 있는 컨테이너선의 비율이 큽니다. 선박이 대기하는 시간이 길어지고 하역 및 적재 작업이 지연될 수 있습니다.";
+        List<String> descriptionList = List.of(
+            "항구 운영이 매우 원활합니다. 선박의 입출항과 화물 처리가 신속하게 이루어지고 있습니다.",
+            "항구 상황이 비교적 양호합니다. 약간의 대기 시간이 있을 수 있으나 전반적으로 순조롭게 운영되고 있습니다.",
+            "항구가 보통 수준의 혼잡도를 보이고 있습니다. 일부 선박의 대기 시간이 증가할 수 있습니다.",
+            "항구가 다소 혼잡한 상태입니다. 선박의 대기 시간이 늘어나고 화물 처리 속도가 저하될 수 있습니다.",
+            "항구가 매우 혼잡한 상황입니다. 선박의 장기 대기와 화물 처리의 상당한 지연이 예상됩니다."
+        );
+
+        String description = descriptionList.get(randomIndex);
 
         return DashboardPortCongestionResponse.fromEntity(congestionPercent, status, description);
     }
@@ -354,10 +363,10 @@ public class DashboardService {
 
         String content = String.join(" ", summaries);
 
-        String prompt = "다음 내용을 요약하는데 50자 이내로 해운물류 업계와 연관되게 내용이 끊기지 않게 요약해주세요.: " + content;
+        String prompt = "다음 내용을 요약하는데 50자 이내로 내용이 끊기지 않게 요약해주세요.: " + content;
 
         ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
-            .model("gpt-3.5-turbo")  // gpt-4 모델 사용
+            .model("gpt-3.5-turbo")
             .messages(List.of(
                 new ChatMessage("system", "You are a helpful assistant."),
                 new ChatMessage("user", prompt)
