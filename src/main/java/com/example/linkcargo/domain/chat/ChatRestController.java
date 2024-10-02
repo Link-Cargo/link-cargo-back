@@ -11,6 +11,7 @@ import com.example.linkcargo.domain.user.dto.response.FilesResponse;
 import com.example.linkcargo.domain.user.UserS3Service;
 import com.example.linkcargo.domain.user.dto.response.FileResponse;
 import com.example.linkcargo.global.response.ApiResponse;
+import com.example.linkcargo.global.response.code.resultCode.SuccessStatus;
 import com.example.linkcargo.global.security.CustomUserDetail;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import retrofit2.http.Path;
 
 @Tag(name = "6. Chat", description = "채팅 관련 API")
 @RestController
@@ -100,4 +102,32 @@ public class ChatRestController {
         FilesResponse filesResponse = userS3Service.getAllObjectsInChatRoom(chatRoomId);
         return ApiResponse.onSuccess(filesResponse);
     }
+
+    @Operation(summary = "채팅방의 상대방 보낸 메시지 모두 읽음 처리", description = "상대방이 보낸 메시지를 모두 읽음 처리합니다.")
+    @PostMapping("/{chatRoomId}/all/read")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+    })
+    public ApiResponse<SuccessStatus> readAllChat(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @PathVariable("chatRoomId") Long chatRoomId
+    ){
+        chatService.makeAllChatRead(chatRoomId, userDetail.getId());
+        return ApiResponse.onSuccess(SuccessStatus._OK);
+    }
+
+    @Operation(summary = "채팅방의 상대방 보낸 특정 메시지 읽음 처리", description = "상대방이 보낸 특정 메시지를 읽음 처리합니다.")
+    @PostMapping("/{chatRoomId}/{chatId}/read")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+    })
+    public ApiResponse<SuccessStatus> readChat(
+        @AuthenticationPrincipal CustomUserDetail userDetail,
+        @PathVariable("chatRoomId") Long chatRoomId,
+        @PathVariable("chatId") Long chatId
+    ){
+        chatService.makeChatRead(chatRoomId, chatId, userDetail.getId());
+        return ApiResponse.onSuccess(SuccessStatus._OK);
+    }
+
 }
