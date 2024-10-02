@@ -69,8 +69,8 @@ public class ChatStompController {
             .build();
         Chat savedChat = chatService.saveChat(chat);
 
-        // 채팅방 ID, 작성자 ID, 내용
-        return new ChatContentResponse(chatRoomId, userId, MessageType.CHAT, chatRequest.content(), "", "", savedChat.getCreatedAt());
+        // 채팅 ID, 채팅방 ID, 작성자 ID, 내용
+        return new ChatContentResponse(savedChat.getId(), chatRoomId, userId, MessageType.CHAT, chatRequest.content(), "", "", savedChat.getCreatedAt());
     }
 
     /**
@@ -88,7 +88,7 @@ public class ChatStompController {
         Chat savedChat = chatService.saveChat(chat);
 
         // 채팅방 ID, 작성자 ID, 내용
-        return new ChatContentResponse(chatRoomId, userId, MessageType.ENTER, "", chatRequest.fileName(), chatRequest.fileUrl(), savedChat.getCreatedAt());
+        return new ChatContentResponse(savedChat.getId(), chatRoomId, userId, MessageType.FILE, "", chatRequest.fileName(), chatRequest.fileUrl(), savedChat.getCreatedAt());
     }
 
     private MessageHeaders createHeaders(String sessionId) {

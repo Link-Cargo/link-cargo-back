@@ -11,6 +11,7 @@ public record ChatRoomResponse(
     String schedule, // 포워더 회사에게 문의한 스케줄
     String title, //채팅방 제목
     String latestContent, // 가장 최근 대화
+    Boolean isNew, // 내가 읽지 않은 새 대화 있는지 여부
     RoomStatus status
 ) {
 

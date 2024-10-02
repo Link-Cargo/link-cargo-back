@@ -70,6 +70,7 @@ public class ChatService {
         List<Chat> chats = chatRepository.findAllByChatRoomIdOrderByCreatedAtAsc(chatRoomId);
         List<ChatContentResponse> chatContentResponses = chats.stream().map(
             chat -> new ChatContentResponse(
+                chat.getId(),
                 chat.getChatRoom().getId(),
                 chat.getSender().getId(),
                 chat.getMessageType(),
@@ -119,8 +120,9 @@ public class ChatService {
                 targetUser.getJobTitle(), // 포워더의 직책
                 targetUser.getCompanyName(), // 포워더의 회사명
                 chatRoom.getSchedule(), // 화주가 문의한 스케줄 정보
-                chatRoom.getTitle(),
-                latestChatContent,
+                chatRoom.getTitle(), // 채팅방 제목
+                latestChatContent, // 가장 최근 대화 내역
+                checkIsNew(chatRoom.getId(), userId), // 가장 최근 메시지가 상대방이 보낸 것이면서 읽지 않은 경우 TRUE
                 chatRoom.getStatus()
             );
 
@@ -164,4 +166,43 @@ public class ChatService {
             .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
     }
 
+    /**
+     * 채팅방의 상대방이 보낸 메시지 모두 읽음 처리
+     * userId - 나의 ID
+     */
+    @Transactional
+    public void makeAllChatRead(Long chatRoomId, Long userId) {
+        List<Membership> memberships = memberShipRepository.findMembershipsByChatRoomIdAndExcludeUser(
+            chatRoomId, userId);
+        // 해당 채팅방의 상대방 조회
+        User appositeUser = memberships.get(0).getUser();
+        // 상대방이 보낸 모든 메시지 조회
+        List<Chat> chatsByAppositeUser = chatRepository.findAllByChatRoomIdAndSenderId(
+            chatRoomId, appositeUser.getId());
+        // 상대방이 보낸 모든 메시지 읽음 처리
+        chatsByAppositeUser.stream().forEach(chat -> chat.setIsRead(true));
+    }
+
+    /**
+     * 특정 채팅방의 가장 최근 메시지가 상대방이 보낸 것이면서, 읽지 않은 경우 확인
+     */
+    public Boolean checkIsNew(Long chatRoomId, Long myId) {
+        Optional<Chat> topChat = chatRepository.findTopByChatRoomIdOrderByIdDesc(chatRoomId);
+        return topChat
+            .filter(chat -> !chat.getSender().getId().equals(myId)) // 상대방이 보낸 메시지
+            .filter(chat -> !chat.getIsRead()) // 읽지 않은 경우
+            .isPresent(); // 조건을 모두 만족하면 true 반환
+    }
+
+    /**
+     * (현재 채팅방일때 프론트엔드가 호출) 상대방이 보낸 특정 메시지 읽음 처리
+     */
+    @Transactional
+    public void makeChatRead(Long chatRoomId, Long chatId, Long myId) {
+        Chat chat = chatRepository.findById(chatId).get();
+        // 내가 아니라, 상대방이 보낸 메시지인 경우 읽음 처리
+        if(!chat.getSender().getId().equals(myId)){
+            chat.setIsRead(true);
+        }
+    }
 }
