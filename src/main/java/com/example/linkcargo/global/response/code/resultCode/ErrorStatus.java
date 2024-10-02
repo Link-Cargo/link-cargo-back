@@ -85,7 +85,11 @@ public enum ErrorStatus implements BaseErrorCode {
     CHAT_FILE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "CHAT401","파일 업로드에 살패했습니다."),
 
     // ETC
-    EXTERNAL_API_ERROR(HttpStatus.BAD_REQUEST, "ETC401", "외부 API 호출 오류");
+    EXTERNAL_API_ERROR(HttpStatus.BAD_REQUEST, "ETC401", "외부 API 호출 오류"),
+
+    // Prediction
+    PREDICTION_NOT_FOUND(HttpStatus.NOT_FOUND, "PREDICTION401", "해당 년,월의 운임지수가 존재하지 않습니다.");
+
 
     private final HttpStatus httpStatus;
     private final String code;

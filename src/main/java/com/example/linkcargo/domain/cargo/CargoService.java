@@ -9,13 +9,18 @@ import com.example.linkcargo.domain.cargo.dto.response.CargoPageResponse;
 import com.example.linkcargo.domain.cargo.dto.response.CargoResponse;
 import com.example.linkcargo.domain.port.Port;
 import com.example.linkcargo.domain.port.PortRepository;
+import com.example.linkcargo.domain.prediction.Prediction;
+import com.example.linkcargo.domain.prediction.PredictionRepository;
 import com.example.linkcargo.domain.quotation.Quotation;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.CargoHandler;
+import com.example.linkcargo.global.response.exception.handler.GeneralHandler;
 import com.example.linkcargo.global.response.exception.handler.QuotationHandler;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +36,7 @@ public class CargoService {
 
     private final CargoRepository cargoRepository;
     private final PortRepository portRepository;
+    private final PredictionRepository predictionRepository;
 
     /**
      * 화물 여러 개 추가
@@ -121,9 +127,19 @@ public class CargoService {
             .map(CargoCostCalculator::convertToCargoInfo)
             .toList();
 
-        // todo
-        // 임시 운임 비용 -> 운임 비용 예측 AI API를 사용해 반환 예정
-        Integer freightCost = 10;
+        LocalDate currentDate = LocalDate.from(request.wishExportDate());
+        String currentYear = String.valueOf(currentDate.getYear());
+        String currentMonth = String.format("%02d", currentDate.getMonthValue());
+        Optional<Prediction> currentPrediction = predictionRepository.findByYearAndMonth(Integer.parseInt(currentYear), Integer.parseInt(currentMonth));
+        String freightCostIndex;
+        ;
+        if (currentPrediction.isPresent()) {
+            freightCostIndex = currentPrediction.get().getFreightCostIndex();
+        } else {
+            throw new GeneralHandler(ErrorStatus.PREDICTION_NOT_FOUND);
+        }
+
+        Integer freightCost = Integer.parseInt(freightCostIndex);
 
         return CargoCostCalculator.calculateTotalCost(cargoInfos, request.incoterms(), freightCost);
     }
