@@ -2,18 +2,23 @@ package com.example.linkcargo.domain.quotation;
 
 import com.example.linkcargo.domain.cargo.Cargo;
 import com.example.linkcargo.domain.cargo.CargoRepository;
+import com.example.linkcargo.domain.prediction.Prediction;
+import com.example.linkcargo.domain.prediction.PredictionRepository;
 import com.example.linkcargo.domain.schedule.Schedule;
 import com.example.linkcargo.domain.schedule.ScheduleRepository;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.CargoHandler;
+import com.example.linkcargo.global.response.exception.handler.GeneralHandler;
 import com.example.linkcargo.global.response.exception.handler.QuotationHandler;
 import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,6 +44,7 @@ public class QuotationCalculationService {
     private final QuotationRepository quotationRepository;
     private final CargoRepository cargoRepository;
     private final ScheduleRepository scheduleRepository;
+    private final PredictionRepository predictionRepository;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
@@ -325,9 +331,20 @@ public class QuotationCalculationService {
 
         Schedule schedule = scheduleRepository.findById(Long.valueOf(quotation.getFreight().getScheduleId()))
             .orElseThrow(() -> new ScheduleHandler(ErrorStatus.SCHEDULE_NOT_FOUND));
-        // todo
-        // 임시 운임 비용 -> 운임 비용 예측 AI API를 사용해 반환 예정
-        Integer freightCost = 10;
+
+        LocalDate currentDate = schedule.getETD().toLocalDate();
+        String currentYear = String.valueOf(currentDate.getYear());
+        String currentMonth = String.format("%02d", currentDate.getMonthValue());
+        Optional<Prediction> currentPrediction = predictionRepository.findByYearAndMonth(Integer.parseInt(currentYear), Integer.parseInt(currentMonth));
+        String freightCostIndex;
+            ;
+        if (currentPrediction.isPresent()) {
+            freightCostIndex = currentPrediction.get().getFreightCostIndex();
+        } else {
+            throw new GeneralHandler(ErrorStatus.PREDICTION_NOT_FOUND);
+        }
+
+        Integer freightCost = Integer.parseInt(freightCostIndex);
 
         BigDecimal totalCost = calculateTotalCost(quotation, freightCost);
 
