@@ -4,6 +4,7 @@ import com.example.linkcargo.domain.chat.dto.request.ChatRequest.MessageType;
 import java.time.LocalDateTime;
 
 public record ChatContentResponse(
+    Long chatId,
     Long chatRoomId,
     Long senderId,
     MessageType messageType,
