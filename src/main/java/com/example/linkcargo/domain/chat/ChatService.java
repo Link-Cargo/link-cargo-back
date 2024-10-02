@@ -190,7 +190,7 @@ public class ChatService {
         Optional<Chat> topChat = chatRepository.findTopByChatRoomIdOrderByIdDesc(chatRoomId);
         return topChat
             .filter(chat -> !chat.getSender().getId().equals(myId)) // 상대방이 보낸 메시지
-            .filter(chat -> !chat.getIsRead()) // 읽지 않은 경우
+            .filter(chat -> Boolean.FALSE.equals(chat.getIsRead())) // 읽지 않은 경우
             .isPresent(); // 조건을 모두 만족하면 true 반환
     }
 
