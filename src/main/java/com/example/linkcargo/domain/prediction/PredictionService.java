@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -74,13 +75,21 @@ public class PredictionService {
                     Double predictionValue = Double.valueOf(predictionNode.get(0).asText());
                     Integer predictionIndex = predictionValue.intValue();
 
-                    Prediction prediction = Prediction.builder()
-                        .freightCostIndex(String.valueOf(predictionIndex))
-                        .year(request.year())
-                        .month(request.month())
-                        .build();
+                    Optional<Prediction> existingPrediction = predictionRepository.findByYearAndMonth(request.year(), request.month());
+                    Prediction prediction;
 
-                    predictionRepository.save(prediction);
+                    if (existingPrediction.isPresent()) {
+                        prediction = existingPrediction.get();
+                        prediction.setFreightCostIndex(String.valueOf(predictionIndex));
+                    } else {
+                        prediction = Prediction.builder()
+                            .freightCostIndex(String.valueOf(predictionIndex))
+                            .year(request.year())
+                            .month(request.month())
+                            .build();
+                    }
+
+                    predictionRepository.saveAndFlush(prediction);
                 }
             }
         } catch (Exception e) {
