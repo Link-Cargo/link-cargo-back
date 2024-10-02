@@ -66,6 +66,7 @@ public class ChatStompController {
             .content(chatRequest.content())
             .fileName("")
             .fileUrl("")
+            .isRead(false)
             .build();
         Chat savedChat = chatService.saveChat(chat);
 
@@ -84,6 +85,7 @@ public class ChatStompController {
             .content("")
             .fileName(chatRequest.fileName())
             .fileUrl(chatRequest.fileUrl())
+            .isRead(false)
             .build();
         Chat savedChat = chatService.saveChat(chat);
 
