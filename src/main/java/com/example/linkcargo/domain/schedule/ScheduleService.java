@@ -13,6 +13,7 @@ import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.PortHandler;
 import com.example.linkcargo.global.response.exception.handler.ScheduleHandler;
 import com.example.linkcargo.global.response.exception.handler.UsersHandler;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -111,9 +112,12 @@ public class ScheduleService {
         }
     }
 
-    public ScheduleListResponse searchSchedules(Long exportPortId, Long importPortId, Double inputCBM, int page, int size) {
-        LocalDateTime now = LocalDateTime.now();
+    public ScheduleListResponse searchSchedules(Long exportPortId, Long importPortId, Double inputCBM, LocalDate searchDate, int page, int size) {
+        LocalDate startDate = searchDate.withDayOfMonth(1);
+        LocalDate endDate = searchDate.withDayOfMonth(searchDate.lengthOfMonth());
 
+        LocalDateTime startOfMonth = startDate.atStartOfDay();
+        LocalDateTime endOfMonth = endDate.atTime(23, 59, 59);
         Pageable pageable = PageRequest.of(page, size, Sort.by("ETD").ascending());
 
         Integer limitCBM = null;
@@ -124,8 +128,8 @@ public class ScheduleService {
             limitCBM = 48;
         }
 
-        Page<Schedule> schedulesPage = scheduleRepository.findByExportPortIdAndImportPortIdAndETDAfterAndLimitCBM(
-            exportPortId, importPortId, now, limitCBM, pageable
+        Page<Schedule> schedulesPage = scheduleRepository.findByExportPortIdAndImportPortIdAndETDBetweenAndLimitCBM(
+            exportPortId, importPortId,startOfMonth, endOfMonth,  limitCBM, pageable
         );
         List<String> imageUrls = imageService.selectRandomImages("vessel",schedulesPage.getSize());
 
