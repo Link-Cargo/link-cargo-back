@@ -327,34 +327,10 @@ public class DashboardService {
         Port importPort = portRepository.findById(importPortId)
             .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
 
-        List<Integer> congestionPercentList = List.of(12, 33, 52, 74, 91);
+        String status = "혼잡";
+        String description = "중국 국경절은 매년 10월 1일부터 7일까지로, 연휴가 끝난 10월 8일 이후부터 항구 운영이 재개됩니다. 이로 인해 연휴 후 혼잡도가 더욱 증가할 수 있습니다.";
 
-        Random random = new Random();
-
-        int randomIndex = random.nextInt(5);
-
-        Integer congestionPercent = congestionPercentList.get(randomIndex);
-
-        String status;
-        if (congestionPercent >= 0 && congestionPercent <= 20) {
-            status = "원활";
-        } else if (congestionPercent > 20 && congestionPercent <= 60) {
-            status = "보통";
-        } else {
-            status = "혼잡";
-        }
-
-        List<String> descriptionList = List.of(
-            "항구 운영이 매우 원활합니다. 선박의 입출항과 화물 처리가 신속하게 이루어지고 있습니다.",
-            "항구 상황이 비교적 양호합니다. 약간의 대기 시간이 있을 수 있으나 전반적으로 순조롭게 운영되고 있습니다.",
-            "항구가 보통 수준의 혼잡도를 보이고 있습니다. 일부 선박의 대기 시간이 증가할 수 있습니다.",
-            "항구가 다소 혼잡한 상태입니다. 선박의 대기 시간이 늘어나고 화물 처리 속도가 저하될 수 있습니다.",
-            "항구가 매우 혼잡한 상황입니다. 선박의 장기 대기와 화물 처리의 상당한 지연이 예상됩니다."
-        );
-
-        String description = descriptionList.get(randomIndex);
-
-        return DashboardPortCongestionResponse.fromEntity(congestionPercent, status, description);
+        return DashboardPortCongestionResponse.fromEntity(status, description);
     }
 
     public DashboardNewsResponse getInterestingNews(List<String> interests) {
