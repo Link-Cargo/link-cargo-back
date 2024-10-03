@@ -346,20 +346,22 @@ public class DashboardService {
 
         String content = String.join(" ", summaries);
 
-        String prompt = "다음 내용을 요약하는데 50자 이내로 내용이 끊기지 않게 요약해주세요.: " + content;
+//        String prompt = content + "다음 여러 영역의 기사 내용을 100자로 요약해주세요. 이때 제공되는 뉴스 요약본은 해운물류와 관련된 사용자가 "
+//            + "도움을 얻을 수 있는 정보들입니다. ";
+//        ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
+//            .model("gpt-3.5-turbo")
+//            .messages(List.of(
+//                new ChatMessage("system", "You are a helpful assistant."),
+//                new ChatMessage("user", prompt)
+//            ))
+//            .maxTokens(200)
+//            .temperature(0.7)
+//            .build();
+//
+//        String summary = openAiService.createChatCompletion(chatCompletionRequest)
+//            .getChoices().get(0).getMessage().getContent().trim();
 
-        ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
-            .model("gpt-3.5-turbo")
-            .messages(List.of(
-                new ChatMessage("system", "You are a helpful assistant."),
-                new ChatMessage("user", prompt)
-            ))
-            .maxTokens(200)
-            .temperature(0.7)
-            .build();
-
-        String summary = openAiService.createChatCompletion(chatCompletionRequest)
-            .getChoices().get(0).getMessage().getContent().trim();
+        String summary = "국경절과 성수기 말기의 영향으로 상하이항 혼잡도는 평소보다 50%증가할 가능성이 큽니다. 환율은 현재와 유사하게 1,300원1,400원 사이에서 변동할 것으로 예상되며, 운임은 성수기 말기와 국경절 연휴 영향으로 현재 수준과 비슷하거나 다소 상승할 가능성이 있습니다.";
 
         return DashboardNewsResponse.fromEntity(interests, summary);
 
