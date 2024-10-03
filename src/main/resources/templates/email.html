@@ -7,7 +7,12 @@
 </head>
 
 <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
-<div style="max-width: 600px; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); text-align: left; margin: 20px auto;">
+<div style="max-width: 600px; padding: 50px; background-color: white; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); text-align: left; margin: 20px auto; position: relative;">
+
+  <!-- Image (300px wide, auto height) -->
+  <div style="margin-bottom: 20px;">
+    <img src="https://github.com/Link-Cargo/link-cargo-back/blob/main/src/main/resources/templates/linkcargo_icon.jpg?raw=true" alt="LinkCargo Icon" style="width: 300px; height: auto; display: block;"/>
+  </div>
 
   <!-- Date -->
   <div>
@@ -22,9 +27,12 @@
     <p th:utext="${content}" style="font-size: 16px; color: #555; margin-bottom: 30px;">This is the content.</p>
   </div>
 
-  <!-- Button to the URL -->
-  <a th:href="@{${buttonUrl}}" th:text="${buttonTitle}" style="display: inline-block; padding: 10px 20px; background-color: #007aff; color: white; text-decoration: none; border-radius: 4px; font-size: 16px;">링카고 홈페이지</a>
+  <!-- Button to the URL (centered) -->
+  <div style="text-align: center; margin-top: 30px;">
+    <a th:href="@{${buttonUrl}}" th:text="${buttonTitle}" style="display: inline-block; padding: 10px 20px; background-color: #007aff; color: white; text-decoration: none; border-radius: 4px; font-size: 16px;">링카고 홈페이지</a>
+  </div>
 </div>
 </body>
+
 
 </html>
