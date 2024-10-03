@@ -45,6 +45,7 @@ import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -231,14 +232,17 @@ public class DashboardService {
         List<Prediction> predictions = predictionRepository.findPredictionsWithinPeriod(
             currentYear, currentMonth, endYear, endMonth);
 
-        Map<Pair<String,String>,Integer> predictionList = predictions.stream()
-            .collect(Collectors.toMap(
-                prediction -> Pair.of(
+        Map<Pair<String,String>, Integer> predictionList = new LinkedHashMap<>();
+        for (Prediction prediction : predictions) {
+            predictionList.put(
+                Pair.of(
                     String.valueOf(prediction.getYear()),
-                    String.valueOf(prediction.getMonth())
+                    String.format("%02d", prediction.getMonth())
                 ),
-                prediction -> Integer.parseInt(prediction.getFreightCostIndex()),
-                (v1, v2) -> v1));
+                Integer.parseInt(prediction.getFreightCostIndex())
+            );
+        }
+
 
         Port exportPort = portRepository.findById(exportPortId)
             .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
