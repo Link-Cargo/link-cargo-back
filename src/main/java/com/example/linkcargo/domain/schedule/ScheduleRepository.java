@@ -27,4 +27,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
         Integer limitCBM,
         Pageable pageable
     );
+
+
+        Page<Schedule> findByETDAfter(LocalDateTime dateTime, Pageable pageable);
 }

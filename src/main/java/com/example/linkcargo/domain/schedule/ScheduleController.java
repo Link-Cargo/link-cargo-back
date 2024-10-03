@@ -68,9 +68,10 @@ public class ScheduleController {
     public ApiResponse<ScheduleListResponse> findSchedules(
         @AuthenticationPrincipal CustomUserDetail userDetail,
         @Parameter(description = "페이지 번호") @RequestParam(defaultValue = "0") int page,
-        @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size
-    ) {
-        ScheduleListResponse scheduleListResponse = scheduleService.findSchedules(page, size);
+        @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size,
+        @Parameter(description = "ETD") @RequestParam LocalDate ETD
+        ) {
+        ScheduleListResponse scheduleListResponse = scheduleService.findSchedules(page, size, ETD);
         return ApiResponse.onSuccess(scheduleListResponse);
     }
 

@@ -72,8 +72,10 @@ public class ScheduleService {
         return ScheduleInfoResponse.fromEntity(schedule,"");
     }
 
-    public ScheduleListResponse findSchedules(int page, int size) {
-        Page<Schedule> schedulePage = scheduleRepository.findAll(PageRequest.of(page,size));
+    public ScheduleListResponse findSchedules(int page, int size, LocalDate ETD) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("ETD").ascending());
+        Page<Schedule> schedulePage = scheduleRepository.findByETDAfter(ETD.atStartOfDay(), pageable);
+
         List<String> imageUrls = imageService.selectRandomImages("vessel",schedulePage.getSize());
         return ScheduleListResponse.fromEntity(schedulePage,imageUrls);
     }
