@@ -16,7 +16,7 @@ public record DashboardRecommendationResponse(
 ) {
     @Builder
     public record ScheduleInfo(
-        String carrier,
+        String vesselName,
         LocalDate ETD,
         LocalDate ETA,
         Integer transitTime,
@@ -26,7 +26,7 @@ public record DashboardRecommendationResponse(
     ) {
        public static ScheduleInfo fromEntity(Schedule schedule){
            return ScheduleInfo.builder()
-               .carrier(schedule.getCarrier())
+               .vesselName(schedule.getVessel())
                .ETD(LocalDate.from(schedule.getETD()))
                .ETA(LocalDate.from(schedule.getETA()))
                .transitTime(schedule.getTransitTime())
