@@ -344,7 +344,7 @@ public class QuotationCalculationService {
             throw new GeneralHandler(ErrorStatus.PREDICTION_NOT_FOUND);
         }
 
-        Integer freightCost = Integer.parseInt(freightCostIndex);
+        Integer freightCost = Integer.parseInt(freightCostIndex) / 10 - 5;
 
         BigDecimal totalCost = calculateTotalCost(quotation, freightCost);
 
