@@ -125,7 +125,7 @@ public class RefreshTokenService {
 
         Date expirationDate = jwtProvider.getExpiration(tokenEntity.getToken());
         if (expirationDate.before(new Date())) {
-            throw new JwtHandler(ErrorStatus.REFRESH_TOKEN_EXPIRED);
+            throw new JwtHandler(ErrorStatus.EXPIRED_REFRESH_TOKEN);
         }
     }
 
