@@ -97,8 +97,8 @@ public class RefreshTokenService {
             throw new JwtHandler(ErrorStatus.INVALID_REFRESH_TOKEN);
         }
 
-        Long userId = jwtProvider.getId(refreshToken);
-        String email = jwtProvider.getEmail(refreshToken);
+        Long userId = jwtProvider.getIdFromRefresh(refreshToken);
+        String email = jwtProvider.getEmailFromRefresh(refreshToken);
         validate(userId, refreshToken); // 리프레시 토큰 유효성 검사
 
         String accessToken = jwtProvider.generateAccessToken(userId, email);

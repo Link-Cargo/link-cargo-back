@@ -40,7 +40,7 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
             if (authorization != null && !authorization.isEmpty()) {
                 String jwt = authorization.get(0).substring(7);
                 // JWT 검증
-                Long userId = jwtProvider.getId(jwt);
+                Long userId = jwtProvider.getIdFromAccess(jwt);
                 // 사용자 정보 조회
                 User user = userRepository.findById(userId).orElseThrow(() -> new UsersHandler(
                     ErrorStatus.USER_NOT_FOUND));
