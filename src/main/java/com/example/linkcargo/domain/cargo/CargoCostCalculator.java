@@ -17,7 +17,6 @@ public class CargoCostCalculator {
 
         QuotationDomesticExpense domesticExpense = calculateDomesticExpense(totalCBM);
         BigDecimal incotermsFOB = calculateIncotermsFOB(totalCargoValue, domesticExpense, totalExportQuantity);
-        freightCost = freightCost / 10 - 5;
         System.out.println(freightCost);
 
         QuotationOverseaExpense overseaExpense = calculateOverseaExpense(
