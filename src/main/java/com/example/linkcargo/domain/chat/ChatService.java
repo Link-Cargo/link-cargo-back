@@ -44,7 +44,8 @@ public class ChatService {
         // 채팅방이 존재하는 경우
         if (chatRoom.isPresent()) {
             // 해당 채팅방의 스케줄 업데이트(동일할 수도 있고 다른 스케줄일 수도 있음)
-            chatRoom.get().setSchedule(chatRoomIdRequest.schedule());
+            // TODO 나중에 주석 제거해야 함
+//            chatRoom.get().setSchedule(chatRoomIdRequest.schedule());
             return chatRoom.get(); // 채팅방 반환
         }
 
