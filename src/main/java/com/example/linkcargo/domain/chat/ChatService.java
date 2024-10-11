@@ -14,6 +14,7 @@ import com.example.linkcargo.domain.user.User;
 import com.example.linkcargo.domain.user.UserRepository;
 import com.example.linkcargo.global.response.code.resultCode.ErrorStatus;
 import com.example.linkcargo.global.response.exception.handler.UsersHandler;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +53,7 @@ public class ChatService {
         newChatRoom.setTitle("Chat Room between " + userId + " and " + chatRoomIdRequest.targetUserId()); // 제목 설정
         newChatRoom.setSchedule(chatRoomIdRequest.schedule()); // 화주가 문의한 스케줄 정보 저장 -> 해당 채팅방 입장 시 보이게됨
         newChatRoom.setStatus(RoomStatus.ENABLED); // 기본 상태 설정
+        newChatRoom.setMessageUpdatedAt(LocalDateTime.now()); // 가장 최근 메시지 도착 시간을 현재 시간으로 설정
         ChatRoom savedChatRoom = chatRoomRepository.save(newChatRoom);
         if (!isUserInChatRoom(userId, savedChatRoom.getId())) {
             addUserToChatRoom(userId, savedChatRoom.getId());
@@ -87,7 +89,7 @@ public class ChatService {
      * 유저의 모든 채팅방 조회
      */
     public List<ChatRoomResponse> getChatRooms(Long userId) {
-        List<ChatRoom> chatRooms = chatRoomRepository.findAllByUserId(userId);
+        List<ChatRoom> chatRooms = chatRoomRepository.findAllByUserIdOrderByMessageUpdatedAtDesc(userId);
 
         List<ChatRoomResponse> chatRoomResponses = new ArrayList<>();
         for (ChatRoom chatRoom : chatRooms) {
@@ -204,5 +206,14 @@ public class ChatService {
         if(!chat.getSender().getId().equals(myId)){
             chat.setIsRead(true);
         }
+    }
+
+    /**
+     * 채팅방 최근 메시지 시간 업데이트
+     */
+    @Transactional
+    public void updateChatRoomMessageUpdatedTime(Long chatRoomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).get();
+        chatRoom.updateMessageUpdatedAt();
     }
 }

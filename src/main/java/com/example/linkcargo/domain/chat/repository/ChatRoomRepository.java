@@ -21,10 +21,20 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
         @Param("targetUserId") Long targetUserId);
 
     /**
-     * 특정 유저가 속한 채팅방들을 찾는 쿼리
+     * 특정 유저가 속한 채팅방들을 찾는 쿼리 - 인덱스 오름차순
      */
     @Query("SELECT cr FROM ChatRoom cr " +
            "JOIN cr.memberships m " +
            "WHERE m.user.id = :userId")
     List<ChatRoom> findAllByUserId(@Param("userId") Long userId);
+
+    /**
+     * 특정 유저가 속한 채팅방들을 찾는 쿼리 - 가장 최근 메시지 도착 시간 내림차순
+     */
+    @Query("SELECT cr FROM ChatRoom cr " +
+        "JOIN cr.memberships m " +
+        "WHERE m.user.id = :userId " +
+        "ORDER BY cr.messageUpdatedAt DESC")
+    List<ChatRoom> findAllByUserIdOrderByMessageUpdatedAtDesc(@Param("userId") Long userId);
+
 }
