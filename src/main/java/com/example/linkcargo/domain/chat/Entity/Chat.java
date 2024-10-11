@@ -52,5 +52,6 @@ public class Chat extends JpaBaseEntity {
 
     private String fileUrl;
 
+    @Builder.Default
     private Boolean isRead = false; // 상대방 읽음 여부
 }

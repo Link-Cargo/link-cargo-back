@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -38,6 +39,9 @@ public class ChatRoom extends JpaBaseEntity {
     @Column(nullable = false)
     private String schedule; // 포워더 회사에게 문의한 스케줄
 
+    @Column
+    private LocalDateTime messageUpdatedAt; // 가장 최근 메시지 도착 시간
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RoomStatus status;
@@ -49,5 +53,10 @@ public class ChatRoom extends JpaBaseEntity {
     public ChatRoom(String title, RoomStatus roomStatus) {
         this.title = title;
         this.status = roomStatus;
+    }
+
+    // 가장 최근 메시지 도착 시간 업데이트
+    public void updateMessageUpdatedAt() {
+        this.messageUpdatedAt = LocalDateTime.now();
     }
 }
