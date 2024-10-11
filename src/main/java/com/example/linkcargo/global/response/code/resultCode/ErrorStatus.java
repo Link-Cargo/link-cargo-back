@@ -22,16 +22,20 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_PROFILE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,"USER404",  "프로필 업로드에 실패했습니다."),
 
     // JWT
-    INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH401", "유효하지 않은 ACCESS 토큰입니다."),
-    EXPIRED_MEMBER_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH402", "만료된 JWT 토큰입니다."),
-    UNSUPPORTED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH403", "지원되지 않는 JWT 토큰입니다."),
-    ILLEGAL_ARGUMENT_TOKEN(HttpStatus.BAD_REQUEST, "AUTH404", "잘못된 JWT 토큰입니다."),
-    JWT_NO_USER_INFO(HttpStatus.UNAUTHORIZED, "AUTH405", "토큰에 사용자 정보가 없습니다."),
-    JWT_NO_AUTH_INFO(HttpStatus.UNAUTHORIZED, "AUTH406", "권한 정보가 없는 토큰입니다."),
+    INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH401", "서명이 잘못된 엑세스 토큰입니다."),
+    MALFORMED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH402", "형식이 잘못된 엑세스 토큰입니다."),
+    EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH403", "만료된 엑세스 토큰입니다."),
+    UNSUPPORTED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH404", "서버가 처리할 수 없는 형식의 엑세스 토큰입니다"),
+    ILLEGAL_ARGUMENT_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH405", "잘못된 값이 포함된 엑세스 토큰입니다."),
+    PREMATURE_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH406", "아직 사용이 가능하지 않은 엑세스 토큰입니다."),
 
-    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH408", "유효하지 않은 REFRESH 토큰입니다."),
-    REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "AUTH409", "해당 REFRESH 토큰이 존재하지 않습니다."),
-    REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH410", "REFRESH 토큰이 만료되었습니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH407", "서명이 잘못된 리프레시 토큰입니다."),
+    MALFORMED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH408", "형식이 잘못된 리프레시 토큰입니다."),
+    EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH409", "만료된 리프레시 토큰입니다."),
+    UNSUPPORTED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH4010", "서버가 처리할 수 없는 형식의 리프레시 토큰입니다"),
+    ILLEGAL_ARGUMENT_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH4011", "잘못된 값이 포함된 리프레시 토큰입니다."),
+    PREMATURE_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH4012", "아직 사용이 가능하지 않은 리프레시 토큰입니다."),
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH4013", "DB의 리프레시 토큰과 일치하지 않는 리프레시 토큰입니다."),
 
     // Cargo
     INVALID_CARGO_INPUT(HttpStatus.BAD_REQUEST, "CARGO401", "유효하지 않은 CARGO 입력 정보입니다."),

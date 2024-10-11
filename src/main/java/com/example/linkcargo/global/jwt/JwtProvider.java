@@ -29,8 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class JwtProvider {
 
     private final CustomUserDetailsService customUserDetailsService;
-    //    private long ACCESS_EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 1 day
-    private long ACCESS_EXPIRATION_TIME = 1000 * 60 * 3; // 3 minutes
+    private long ACCESS_EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 1 day
     private long REFRESH_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7; //  1 week
     private Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
@@ -77,11 +76,11 @@ public class JwtProvider {
         } catch (MalformedJwtException e) {
             throw new JwtHandler(ErrorStatus.INVALID_ACCESS_TOKEN);
         } catch (ExpiredJwtException e) {
-            throw new JwtHandler(ErrorStatus.EXPIRED_MEMBER_TOKEN);
+            throw new JwtHandler(ErrorStatus.EXPIRED_ACCESS_TOKEN);
         } catch (UnsupportedJwtException e) {
-            throw new JwtHandler(ErrorStatus.UNSUPPORTED_TOKEN);
+            throw new JwtHandler(ErrorStatus.UNSUPPORTED_ACCESS_TOKEN);
         } catch (IllegalArgumentException e) {
-            throw new JwtHandler(ErrorStatus.ILLEGAL_ARGUMENT_TOKEN);
+            throw new JwtHandler(ErrorStatus.ILLEGAL_ARGUMENT_ACCESS_TOKEN);
         } catch (PrematureJwtException e) {
             throw new JwtHandler(ErrorStatus.INVALID_ACCESS_TOKEN);
         }
@@ -100,13 +99,13 @@ public class JwtProvider {
         } catch (SignatureException e) {
             throw new JwtHandler(ErrorStatus.INVALID_REFRESH_TOKEN);
         } catch (MalformedJwtException e) {
-            throw new JwtHandler(ErrorStatus.INVALID_REFRESH_TOKEN);
+            throw new JwtHandler(ErrorStatus.MALFORMED_REFRESH_TOKEN);
         } catch (ExpiredJwtException e) {
-            throw new JwtHandler(ErrorStatus.EXPIRED_MEMBER_TOKEN);
+            throw new JwtHandler(ErrorStatus.EXPIRED_REFRESH_TOKEN);
         } catch (UnsupportedJwtException e) {
-            throw new JwtHandler(ErrorStatus.UNSUPPORTED_TOKEN);
+            throw new JwtHandler(ErrorStatus.UNSUPPORTED_REFRESH_TOKEN);
         } catch (IllegalArgumentException e) {
-            throw new JwtHandler(ErrorStatus.ILLEGAL_ARGUMENT_TOKEN);
+            throw new JwtHandler(ErrorStatus.ILLEGAL_ARGUMENT_REFRESH_TOKEN);
         } catch (PrematureJwtException e) {
             throw new JwtHandler(ErrorStatus.INVALID_REFRESH_TOKEN);
         }
