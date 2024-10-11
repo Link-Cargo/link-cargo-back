@@ -11,13 +11,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     boolean existsByCarrierAndETDAndETAAndTransportType(String carrier, LocalDateTime etd, LocalDateTime eta, TransportType transportType);
-    Page<Schedule> findByExportPortIdAndImportPortIdAndETDAfterAndLimitCBM(
-        Long exportPortId,
-        Long importPortId,
-        LocalDateTime etdAfter,
-        Integer limitCBM,
-        Pageable pageable
-    );
 
     @Query("SELECT s FROM Schedule s WHERE " +
         "(FUNCTION('YEAR', s.ETD) = :year AND FUNCTION('MONTH', s.ETD) = :month) OR " +
@@ -25,4 +18,16 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findSchedulesByYearMonth(@Param("year") int year, @Param("month") int month);
 
     List<Schedule> findSchedulesByForwarder(User forwarder);
+
+    Page<Schedule> findByExportPortIdAndImportPortIdAndETDBetweenAndLimitCBM(
+        Long exportPortId,
+        Long importPortId,
+        LocalDateTime startOfMonth,
+        LocalDateTime endOfMonth,
+        Integer limitCBM,
+        Pageable pageable
+    );
+
+
+        Page<Schedule> findByETDAfter(LocalDateTime dateTime, Pageable pageable);
 }

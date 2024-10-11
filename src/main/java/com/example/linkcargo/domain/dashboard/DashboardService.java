@@ -45,9 +45,11 @@ import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
@@ -129,9 +131,10 @@ public class DashboardService {
             .orElseThrow(()-> new UsersHandler(ErrorStatus.USER_NOT_FOUND));
 
         BigDecimal totalCost = (lowestCostQuotation.getCost().getTotalCost()
-            .setScale(1, RoundingMode.HALF_UP));
+            .setScale(1, RoundingMode.HALF_UP)).multiply(BigDecimal.valueOf(1320));
 
-        return DashboardQuotationResponse.fromEntity(user, quotationInfoResponse, totalCost);
+        String particulars = lowestCostQuotation.getParticulars();
+        return DashboardQuotationResponse.fromEntity(user, quotationInfoResponse, totalCost, particulars);
     }
 
     public DashboardQuotationCompareResponse getQuotationsForComparing(String rawQuotationId) {
@@ -152,10 +155,12 @@ public class DashboardService {
                     .orElseThrow(() -> new UsersHandler(ErrorStatus.USER_NOT_FOUND));
 
                 BigDecimal totalCost = quotation.getCost().getTotalCost()
-                    .setScale(1, RoundingMode.HALF_UP);
+                    .setScale(1, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(1320));
+
+                String particulars = quotation.getParticulars();
 
                 return DashboardQuotationResponse.fromEntity(user, quotationInfoResponse,
-                    totalCost);
+                    totalCost, particulars);
 
             })
             .toList();
@@ -227,14 +232,17 @@ public class DashboardService {
         List<Prediction> predictions = predictionRepository.findPredictionsWithinPeriod(
             currentYear, currentMonth, endYear, endMonth);
 
-        Map<Pair<String,String>,Integer> predictionList = predictions.stream()
-            .collect(Collectors.toMap(
-                prediction -> Pair.of(
+        Map<Pair<String,String>, Integer> predictionList = new LinkedHashMap<>();
+        for (Prediction prediction : predictions) {
+            predictionList.put(
+                Pair.of(
                     String.valueOf(prediction.getYear()),
-                    String.valueOf(prediction.getMonth())
+                    String.format("%02d", prediction.getMonth())
                 ),
-                prediction -> Integer.parseInt(prediction.getFreightCostIndex()),
-                (v1, v2) -> v1));
+                Integer.parseInt(prediction.getFreightCostIndex())
+            );
+        }
+
 
         Port exportPort = portRepository.findById(exportPortId)
             .orElseThrow(() -> new PortHandler(ErrorStatus.EXPORT_PORT_NOT_FOUND));
@@ -301,7 +309,7 @@ public class DashboardService {
                         new ChatMessage("system", "You are a helpful assistant."),
                         new ChatMessage("user", prompt)
                     ))
-                    .maxTokens(100)
+                    .maxTokens(200)
                     .temperature(0.7)
                     .build();
 
@@ -323,26 +331,10 @@ public class DashboardService {
         Port importPort = portRepository.findById(importPortId)
             .orElseThrow(() -> new PortHandler(ErrorStatus.IMPORT_PORT_NOT_FOUND));
 
-        // todo
-        // 입국항 이름을 사용하여 혼잡도 조회 API 사용
+        String status = "혼잡";
+        String description = "중국 국경절은 매년 10월 1일부터 7일까지로, 연휴가 끝난 10월 8일 이후부터 항구 운영이 재개됩니다. 이로 인해 연휴 후 혼잡도가 더욱 증가할 수 있습니다.";
 
-        // 임시
-        Integer congestionPercent = 33;
-
-        String status = null;
-
-        if (congestionPercent >= 0 && congestionPercent <= 20) {
-            status = "원활";
-        } else if (congestionPercent > 20 && congestionPercent <= 60) {
-            status = "보통";
-        } else if (congestionPercent > 60 && congestionPercent <= 100) {
-            status = "혼잡";
-        }
-
-        // 임시
-        String description = "항구에 머물고 있는 컨테이너선의 비율이 큽니다. 선박이 대기하는 시간이 길어지고 하역 및 적재 작업이 지연될 수 있습니다.";
-
-        return DashboardPortCongestionResponse.fromEntity(congestionPercent, status, description);
+        return DashboardPortCongestionResponse.fromEntity(status, description);
     }
 
     public DashboardNewsResponse getInterestingNews(List<String> interests) {
@@ -354,27 +346,35 @@ public class DashboardService {
 
         String content = String.join(" ", summaries);
 
-        String prompt = "다음 내용을 요약하는데 50자 이내로 해운물류 업계와 연관되게 내용이 끊기지 않게 요약해주세요.: " + content;
+//        String prompt = content + "다음 여러 영역의 기사 내용을 100자로 요약해주세요. 이때 제공되는 뉴스 요약본은 해운물류와 관련된 사용자가 "
+//            + "도움을 얻을 수 있는 정보들입니다. ";
+//        ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
+//            .model("gpt-3.5-turbo")
+//            .messages(List.of(
+//                new ChatMessage("system", "You are a helpful assistant."),
+//                new ChatMessage("user", prompt)
+//            ))
+//            .maxTokens(200)
+//            .temperature(0.7)
+//            .build();
+//
+//        String summary = openAiService.createChatCompletion(chatCompletionRequest)
+//            .getChoices().get(0).getMessage().getContent().trim();
 
-        ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
-            .model("gpt-3.5-turbo")  // gpt-4 모델 사용
-            .messages(List.of(
-                new ChatMessage("system", "You are a helpful assistant."),
-                new ChatMessage("user", prompt)
-            ))
-            .maxTokens(200)
-            .temperature(0.7)
-            .build();
-
-        String summary = openAiService.createChatCompletion(chatCompletionRequest)
-            .getChoices().get(0).getMessage().getContent().trim();
+        String summary = "국경절과 성수기 말기의 영향으로 상하이항 혼잡도는 평소보다 50%증가할 가능성이 큽니다. 환율은 현재와 유사하게 1,300원1,400원 사이에서 변동할 것으로 예상되며, 운임은 성수기 말기와 국경절 연휴 영향으로 현재 수준과 비슷하거나 다소 상승할 가능성이 있습니다.";
 
         return DashboardNewsResponse.fromEntity(interests, summary);
 
     }
 
     public DashboardRecommendationResponse getRecommendationInfoByCost(String rawQuotationId) {
-        LocalDate today = LocalDate.now();
+        Quotation rawQuotation = quotationRepository.findQuotationById(rawQuotationId)
+            .orElseThrow(()->new QuotationHandler(ErrorStatus.QUOTATION_NOT_FOUND));
+
+        Cargo cargo = cargoRepository.findById(rawQuotation.getCost().getCargoIds().get(0))
+            .orElseThrow(()-> new QuotationHandler(ErrorStatus.CARGO_NOT_FOUND));
+
+        LocalDate today = LocalDate.from(cargo.getWishExportDate());
 
         int currentYear = today.getYear();
         int currentMonth = today.getMonthValue();

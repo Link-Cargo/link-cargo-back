@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -60,16 +61,17 @@ public class ScheduleController {
     }
 
     @Operation(summary = "선박 스케줄 리스트 조회 ", description = "모든 선박 스케줄을 조회 합니다. ScheduleListResponse 사용")
-    @GetMapping("")
+    @GetMapping("/list")
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
     public ApiResponse<ScheduleListResponse> findSchedules(
         @AuthenticationPrincipal CustomUserDetail userDetail,
         @Parameter(description = "페이지 번호") @RequestParam(defaultValue = "0") int page,
-        @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size
-    ) {
-        ScheduleListResponse scheduleListResponse = scheduleService.findSchedules(page, size);
+        @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size,
+        @Parameter(description = "ETD") @RequestParam LocalDate ETD
+        ) {
+        ScheduleListResponse scheduleListResponse = scheduleService.findSchedules(page, size, ETD);
         return ApiResponse.onSuccess(scheduleListResponse);
     }
 
@@ -114,10 +116,11 @@ public class ScheduleController {
             @Parameter(description = "수출항 ID") @RequestParam Long exportPortId,
             @Parameter(description = "수입항 ID") @RequestParam Long importPortId,
             @Parameter(description = "화주가 입력한 화물의 CBM") @RequestParam Double inputCBM,
+            @Parameter(description = "스케줄 날짜") @RequestParam LocalDate searchDate,
             @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size
     ) {
-        ScheduleListResponse schedules = scheduleService.searchSchedules(exportPortId, importPortId, inputCBM, page, size);
+        ScheduleListResponse schedules = scheduleService.searchSchedules(exportPortId, importPortId, inputCBM, searchDate, page, size);
         return ApiResponse.onSuccess(schedules);
     }
 

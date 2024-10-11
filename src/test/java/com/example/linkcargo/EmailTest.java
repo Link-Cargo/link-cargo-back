@@ -17,7 +17,6 @@ public class EmailTest {
 //    @Description("EMAIL SEND TEST")
 //    public void emailSendTest() {
 //        String content = """
-//            (광고) 김동현 화주님! 올해 수출계획은 어떻게 되시나요?
 //            작년 8월에 베트남으로 화장품을 수출하셨네요! 올해 3분기 최저 운임지수를 확인해보세요.
 //
 //            베트남 북부지역 주요항만 3분기 최저 운임 시기 예상 시기 - 9월 초
@@ -36,7 +35,7 @@ public class EmailTest {
 //                "(광고) 김동현 화주님! 올해 수출계획은 어떻게 되시나요?",
 //                contentWithLineBreaks,
 //                "화물 정보 입력하러 가기",
-//                "http://www.link-cargo.com"
+//                "http://www.link-cargo.com/freight-quote"
 //        );
 //    }
 
