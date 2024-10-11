@@ -41,6 +41,9 @@ public class ChatStompController {
         if (chatRequest.messageType().equals(ChatRequest.MessageType.CHAT)) {
             log.info("CHAT message, chatRequest: {}", chatRequest);
             ChatContentResponse chatContentResponseResponse = handleChatMessage(chatRequest, chatRoomId, userId);
+            // 채팅방 최근 메시지 시간 업데이트
+            chatService.updateChatRoomMessageUpdatedTime(chatRoomId);
+            // 구독자들에게 메시지 송신
             messagingTemplate.convertAndSend("/sub/chatroom/" + chatRoomId,
                 chatContentResponseResponse);
         }
@@ -49,6 +52,9 @@ public class ChatStompController {
         if (chatRequest.messageType().equals(ChatRequest.MessageType.FILE)) {
             log.info("FILE message, chatRequest: {}", chatRequest);
             ChatContentResponse chatContentResponse = handleFileMessage(chatRequest, chatRoomId, userId);
+            // 채팅방 최근 메시지 시간 업데이트
+            chatService.updateChatRoomMessageUpdatedTime(chatRoomId);
+            // 구독자들에게 메시지 송신
             messagingTemplate.convertAndSend("/sub/chatroom/" + chatRoomId,
                 chatContentResponse);
         }
