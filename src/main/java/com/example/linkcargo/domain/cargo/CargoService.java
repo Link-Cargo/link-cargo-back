@@ -139,7 +139,8 @@ public class CargoService {
             throw new GeneralHandler(ErrorStatus.PREDICTION_NOT_FOUND);
         }
 
-        Integer freightCost = Integer.parseInt(freightCostIndex);
+        Integer freightCost = Integer.parseInt(freightCostIndex) / 10 - 5;
+        System.out.println(freightCost);
 
         return CargoCostCalculator.calculateTotalCost(cargoInfos, request.incoterms(), freightCost);
     }
